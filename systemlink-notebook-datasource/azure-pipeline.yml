@@ -1,6 +1,9 @@
+# pool:
+#   name: DevCentral-Skyline
+#   demands: npm
+
 pool:
-  name: DevCentral-Skyline
-  demands: npm
+  vmImage: 'ubuntu-latest'
 
 trigger:
   - master
