@@ -1,0 +1,18 @@
+pool:
+  name: DevCentral-Skyline
+  demands: npm
+
+trigger:
+  - master
+
+# Build & test
+
+steps:
+- script: npm ci
+  displayName: Install deps (npm ci)
+
+- script: npm run build
+  displayName: Build plugin
+
+- script: npm run test
+  displayName: Test plugin
