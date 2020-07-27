@@ -2,8 +2,8 @@
 #   name: DevCentral-Skyline
 #   demands: npm
 
-pool:
-  vmImage: 'ubuntu-latest'
+# pool:
+#   vmImage: 'ubuntu-latest'
 
 trigger:
   - master
