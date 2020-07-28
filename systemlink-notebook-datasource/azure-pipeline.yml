@@ -7,6 +7,9 @@
 
 trigger:
   - master
+  paths:
+    include:
+      - 'systemlink-notebook-datasource/*'
 
 # Build & test
 
