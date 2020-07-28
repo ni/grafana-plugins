@@ -6,10 +6,10 @@
 #   vmImage: 'ubuntu-latest'
 
 trigger:
-  - master
+  branches:
+    include: master
   paths:
-    include:
-      - 'systemlink-notebook-datasource/*'
+    include: systemlink-notebook-datasource/*
 
 # Build & test
 
