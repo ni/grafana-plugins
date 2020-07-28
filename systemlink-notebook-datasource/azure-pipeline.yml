@@ -23,3 +23,10 @@ steps:
 - script: npm run build
   displayName: Build and test plugin
   workingDirectory: $(working_dir)
+
+- task: PublishTestResults@2
+  displayName: 'Publish JUnit Test Results'
+  inputs:
+    testResultsFormat: JUnit
+    testResultsFiles: '$(working_dir)/coverage/junit.xml'
+    failTaskOnFailedTests: true
