@@ -1,9 +1,6 @@
-# pool:
-#   name: DevCentral-Skyline
-#   demands: npm
-
-# pool:
-#   vmImage: 'ubuntu-latest'
+pool:
+  name: DevCentral-Skyline
+  demands: npm
 
 trigger:
   branches:
