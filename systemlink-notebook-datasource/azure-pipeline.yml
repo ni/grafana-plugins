@@ -21,9 +21,5 @@ steps:
   workingDirectory: $(working_dir)
 
 - script: npm run build
-  displayName: Lint and build plugin
-  workingDirectory: $(working_dir)
-
-- script: npm run test
-  displayName: Test plugin
+  displayName: Build and test plugin
   workingDirectory: $(working_dir)
