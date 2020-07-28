@@ -18,7 +18,7 @@ trigger:
 steps:
 - script: npm ci
   displayName: Install deps (npm ci)
-  workingDirectory: $(working-dir)
+  workingDirectory: $(working_dir)
 
 - script: npm run build
   displayName: Lint and build plugin
