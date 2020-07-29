@@ -6,8 +6,7 @@ import {
   DataSourceApi,
   DataSourceInstanceSettings,
   MutableDataFrame,
-  ArrayDataFrame,
-  FieldType
+  FieldType,
 } from '@grafana/data';
 
 import { getBackendSrv } from '@grafana/runtime';
@@ -25,39 +24,40 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
   async query(options: DataQueryRequest<MyQuery>): Promise<DataQueryResponse> {
     // const aFrame = new ArrayDataFrame([{ cat: 1, dog: 2, bunny: 3 }]);
     // return { data: [aFrame] };
-    const { range } = options;
-    const from = range!.from.valueOf();
-    const to = range!.to.valueOf();
+
+    //const { range } = options;
+    //const from = range!.from.valueOf();
+    //const to = range!.to.valueOf();
     // Assume one target for now
     const target = options.targets[0];
     const query = defaults(target, defaultQuery);
 
     if (!query.path) {
-      return { data: [] }
+      return { data: [] };
     }
 
     const execution = await this.executeNotebook(query.path, query.parameters);
     if (execution.status === 'SUCCEEDED') {
       // TODO: user picks output
       const result = execution.result.result[0];
-      const config = result.config.graph;
+      //const config = result.config.graph;
       // const xField = config.axis_labels[0] || 'x',
       //   yField = config.axis_labels[1] || 'y';
 
       const frame = new MutableDataFrame({
         refId: query.refId,
-        fields: []
+        fields: [],
       });
 
       for (const plot of result.data) {
         if (plot.format === 'XY') {
           if (typeof plot.x[0] === 'string') {
-            frame.addField({ name: '', values: plot.x, type: FieldType.time})
+            frame.addField({ name: '', values: plot.x, type: FieldType.time });
           } else {
-            frame.addField({ name: '', values: plot.x })
+            frame.addField({ name: '', values: plot.x });
           }
           //const color = { fixedColor: 'rgb(255, 0, 0)', mode: FieldColorMode.Fixed };
-          frame.addField({ name: '', values: plot.y, })
+          frame.addField({ name: '', values: plot.y });
         }
       }
 

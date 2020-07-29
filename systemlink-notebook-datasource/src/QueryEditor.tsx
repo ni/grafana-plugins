@@ -1,15 +1,15 @@
-import defaults from 'lodash/defaults';
+//import defaults from 'lodash/defaults';
 
 import React, { PureComponent } from 'react';
 import { Field, AsyncSelect, Input } from '@grafana/ui';
 import { QueryEditorProps, SelectableValue } from '@grafana/data';
 import { DataSource } from './DataSource';
-import { defaultQuery, MyDataSourceOptions, MyQuery } from './types';
+import { MyDataSourceOptions, MyQuery } from './types';
 
 type Props = QueryEditorProps<DataSource, MyQuery, MyDataSourceOptions>;
 
 export class QueryEditor extends PureComponent<Props, { parameters: any }> {
-  constructor(props) {
+  constructor(props: Props) {
     super(props);
     this.state = { parameters: [] };
   }
@@ -20,7 +20,7 @@ export class QueryEditor extends PureComponent<Props, { parameters: any }> {
 
   getNotebooks = async (query: string) => {
     const response = await this.props.datasource.queryNotebooks(query);
-    return response.notebooks.map(notebook => ({ label: notebook.path, value: notebook }));
+    return response.notebooks.map((notebook: any) => ({ label: notebook.path, value: notebook }));
   };
 
   onNotebookChange = (option: SelectableValue) => {
@@ -39,15 +39,19 @@ export class QueryEditor extends PureComponent<Props, { parameters: any }> {
     // TODO: what does this do? re: nested objects
     onChange({ ...query, parameters });
     onRunQuery();
-  }
+  };
 
-  formatParameterValue (id: string, value: string) {
-    const param = this.state.parameters.find(param => param.id === id);
-    if (!param) return value;
+  formatParameterValue(id: string, value: string) {
+    const param = this.state.parameters.find((param: any) => param.id === id);
+    if (!param) {
+      return value;
+    }
 
     switch (param.type) {
-      case 'number': return Number(value);
-      default: return value;
+      case 'number':
+        return Number(value);
+      default:
+        return value;
     }
   }
 
@@ -58,18 +62,14 @@ export class QueryEditor extends PureComponent<Props, { parameters: any }> {
     } else {
       return (
         <Field key={param.id} horizontal label={param.display_name}>
-          <Input
-            id={param.id}
-            onBlur={this.onParameterChange}
-            type={param.type === 'number' ? 'number' : 'text'}
-          />
+          <Input id={param.id} onBlur={this.onParameterChange} type={param.type === 'number' ? 'number' : 'text'} />
         </Field>
-      )
+      );
     }
-  }
+  };
 
   render() {
-    const query = defaults(this.props.query, defaultQuery);
+    //const query = defaults(this.props.query, defaultQuery);
     return (
       <div>
         <div className="gf-form-inline flex-grow-1">
@@ -85,9 +85,7 @@ export class QueryEditor extends PureComponent<Props, { parameters: any }> {
             />
           </Field>
         </div>
-        <div className="gf-form-inline">
-          {this.state.parameters.map(this.getParameter)}
-        </div>
+        <div className="gf-form-inline">{this.state.parameters.map(this.getParameter)}</div>
       </div>
     );
   }
