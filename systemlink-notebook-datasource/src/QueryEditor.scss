@@ -1,0 +1,14 @@
+.notebook-query-editor {
+    display: flex;
+    flex-wrap: wrap;
+
+    .notebook-selector {
+        flex-basis: 50%;
+        margin-right: 50%;
+    }
+
+    .parameters {
+        flex-basis: 50%;
+    }
+}
+
