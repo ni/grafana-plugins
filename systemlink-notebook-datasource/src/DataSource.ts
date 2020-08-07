@@ -11,9 +11,9 @@ import {
 
 import { getBackendSrv } from '@grafana/runtime';
 
-import { MyQuery, MyDataSourceOptions, defaultQuery } from './types';
+import { NotebookQuery, MyDataSourceOptions, defaultQuery } from './types';
 
-export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
+export class DataSource extends DataSourceApi<NotebookQuery, MyDataSourceOptions> {
   url?: string;
 
   constructor(instanceSettings: DataSourceInstanceSettings<MyDataSourceOptions>) {
@@ -21,7 +21,7 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
     this.url = instanceSettings.url;
   }
 
-  async query(options: DataQueryRequest<MyQuery>): Promise<DataQueryResponse> {
+  async query(options: DataQueryRequest<NotebookQuery>): Promise<DataQueryResponse> {
     // const { range } = options;
     // const from = range!.from.valueOf();
     // const to = range!.to.valueOf();
@@ -44,7 +44,7 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
     }
   }
 
-  transformResultToDataFrame(result: any, query: MyQuery) {
+  transformResultToDataFrame(result: any, query: NotebookQuery) {
     const frame = new MutableDataFrame({
       refId: query.refId,
       fields: [],

@@ -3,10 +3,10 @@ import React, { PureComponent } from 'react';
 import { Field, Input, Select, Label } from '@grafana/ui';
 import { QueryEditorProps, SelectableValue } from '@grafana/data';
 import { DataSource } from './DataSource';
-import { MyDataSourceOptions, MyQuery, defaultQuery } from './types';
+import { MyDataSourceOptions, NotebookQuery, defaultQuery } from './types';
 import './QueryEditor.scss';
 
-type Props = QueryEditorProps<DataSource, MyQuery, MyDataSourceOptions>;
+type Props = QueryEditorProps<DataSource, NotebookQuery, MyDataSourceOptions>;
 
 export class QueryEditor extends PureComponent<Props, { notebooks: any[]; isLoading: boolean }> {
   constructor(props: Props) {
