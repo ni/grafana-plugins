@@ -1,3 +1,5 @@
+// https://github.com/emotion-js/emotion/issues/1431
+import {} from '@emotion/core';
 import { DataSourcePlugin } from '@grafana/data';
 import { DataSource } from './DataSource';
 import { ConfigEditor } from './ConfigEditor';

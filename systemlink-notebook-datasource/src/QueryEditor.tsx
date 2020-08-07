@@ -1,93 +1,133 @@
 import defaults from 'lodash/defaults';
-
-import React, { ChangeEvent, PureComponent } from 'react';
-import { Field, AsyncSelect, Input } from '@grafana/ui';
+import React, { PureComponent } from 'react';
+import { Field, Input, Select, Label } from '@grafana/ui';
 import { QueryEditorProps, SelectableValue } from '@grafana/data';
 import { DataSource } from './DataSource';
-import { defaultQuery, MyDataSourceOptions, MyQuery } from './types';
+import { MyDataSourceOptions, MyQuery, defaultQuery } from './types';
+import './QueryEditor.scss';
 
 type Props = QueryEditorProps<DataSource, MyQuery, MyDataSourceOptions>;
 
-export class QueryEditor extends PureComponent<Props, { parameters: any }> {
-  constructor(props) {
+export class QueryEditor extends PureComponent<Props, { notebooks: any[]; isLoading: boolean }> {
+  constructor(props: Props) {
     super(props);
-    this.state = { parameters: [] };
+    this.state = { notebooks: [], isLoading: true };
   }
 
-  componentDidMount() {
-    // set notebook
+  async componentDidMount() {
+    const response = await this.props.datasource.queryNotebooks('');
+    this.setState({ notebooks: response.notebooks, isLoading: false });
   }
 
-  getNotebooks = async (query: string) => {
-    const response = await this.props.datasource.queryNotebooks(query);
-    return response.notebooks.map(notebook => ({ label: notebook.path, value: notebook }));
+  getNotebook = (path: string) => {
+    return this.state.notebooks.find(notebook => notebook.path === path);
+  };
+
+  formatNotebookOption = (notebook: any): SelectableValue => {
+    const path = notebook.path;
+    return {
+      label: path.startsWith('_shared') ? path.substring(1) : path.substring(path.indexOf('/')),
+      value: path,
+    };
+  };
+
+  formatOutputOption = (output: any): SelectableValue => {
+    return { label: output.display_name, value: output.id };
   };
 
   onNotebookChange = (option: SelectableValue) => {
-    const notebook = option.value;
-    this.setState({ parameters: notebook.metadata.parameters });
     const { onChange, onRunQuery, query } = this.props;
-    onChange({ ...query, path: notebook.path });
+    const notebook = this.getNotebook(option.value);
+    onChange({ ...query, parameters: {}, path: notebook.path, output: notebook.metadata.outputs[0].id });
     onRunQuery();
   };
 
   onParameterChange = (event: React.FocusEvent) => {
-    const { onChange, onRunQuery, query } = this.props;
+    const { onChange, onRunQuery } = this.props;
+    const query = defaults(this.props.query, defaultQuery);
     const parameters = query.parameters;
     const target = event.target as HTMLInputElement;
     parameters[target.id] = this.formatParameterValue(target.id, target.value);
-    // TODO: what does this do? re: nested objects
     onChange({ ...query, parameters });
     onRunQuery();
-  }
+  };
 
-  formatParameterValue (id: string, value: string) {
-    const param = this.state.parameters.find(param => param.id === id);
-    if (!param) return value;
+  onOutputChange = (option: SelectableValue) => {
+    const { onChange, onRunQuery } = this.props;
+    const query = defaults(this.props.query, defaultQuery);
+    onChange({ ...query, output: option.value });
+    onRunQuery();
+  };
+
+  formatParameterValue(id: string, value: string) {
+    const selectedNotebook = this.getNotebook(this.props.query.path);
+    const param = selectedNotebook.metadata.parameters.find((param: any) => param.id === id);
+    if (!param) {
+      return value;
+    }
 
     switch (param.type) {
-      case 'number': return Number(value);
-      default: return value;
+      case 'number':
+        return Number(value);
+      default:
+        return value;
     }
   }
 
   getParameter = (param: any) => {
+    const query = defaults(this.props.query, defaultQuery);
+    const selectedNotebook = this.getNotebook(query.path);
+    const value = query.parameters[param.id] || selectedNotebook.parameters[param.id];
     if (param.options) {
-      //enum
+      //TODO: enum parameters
       return null;
     } else {
       return (
-        <Field key={param.id} horizontal label={param.display_name}>
+        <div className="parameter" key={param.id}>
+          <Label className="parameter-label">{param.display_name}</Label>
           <Input
+            className="parameter-value"
             id={param.id}
             onBlur={this.onParameterChange}
             type={param.type === 'number' ? 'number' : 'text'}
+            defaultValue={value}
           />
-        </Field>
-      )
+        </div>
+      );
     }
-  }
+  };
 
   render() {
     const query = defaults(this.props.query, defaultQuery);
+    const selectedNotebook = this.getNotebook(query.path);
     return (
-      <div>
-        <div className="gf-form-inline flex-grow-1">
-          <Field label="Notebook">
-            <AsyncSelect
-              defaultOptions
-              onChange={this.onNotebookChange}
-              menuPlacement="bottom"
-              maxMenuHeight={110}
-              loadOptions={this.getNotebooks}
-              placeholder="Select notebook"
-              width={40}
+      <div className="notebook-query-editor">
+        <Field label="Notebook" className="notebook-selector">
+          <Select
+            options={this.state.notebooks.map(this.formatNotebookOption)}
+            isLoading={this.state.isLoading}
+            onChange={this.onNotebookChange}
+            menuPlacement="bottom"
+            maxMenuHeight={110}
+            placeholder="Select notebook"
+            value={selectedNotebook ? this.formatNotebookOption(selectedNotebook) : undefined}
+          />
+        </Field>
+        {selectedNotebook && [
+          <div className="parameters">
+            <Label>Parameters</Label>
+            {selectedNotebook.metadata.parameters.map(this.getParameter)}
+          </div>,
+          <Field className="output" label="Output">
+            <Select
+              options={selectedNotebook.metadata.outputs.map(this.formatOutputOption)}
+              onChange={this.onOutputChange}
+              value={this.formatOutputOption(
+                selectedNotebook.metadata.outputs.find((output: any) => output.id === query.output)
+              )}
             />
-          </Field>
-        </div>
-        <div className="gf-form-inline">
-          {this.state.parameters.map(this.getParameter)}
-        </div>
+          </Field>,
+        ]}
       </div>
     );
   }
