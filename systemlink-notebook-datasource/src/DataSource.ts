@@ -11,12 +11,12 @@ import {
 
 import { getBackendSrv } from '@grafana/runtime';
 
-import { NotebookQuery, MyDataSourceOptions, defaultQuery } from './types';
+import { NotebookQuery, NotebookDataSourceOptions, defaultQuery } from './types';
 
-export class DataSource extends DataSourceApi<NotebookQuery, MyDataSourceOptions> {
+export class DataSource extends DataSourceApi<NotebookQuery, NotebookDataSourceOptions> {
   url?: string;
 
-  constructor(instanceSettings: DataSourceInstanceSettings<MyDataSourceOptions>) {
+  constructor(instanceSettings: DataSourceInstanceSettings<NotebookDataSourceOptions>) {
     super(instanceSettings);
     this.url = instanceSettings.url;
   }
@@ -44,7 +44,7 @@ export class DataSource extends DataSourceApi<NotebookQuery, MyDataSourceOptions
     }
   }
 
-  transformResultToDataFrame(result: any, query: NotebookQuery) {
+  private transformResultToDataFrame(result: any, query: NotebookQuery) {
     const frame = new MutableDataFrame({
       refId: query.refId,
       fields: [],
@@ -71,13 +71,12 @@ export class DataSource extends DataSourceApi<NotebookQuery, MyDataSourceOptions
     return frame;
   }
 
-  async executeNotebook(notebookPath: string, parameters: any) {
-    return getBackendSrv()
-      .post(this.url + '/ninbexec/v2/executions', [{ notebookPath, parameters }])
-      .then(response => this.handleNotebookExecution(response[0].id));
+  private async executeNotebook(notebookPath: string, parameters: any) {
+    const response = await getBackendSrv().post(this.url + '/ninbexec/v2/executions', [{ notebookPath, parameters }]);
+    return this.handleNotebookExecution(response[0].id);
   }
 
-  async handleNotebookExecution(id: string): Promise<any> {
+  private async handleNotebookExecution(id: string): Promise<any> {
     const execution = await getBackendSrv().get(this.url + '/ninbexec/v2/executions/' + id);
     if (execution.status === 'QUEUED' || execution.status === 'IN_PROGRESS') {
       await this.timeout(3000);
@@ -102,7 +101,7 @@ export class DataSource extends DataSourceApi<NotebookQuery, MyDataSourceOptions
       });
   }
 
-  async timeout(ms: number) {
+  private timeout(ms: number) {
     return new Promise(resolve => {
       setTimeout(resolve, ms);
     });

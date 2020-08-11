@@ -3,10 +3,10 @@ import React, { PureComponent } from 'react';
 import { Field, Input, Select, Label } from '@grafana/ui';
 import { QueryEditorProps, SelectableValue } from '@grafana/data';
 import { DataSource } from './DataSource';
-import { MyDataSourceOptions, NotebookQuery, defaultQuery } from './types';
+import { NotebookDataSourceOptions, NotebookQuery, defaultQuery } from './types';
 import './QueryEditor.scss';
 
-type Props = QueryEditorProps<DataSource, NotebookQuery, MyDataSourceOptions>;
+type Props = QueryEditorProps<DataSource, NotebookQuery, NotebookDataSourceOptions>;
 
 export class QueryEditor extends PureComponent<Props, { notebooks: any[]; isLoading: boolean }> {
   constructor(props: Props) {
@@ -83,10 +83,10 @@ export class QueryEditor extends PureComponent<Props, { notebooks: any[]; isLoad
       return null;
     } else {
       return (
-        <div className="parameter" key={param.id}>
-          <Label className="parameter-label">{param.display_name}</Label>
+        <div className="sl-parameter" key={param.id}>
+          <Label className="sl-parameter-label">{param.display_name}</Label>
           <Input
-            className="parameter-value"
+            className="sl-parameter-value"
             id={param.id}
             onBlur={this.onParameterChange}
             type={param.type === 'number' ? 'number' : 'text'}
@@ -101,8 +101,8 @@ export class QueryEditor extends PureComponent<Props, { notebooks: any[]; isLoad
     const query = defaults(this.props.query, defaultQuery);
     const selectedNotebook = this.getNotebook(query.path);
     return (
-      <div className="notebook-query-editor">
-        <Field label="Notebook" className="notebook-selector">
+      <div className="sl-notebook-query-editor">
+        <Field label="Notebook" className="sl-notebook-selector">
           <Select
             options={this.state.notebooks.map(this.formatNotebookOption)}
             isLoading={this.state.isLoading}
@@ -114,11 +114,11 @@ export class QueryEditor extends PureComponent<Props, { notebooks: any[]; isLoad
           />
         </Field>
         {selectedNotebook && [
-          <div className="parameters">
+          <div className="sl-parameters">
             <Label>Parameters</Label>
             {selectedNotebook.metadata.parameters.map(this.getParameter)}
           </div>,
-          <Field className="output" label="Output">
+          <Field className="sl-output" label="Output">
             <Select
               options={selectedNotebook.metadata.outputs.map(this.formatOutputOption)}
               onChange={this.onOutputChange}

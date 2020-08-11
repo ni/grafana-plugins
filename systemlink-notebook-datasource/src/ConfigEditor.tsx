@@ -1,9 +1,9 @@
 import React, { PureComponent } from 'react';
 import { DataSourcePluginOptionsEditorProps } from '@grafana/data';
 import { DataSourceHttpSettings } from '@grafana/ui';
-import { MyDataSourceOptions } from './types';
+import { NotebookDataSourceOptions } from './types';
 
-interface Props extends DataSourcePluginOptionsEditorProps<MyDataSourceOptions> {}
+interface Props extends DataSourcePluginOptionsEditorProps<NotebookDataSourceOptions> {}
 
 interface State {}
 
