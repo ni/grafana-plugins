@@ -1,3 +1,7 @@
+/**
+ * DataSource is a TypeScript class that implements the logic for executing and querying
+ * notebooks. The 'query' method is called from Grafana's internals when a panel requests data.
+ */
 import defaults from 'lodash/defaults';
 
 import {
@@ -11,7 +15,7 @@ import {
 
 import { getBackendSrv } from '@grafana/runtime';
 
-import { NotebookQuery, NotebookDataSourceOptions, defaultQuery } from './types';
+import { NotebookQuery, NotebookDataSourceOptions, defaultQuery, Notebook, Execution } from './types';
 
 export class DataSource extends DataSourceApi<NotebookQuery, NotebookDataSourceOptions> {
   url?: string;
@@ -36,6 +40,7 @@ export class DataSource extends DataSourceApi<NotebookQuery, NotebookDataSourceO
 
     const execution = await this.executeNotebook(query.path, query.parameters);
     if (execution.status === 'SUCCEEDED') {
+      // TODO: Verify result object AB#1108330
       const result = execution.result.result.find((result: any) => result.id === query.output);
       const frame = this.transformResultToDataFrame(result, query);
       return { data: [frame] };
@@ -76,8 +81,8 @@ export class DataSource extends DataSourceApi<NotebookQuery, NotebookDataSourceO
     return this.handleNotebookExecution(response[0].id);
   }
 
-  private async handleNotebookExecution(id: string): Promise<any> {
-    const execution = await getBackendSrv().get(this.url + '/ninbexec/v2/executions/' + id);
+  private async handleNotebookExecution(id: string): Promise<Execution> {
+    const execution: Execution = await getBackendSrv().get(this.url + '/ninbexec/v2/executions/' + id);
     if (execution.status === 'QUEUED' || execution.status === 'IN_PROGRESS') {
       await this.timeout(3000);
       return this.handleNotebookExecution(id);
@@ -86,9 +91,16 @@ export class DataSource extends DataSourceApi<NotebookQuery, NotebookDataSourceO
     }
   }
 
-  async queryNotebooks(path: string) {
+  async queryNotebooks(path: string): Promise<Notebook[]> {
     const filter = `path.Contains("${path}")`;
-    return getBackendSrv().post(this.url + '/ninbexec/v2/query-notebooks', { filter });
+    const response = await getBackendSrv().post(this.url + '/ninbexec/v2/query-notebooks', { filter });
+    if (response.notebooks) {
+      const notebooks = response.notebooks as Notebook[];
+      return notebooks.filter(notebook => notebook.metadata.version === 2);
+    } else {
+      // TODO: Bubble up error AB#1108330
+      return [];
+    }
   }
 
   async testDatasource() {
