@@ -30,7 +30,7 @@ export class DataSource extends DataSourceApi<NotebookQuery, NotebookDataSourceO
     // const from = range!.from.valueOf();
     // const to = range!.to.valueOf();
 
-    // Assume one target for now
+    // Assume one target for now, TODO: bubble up error AB#1108330
     const target = options.targets[0];
     const query = defaults(target, defaultQuery);
 
