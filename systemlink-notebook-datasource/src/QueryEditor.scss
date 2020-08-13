@@ -9,13 +9,16 @@
 
     .sl-parameters {
         flex-basis: 50%;
+        margin-bottom: -10px;
 
         .sl-parameter {
             display: flex;
             align-items: center;
+            margin-bottom: 10px;
 
             .sl-parameter-label {
                 flex: 1;
+                margin: 0 !important;
             }
 
             .sl-parameter-value {

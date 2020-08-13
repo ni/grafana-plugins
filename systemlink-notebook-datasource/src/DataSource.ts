@@ -13,9 +13,11 @@ import {
   FieldType,
 } from '@grafana/data';
 
-import { getBackendSrv } from '@grafana/runtime';
+import { getBackendSrv, getTemplateSrv } from '@grafana/runtime';
 
 import { NotebookQuery, NotebookDataSourceOptions, defaultQuery, Notebook, Execution } from './types';
+
+import { get, timeout } from './utils';
 
 export class DataSource extends DataSourceApi<NotebookQuery, NotebookDataSourceOptions> {
   url?: string;
@@ -26,10 +28,6 @@ export class DataSource extends DataSourceApi<NotebookQuery, NotebookDataSourceO
   }
 
   async query(options: DataQueryRequest<NotebookQuery>): Promise<DataQueryResponse> {
-    // const { range } = options;
-    // const from = range!.from.valueOf();
-    // const to = range!.to.valueOf();
-
     // Assume one target for now, TODO: bubble up error AB#1108330
     const target = options.targets[0];
     const query = defaults(target, defaultQuery);
@@ -38,7 +36,8 @@ export class DataSource extends DataSourceApi<NotebookQuery, NotebookDataSourceO
       return { data: [] };
     }
 
-    const execution = await this.executeNotebook(query.path, query.parameters);
+    const parameters = this.replaceParameterVariables(query.parameters, options);
+    const execution = await this.executeNotebook(query.path, parameters);
     if (execution.status === 'SUCCEEDED') {
       // TODO: Verify result object AB#1108330
       const result = execution.result.result.find((result: any) => result.id === query.output);
@@ -49,24 +48,36 @@ export class DataSource extends DataSourceApi<NotebookQuery, NotebookDataSourceO
     }
   }
 
-  private transformResultToDataFrame(result: any, query: NotebookQuery) {
+  replaceParameterVariables(parameters: any, options: DataQueryRequest<NotebookQuery>) {
+    return Object.keys(parameters).reduce((result, key) => {
+      result[key] =
+        typeof parameters[key] === 'string'
+          ? getTemplateSrv().replace(parameters[key], options.scopedVars)
+          : parameters[key];
+
+      return result;
+    }, {} as { [key: string]: any });
+  }
+
+  transformResultToDataFrame(result: any, query: NotebookQuery) {
     const frame = new MutableDataFrame({
       refId: query.refId,
       fields: [],
     });
 
     if (result.type === 'data_frame') {
-      for (const plot of result.data) {
+      for (const [ix, plot] of result.data.entries()) {
+        const name = get(['config', 'graph', 'plot_labels', ix], result);
         if (plot.format === 'XY') {
           if (typeof plot.x[0] === 'string') {
-            frame.addField({ name: '', values: plot.x, type: FieldType.time });
+            frame.addField({ name, values: plot.x, type: FieldType.time });
           } else {
-            frame.addField({ name: '', values: plot.x });
+            frame.addField({ name, values: plot.x });
           }
 
-          frame.addField({ name: '', values: plot.y });
+          frame.addField({ name, values: plot.y });
         } else if (plot.format === 'INDEX') {
-          frame.addField({ name: '', values: plot.y });
+          frame.addField({ name, values: plot.y });
         }
       }
     } else if (result.type === 'scalar') {
@@ -84,7 +95,7 @@ export class DataSource extends DataSourceApi<NotebookQuery, NotebookDataSourceO
   private async handleNotebookExecution(id: string): Promise<Execution> {
     const execution: Execution = await getBackendSrv().get(this.url + '/ninbexec/v2/executions/' + id);
     if (execution.status === 'QUEUED' || execution.status === 'IN_PROGRESS') {
-      await this.timeout(3000);
+      await timeout(3000);
       return this.handleNotebookExecution(id);
     } else {
       return execution;
@@ -111,11 +122,5 @@ export class DataSource extends DataSourceApi<NotebookQuery, NotebookDataSourceO
         error.isHandled = true;
         return { status: 'error', message: 'Error' };
       });
-  }
-
-  private timeout(ms: number) {
-    return new Promise(resolve => {
-      setTimeout(resolve, ms);
-    });
   }
 }
