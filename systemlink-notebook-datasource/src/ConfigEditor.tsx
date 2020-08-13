@@ -1,9 +1,13 @@
+/**
+ * ConfigEditor is a React component that implements the UI for editing the notebook
+ * datasource configuration options, including the server URL, authentication, etc.
+ */
 import React, { PureComponent } from 'react';
 import { DataSourcePluginOptionsEditorProps } from '@grafana/data';
 import { DataSourceHttpSettings } from '@grafana/ui';
-import { MyDataSourceOptions } from './types';
+import { NotebookDataSourceOptions } from './types';
 
-interface Props extends DataSourcePluginOptionsEditorProps<MyDataSourceOptions> {}
+interface Props extends DataSourcePluginOptionsEditorProps<NotebookDataSourceOptions> {}
 
 interface State {}
 

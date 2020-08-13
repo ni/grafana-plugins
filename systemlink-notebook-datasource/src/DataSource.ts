@@ -1,3 +1,7 @@
+/**
+ * DataSource is a TypeScript class that implements the logic for executing and querying
+ * notebooks. The 'query' method is called from Grafana's internals when a panel requests data.
+ */
 import defaults from 'lodash/defaults';
 
 import {
@@ -6,76 +10,79 @@ import {
   DataSourceApi,
   DataSourceInstanceSettings,
   MutableDataFrame,
-  ArrayDataFrame,
-  FieldType
+  FieldType,
 } from '@grafana/data';
 
 import { getBackendSrv } from '@grafana/runtime';
 
-import { MyQuery, MyDataSourceOptions, defaultQuery } from './types';
+import { NotebookQuery, NotebookDataSourceOptions, defaultQuery, Notebook, Execution } from './types';
 
-export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
+export class DataSource extends DataSourceApi<NotebookQuery, NotebookDataSourceOptions> {
   url?: string;
 
-  constructor(instanceSettings: DataSourceInstanceSettings<MyDataSourceOptions>) {
+  constructor(instanceSettings: DataSourceInstanceSettings<NotebookDataSourceOptions>) {
     super(instanceSettings);
     this.url = instanceSettings.url;
   }
 
-  async query(options: DataQueryRequest<MyQuery>): Promise<DataQueryResponse> {
-    // const aFrame = new ArrayDataFrame([{ cat: 1, dog: 2, bunny: 3 }]);
-    // return { data: [aFrame] };
-    const { range } = options;
-    const from = range!.from.valueOf();
-    const to = range!.to.valueOf();
-    // Assume one target for now
+  async query(options: DataQueryRequest<NotebookQuery>): Promise<DataQueryResponse> {
+    // const { range } = options;
+    // const from = range!.from.valueOf();
+    // const to = range!.to.valueOf();
+
+    // Assume one target for now, TODO: bubble up error AB#1108330
     const target = options.targets[0];
     const query = defaults(target, defaultQuery);
 
     if (!query.path) {
-      return { data: [] }
+      return { data: [] };
     }
 
     const execution = await this.executeNotebook(query.path, query.parameters);
     if (execution.status === 'SUCCEEDED') {
-      // TODO: user picks output
-      const result = execution.result.result[0];
-      const config = result.config.graph;
-      // const xField = config.axis_labels[0] || 'x',
-      //   yField = config.axis_labels[1] || 'y';
-
-      const frame = new MutableDataFrame({
-        refId: query.refId,
-        fields: []
-      });
-
-      for (const plot of result.data) {
-        if (plot.format === 'XY') {
-          if (typeof plot.x[0] === 'string') {
-            frame.addField({ name: '', values: plot.x, type: FieldType.time})
-          } else {
-            frame.addField({ name: '', values: plot.x })
-          }
-          //const color = { fixedColor: 'rgb(255, 0, 0)', mode: FieldColorMode.Fixed };
-          frame.addField({ name: '', values: plot.y, })
-        }
-      }
-
+      // TODO: Verify result object AB#1108330
+      const result = execution.result.result.find((result: any) => result.id === query.output);
+      const frame = this.transformResultToDataFrame(result, query);
       return { data: [frame] };
     } else {
-      // TODO: handle failure
-      return { data: [] };
+      return { data: [], error: { message: 'The notebook failed to execute.' } };
     }
   }
 
-  async executeNotebook(notebookPath: string, parameters: any) {
-    return getBackendSrv()
-      .post(this.url + '/ninbexec/v2/executions', [{ notebookPath, parameters }])
-      .then(response => this.handleNotebookExecution(response[0].id));
+  private transformResultToDataFrame(result: any, query: NotebookQuery) {
+    const frame = new MutableDataFrame({
+      refId: query.refId,
+      fields: [],
+    });
+
+    if (result.type === 'data_frame') {
+      for (const plot of result.data) {
+        if (plot.format === 'XY') {
+          if (typeof plot.x[0] === 'string') {
+            frame.addField({ name: '', values: plot.x, type: FieldType.time });
+          } else {
+            frame.addField({ name: '', values: plot.x });
+          }
+
+          frame.addField({ name: '', values: plot.y });
+        } else if (plot.format === 'INDEX') {
+          frame.addField({ name: '', values: plot.y });
+        }
+      }
+    } else if (result.type === 'scalar') {
+      frame.addField({ name: '', values: [result.value] });
+    }
+
+    return frame;
   }
 
-  async handleNotebookExecution(id: string): Promise<any> {
-    const execution = await getBackendSrv().get(this.url + '/ninbexec/v2/executions/' + id);
+  private async executeNotebook(notebookPath: string, parameters: any) {
+    const response = await getBackendSrv().post(this.url + '/ninbexec/v2/executions', [{ notebookPath, parameters }]);
+    return this.handleNotebookExecution(response[0].id);
+  }
+
+  private async handleNotebookExecution(id: string): Promise<Execution> {
+    const execution: Execution = await getBackendSrv().get(this.url + '/ninbexec/v2/executions/' + id);
     if (execution.status === 'QUEUED' || execution.status === 'IN_PROGRESS') {
       await this.timeout(3000);
       return this.handleNotebookExecution(id);
@@ -84,9 +91,16 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
     }
   }
 
-  async queryNotebooks(path: string) {
+  async queryNotebooks(path: string): Promise<Notebook[]> {
     const filter = `path.Contains("${path}")`;
-    return getBackendSrv().post(this.url + '/ninbexec/v2/query-notebooks', { filter });
+    const response = await getBackendSrv().post(this.url + '/ninbexec/v2/query-notebooks', { filter });
+    if (response.notebooks) {
+      const notebooks = response.notebooks as Notebook[];
+      return notebooks.filter(notebook => notebook.metadata.version === 2);
+    } else {
+      // TODO: Bubble up error AB#1108330
+      return [];
+    }
   }
 
   async testDatasource() {
@@ -99,7 +113,7 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
       });
   }
 
-  async timeout(ms: number) {
+  private timeout(ms: number) {
     return new Promise(resolve => {
       setTimeout(resolve, ms);
     });

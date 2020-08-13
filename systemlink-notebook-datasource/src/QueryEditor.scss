@@ -1,14 +1,32 @@
-.notebook-query-editor {
+.sl-notebook-query-editor {
     display: flex;
     flex-wrap: wrap;
 
-    .notebook-selector {
+    .sl-notebook-selector {
         flex-basis: 50%;
         margin-right: 50%;
     }
 
-    .parameters {
+    .sl-parameters {
         flex-basis: 50%;
+
+        .sl-parameter {
+            display: flex;
+            align-items: center;
+
+            .sl-parameter-label {
+                flex: 1;
+            }
+
+            .sl-parameter-value {
+                flex: 2;
+            }
+        }
+    }
+
+    .sl-output {
+        flex-basis: 30%;
+        margin: 0 10%;
     }
 }
 
