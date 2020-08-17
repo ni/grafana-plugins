@@ -17,7 +17,7 @@ import { getBackendSrv, getTemplateSrv } from '@grafana/runtime';
 
 import { NotebookQuery, NotebookDataSourceOptions, defaultQuery, Notebook, Execution } from './types';
 
-import { get, timeout } from './utils';
+import { timeout } from './utils';
 
 export class DataSource extends DataSourceApi<NotebookQuery, NotebookDataSourceOptions> {
   url?: string;
@@ -67,7 +67,8 @@ export class DataSource extends DataSourceApi<NotebookQuery, NotebookDataSourceO
 
     if (result.type === 'data_frame') {
       for (const [ix, plot] of result.data.entries()) {
-        const name = get(['config', 'graph', 'plot_labels', ix], result);
+        result.config?.graph;
+        const name = result.config?.graph?.plot_labels?.[ix];
         if (plot.format === 'XY') {
           if (typeof plot.x[0] === 'string') {
             frame.addField({ name, values: plot.x, type: FieldType.time });
