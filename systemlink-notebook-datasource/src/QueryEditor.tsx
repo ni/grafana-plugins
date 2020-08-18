@@ -97,6 +97,7 @@ export class QueryEditor extends PureComponent<Props, { notebooks: Notebook[]; i
           className="sl-parameter-value"
           options={options}
           onChange={event => this.onParameterChange(param.id, event.value as string)}
+          defaultValue={{ label: value, value }}
         />
       );
     } else {
