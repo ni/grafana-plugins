@@ -1,0 +1,24 @@
+name: Create Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Tag version'
+        required: true
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Run build script
+      run: sh build.sh
+
+    - name: Create a Release
+      uses: actions/create-release@v1
+      with:
+        tag_name: ${{ tag }}
+        release_name: ${{ tag }}
