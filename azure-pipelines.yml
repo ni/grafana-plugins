@@ -5,9 +5,7 @@ pool:
 trigger: none
 
 steps:
-- task: Bash@3
-  inputs:
-    filePath: 'build.sh'
+- script: sh build.sh
 - task: GitHubRelease@1
   inputs:
     gitHubConnection: 'ni-kismet oauth'
