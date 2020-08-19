@@ -22,3 +22,4 @@ jobs:
       with:
         tag_name: $INPUT_TAG
         release_name: $INPUT_TAG
+        token: ${{ secrets.GITHUB_TOKEN }}
