@@ -1,0 +1,20 @@
+pool:
+  name: DevCentral-Skyline
+  demands: npm
+
+trigger: none
+
+steps:
+- task: Bash@3
+  inputs:
+    filePath: 'build.sh'
+- task: GitHubRelease@1
+  inputs:
+    gitHubConnection: 'ni-kismet oauth'
+    repositoryName: 'ni-kismet/grafana-plugins'
+    action: 'create'
+    target: '$(Build.SourceVersion)'
+    tagSource: 'userSpecifiedTag'
+    tag: '$(Version)'
+    assets: '$(Build.ArtifactStagingDirectory)/build/*.zip'
+    addChangeLog: false
