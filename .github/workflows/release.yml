@@ -20,5 +20,5 @@ jobs:
     - name: Create a Release
       uses: actions/create-release@v1
       with:
-        tag_name: ${{ tag }}
-        release_name: ${{ tag }}
+        tag_name: $INPUT_TAG
+        release_name: $INPUT_TAG
