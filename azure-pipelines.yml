@@ -1,7 +1,3 @@
-pool:
-  name: DevCentral-Skyline
-  demands: npm
-
 trigger: none
 
 steps:
