@@ -46,12 +46,11 @@ export class QueryEditor extends PureComponent<Props, { notebooks: Notebook[]; i
     onRunQuery();
   };
 
-  onParameterChange = (event: React.FocusEvent) => {
+  onParameterChange = (id: string, value: string) => {
     const { onChange, onRunQuery } = this.props;
     const query = defaults(this.props.query, defaultQuery);
     const parameters = query.parameters;
-    const target = event.target as HTMLInputElement;
-    parameters[target.id] = this.formatParameterValue(target.id, target.value);
+    parameters[id] = this.formatParameterValue(id, value);
     onChange({ ...query, parameters });
     onRunQuery();
   };
@@ -63,7 +62,7 @@ export class QueryEditor extends PureComponent<Props, { notebooks: Notebook[]; i
     onRunQuery();
   };
 
-  formatParameterValue(id: string, value: string) {
+  formatParameterValue = (id: string, value: string) => {
     const selectedNotebook = this.getNotebook(this.props.query.path) as Notebook;
     const param = selectedNotebook.metadata.parameters.find((param: any) => param.id === id);
     if (!param) {
@@ -76,27 +75,39 @@ export class QueryEditor extends PureComponent<Props, { notebooks: Notebook[]; i
       default:
         return value;
     }
-  }
+  };
 
   getParameter = (param: any) => {
     const query = defaults(this.props.query, defaultQuery);
     const selectedNotebook = this.getNotebook(query.path) as Notebook;
     const value = query.parameters[param.id] || selectedNotebook.parameters[param.id];
+    return (
+      <div className="sl-parameter" key={param.id}>
+        <Label className="sl-parameter-label">{param.display_name}</Label>
+        {this.getParameterInput(param, value)}
+      </div>
+    );
+  };
+
+  getParameterInput = (param: any, value: any) => {
     if (param.options) {
-      //TODO: enum parameters AB#1064326
-      return null;
+      const options = param.options.map((option: string) => ({ label: option, value: option }));
+      return (
+        <Select
+          className="sl-parameter-value"
+          options={options}
+          onChange={event => this.onParameterChange(param.id, event.value as string)}
+          defaultValue={{ label: value, value }}
+        />
+      );
     } else {
       return (
-        <div className="sl-parameter" key={param.id}>
-          <Label className="sl-parameter-label">{param.display_name}</Label>
-          <Input
-            className="sl-parameter-value"
-            id={param.id}
-            onBlur={this.onParameterChange}
-            type={param.type === 'number' ? 'number' : 'text'}
-            defaultValue={value}
-          />
-        </div>
+        <Input
+          className="sl-parameter-value"
+          onBlur={event => this.onParameterChange(param.id, event.target.value)}
+          type={param.type === 'number' ? 'number' : 'text'}
+          defaultValue={value}
+        />
       );
     }
   };
