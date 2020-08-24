@@ -4,6 +4,8 @@
  */
 import defaults from 'lodash/defaults';
 
+import { PolicyEvaluator } from '@ni-kismet/helium-uicomponents/library/policyevaluator';
+
 import {
   DataQueryRequest,
   DataQueryResponse,
@@ -89,12 +91,21 @@ export class DataSource extends DataSourceApi<NotebookQuery, NotebookDataSourceO
   }
 
   private async executeNotebook(notebookPath: string, parameters: any) {
-    const response = await getBackendSrv().post(this.url + '/ninbexec/v2/executions', [{ notebookPath, parameters }]);
-    return this.handleNotebookExecution(response[0].id);
+    const response = await getBackendSrv().datasourceRequest({
+      url: this.url + '/ninbexec/v2/executions',
+      method: 'POST',
+      data: [{ notebookPath, parameters }],
+    });
+
+    return this.handleNotebookExecution(response.data[0].id);
   }
 
   private async handleNotebookExecution(id: string): Promise<Execution> {
-    const execution: Execution = await getBackendSrv().get(this.url + '/ninbexec/v2/executions/' + id);
+    const response = await getBackendSrv().datasourceRequest({
+      url: this.url + '/ninbexec/v2/executions/' + id,
+      method: 'GET',
+    });
+    const execution: Execution = response.data;
     if (execution.status === 'QUEUED' || execution.status === 'IN_PROGRESS') {
       await timeout(3000);
       return this.handleNotebookExecution(id);
@@ -116,12 +127,18 @@ export class DataSource extends DataSourceApi<NotebookQuery, NotebookDataSourceO
   }
 
   async testDatasource() {
-    return getBackendSrv()
-      .get(this.url + '/ninbexec')
-      .then(() => ({ status: 'success', message: 'Success' }))
-      .catch(error => {
-        error.isHandled = true;
-        return { status: 'error', message: 'Error' };
-      });
+    try {
+      const auth = await getBackendSrv().get(this.url + '/niauth/v1/auth');
+      const policyEvaluator = new PolicyEvaluator(auth.policies);
+      const actions = ['notebook:Query', 'notebookexecution:Execute', 'notebookexecution:Query'];
+      if (actions.every(action => policyEvaluator.hasAction(action))) {
+        return { status: 'success', message: 'Success' };
+      } else {
+        return { status: 'error', message: 'The user is not authorized to query and execute notebooks.' };
+      }
+    } catch (error) {
+      error.isHandled = true;
+      return { status: 'error', message: 'The username or password is incorrect.' };
+    }
   }
 }
