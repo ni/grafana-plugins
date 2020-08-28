@@ -8,7 +8,7 @@ for d in ./*/; do
     cd $d
     if test -f package.json; then
         echo $(pwd)
-        npm install
+        npm ci
         npm run build
         cp -r dist ../build/${d}
     fi

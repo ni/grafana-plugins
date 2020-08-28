@@ -25,7 +25,7 @@ jobs:
       with:
         tag_name: ${{ github.event.inputs.tag }}
         release_name: ${{ github.event.inputs.tag }}
-    
+
     - name: Upload a Release Asset
       uses: actions/upload-release-asset@v1.0.2
       env:
@@ -33,5 +33,5 @@ jobs:
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
         asset_path: ./build/grafana-plugins.zip
-        asset_name: grafana-plugins.zip
+        asset_name: systemlink-grafana-plugins.zip
         asset_content_type: application/zip
