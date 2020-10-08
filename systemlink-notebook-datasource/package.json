@@ -20,6 +20,11 @@
     "@testing-library/react": "^10.0.2",
     "@types/lodash": "latest"
   },
+  "jest": {
+    "moduleNameMapper": {
+      "@ni-kismet/helium-uicomponents/library/policyevaluator": "../node_modules/@ni-kismet/helium-uicomponents/js/policyevaluator.js"
+    }
+  },
   "engines": {
     "node": ">=12 <13"
   }
