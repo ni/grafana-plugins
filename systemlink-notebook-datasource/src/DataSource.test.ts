@@ -3,15 +3,17 @@ import { NotebookDataSourceOptions, NotebookQuery } from './types';
 
 import { DataSourceInstanceSettings, DataQueryRequest } from '@grafana/data';
 
-const datasourceRequestMock = jest.fn((options) => mockNotebookApiResponse(options));
 const postMock = jest.fn((url, body) => mockQueryNotebooksResponse());
 const replaceMock = jest.fn((a: string, ...rest: any) => a);
+
+const successfulNotebookPath = '0';
+const failedNotebookPath = '1';
 
 jest.mock('@grafana/runtime', () => ({
   // @ts-ignore
   ...jest.requireActual('@grafana/runtime'),
   getBackendSrv: () => ({
-    datasourceRequest: datasourceRequestMock,
+    datasourceRequest: jest.fn((options) => mockNotebookApiResponse(options)),
     post: postMock
   }),
   getTemplateSrv: () => ({
@@ -42,13 +44,17 @@ describe('Notebook data source', () => {
         output: 'test_output'
       };
       let dataFrame = {
-        "type":"data_frame","id":"horizontal_graph",
-        "data":[{"format":"XY","x":[0,1,2,3],"y":[950,412,1390,1009]}],
-        "config":{
-          "title":"Horizontal Bar Chart",
-          "graph":{
-            "axis_labels":["Labels","Values"],"tick_labels":[{"x":0,"label":"label 1"},{"x":1,"label":"label 2"},{"x":2,"label":"label 3"},{"x":3,"label":"label 4"}],
-            "orientation":"HORIZONTAL","plot_style":["BAR"], "plot_labels":["plot1"]
+        type: 'data_frame',
+        id: 'horizontal_graph',
+        data: [{ format: 'XY', x: [0, 1, 2, 3], y: [950, 412, 1390, 1009] }],
+        config: {
+          title: 'Horizontal Bar Chart',
+          graph: {
+            axis_labels: ['Labels','Values'],
+            tick_labels: [{ x: 0, label: 'label 1' }, {x: 1, label: 'label 2' }, {x: 2, label: 'label 3' }, {x: 3, label: 'label 4' }],
+            orientation: 'HORIZONTAL',
+            plot_style: ['BAR'],
+            plot_labels: ['plot1']
           }
         }
       };
@@ -68,13 +74,17 @@ describe('Notebook data source', () => {
         output: 'test_output'
       };
       let dataFrame = {
-        "type":"data_frame","id":"horizontal_graph",
-        "data":[{"format":"INDEX","y":[950,412,1390,1009]}],
-        "config":{
-          "title":"Horizontal Bar Chart",
-          "graph":{
-            "axis_labels":["Labels","Values"],"tick_labels":[{"x":0,"label":"label 1"},{"x":1,"label":"label 2"},{"x":2,"label":"label 3"},{"x":3,"label":"label 4"}],
-            "orientation":"HORIZONTAL","plot_style":["BAR"], "plot_labels":["plot1"]
+        type: 'data_frame',
+        id: 'horizontal_graph',
+        data: [{ format: 'INDEX', y: [950, 412, 1390, 1009] }],
+        config: {
+          title: 'Horizontal Bar Chart',
+          graph: {
+            axis_labels: ['Labels', 'Values'],
+            tick_labels: [{ x: 0, label: 'label 1' }, { x: 1, label: 'label 2' }, { x: 2, label: 'label 3' }, { x: 3, label: 'label 4' }],
+            orientation: 'HORIZONTAL',
+            plot_style: ['BAR'],
+            plot_labels: ['plot1']
           }
         }
       };
@@ -93,7 +103,7 @@ describe('Notebook data source', () => {
         parameters: null,
         output: 'test_output'
       };
-      let dataFrame = {"type":"scalar","id":"output1","value":2.5};
+      let dataFrame = { type: 'scalar', id: 'output1', value: 2.5};
 
       let result = ds.transformResultToDataFrame(dataFrame, query);
 
@@ -111,7 +121,7 @@ describe('Notebook data source', () => {
         string_param: s1,
         another_string_param: s2,
         number_param: 1,
-        object_param: {a : 1}
+        object_param: { a : 1 }
       };
       const options = ({
         scopedVars: {}
@@ -148,10 +158,10 @@ describe('Notebook data source', () => {
       expect(result).toEqual({ data: [] });
     });
 
-    it('returns frame for successful query', async () => {
+    it('returns frame for successful notebook execution', async () => {
       const options = ({
         targets: [{
-          path: 'testNotebook',
+          path: successfulNotebookPath,
           parameters: [],
           output: 'test'
         }]
@@ -164,6 +174,21 @@ describe('Notebook data source', () => {
       expect(frame.fields).toHaveLength(1);
       expect(frame.length).toBe(1);
       expect(Object.values(frame.get(0))).toEqual([1]);
+    });
+
+    it('returns error for failed notebook execution', async () => {
+      const options = ({
+        targets: [{
+          path: failedNotebookPath,
+          parameters: [],
+          output: 'test'
+        }]
+      } as unknown) as DataQueryRequest<NotebookQuery>;
+
+      let result = await ds.query(options);
+
+      expect(result.data).toHaveLength(0);
+      expect(result.error).toBeTruthy();
     });
   });
 
@@ -189,15 +214,16 @@ describe('Notebook data source', () => {
   });
 });
 
+// @ts-ignore
 function mockNotebookApiResponse(options: any) {
   switch (options.url) {
     case 'http://test/ninbexec/v2/executions':
       return {
         data: [{
-          id: 1
+          id: options.data && options.data.length && options.data[0].notebookPath
         }]
       };
-    case 'http://test/ninbexec/v2/executions/1':
+    case `http://test/ninbexec/v2/executions/${successfulNotebookPath}`:
       return {
         data: {
           status: 'SUCCEEDED',
@@ -208,6 +234,13 @@ function mockNotebookApiResponse(options: any) {
               value: 1
             }]
           }
+        }
+      };
+    case `http://test/ninbexec/v2/executions/${failedNotebookPath}`:
+      return {
+        data: {
+          status: 'FAILED',
+          exception: 'a python exception'
         }
       };
     default:
