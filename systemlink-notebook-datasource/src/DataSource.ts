@@ -3,9 +3,8 @@
  * notebooks. The 'query' method is called from Grafana's internals when a panel requests data.
  */
 import defaults from 'lodash/defaults';
-
+import range from 'lodash/range';
 import { PolicyEvaluator } from '@ni-kismet/helium-uicomponents/library/policyevaluator';
-
 import {
   DataQueryRequest,
   DataQueryResponse,
@@ -14,11 +13,8 @@ import {
   MutableDataFrame,
   FieldType,
 } from '@grafana/data';
-
 import { getBackendSrv, getTemplateSrv } from '@grafana/runtime';
-
 import { NotebookQuery, NotebookDataSourceOptions, defaultQuery, Notebook, Execution } from './types';
-
 import { timeout } from './utils';
 
 export class DataSource extends DataSourceApi<NotebookQuery, NotebookDataSourceOptions> {
@@ -43,8 +39,8 @@ export class DataSource extends DataSourceApi<NotebookQuery, NotebookDataSourceO
     if (execution.status === 'SUCCEEDED') {
       // TODO: Verify result object AB#1108330
       const result = execution.result.result.find((result: any) => result.id === query.output);
-      const frame = this.transformResultToDataFrame(result, query);
-      return { data: [frame] };
+      const frames = this.transformResultToDataFrames(result, query);
+      return { data: frames };
     } else {
       return { data: [], error: { message: 'The notebook failed to execute.' } };
     }
@@ -61,33 +57,54 @@ export class DataSource extends DataSourceApi<NotebookQuery, NotebookDataSourceO
     }, {} as { [key: string]: any });
   }
 
-  transformResultToDataFrame(result: any, query: NotebookQuery) {
-    const frame = new MutableDataFrame({
-      refId: query.refId,
-      fields: [],
-    });
+  transformResultToDataFrames(result: any, query: NotebookQuery) {
+    const frames = [];
 
     if (result.type === 'data_frame') {
-      for (const [ix, plot] of result.data.entries()) {
-        result.config?.graph;
-        const name = result.config?.graph?.plot_labels?.[ix];
-        if (plot.format === 'XY') {
-          if (typeof plot.x[0] === 'string') {
-            frame.addField({ name, values: plot.x, type: FieldType.time });
+      for (let [ix, dataframe] of result.data.entries()) {
+        const frame = new MutableDataFrame({
+          refId: query.refId,
+          fields: [],
+          name: result.config?.graph?.plot_labels?.[ix],
+        });
+
+        if (dataframe.format === 'XY') {
+          if (typeof dataframe.x[0] === 'string') {
+            frame.addField({ name: '', values: dataframe.x, type: FieldType.time });
           } else {
-            frame.addField({ name, values: plot.x });
+            frame.addField({ name: '', values: dataframe.x });
           }
 
-          frame.addField({ name, values: plot.y });
-        } else if (plot.format === 'INDEX') {
-          frame.addField({ name, values: plot.y });
+          frame.addField({ name: '', values: dataframe.y });
+        } else if (dataframe.format === 'INDEX') {
+          frame.addField({ name: 'Index', values: range(0, dataframe.y.length) });
+          frame.addField({ name: '', values: dataframe.y });
+        } else if (dataframe.columns) {
+          for (let [ix, column] of dataframe.columns.entries()) {
+            // New dataframe format
+            const values = dataframe.values.map((row: any) => row[ix]);
+            frame.addField({ name: column.name, type: this.getFieldType(column.type), values });
+          }
         }
+
+        frames.push(frame);
       }
     } else if (result.type === 'scalar') {
-      frame.addField({ name: '', values: [result.value] });
+      const field = { name: '', values: [result.value] };
+      frames.push(new MutableDataFrame({ refId: query.refId, fields: [field] }));
     }
 
-    return frame;
+    return frames;
+  }
+
+  private getFieldType(type: string): FieldType {
+    if (type === 'string' || type === 'number' || type === 'boolean') {
+      return FieldType[type];
+    } else if (type === 'datetime') {
+      return FieldType.time;
+    } else {
+      return FieldType.other;
+    }
   }
 
   private async executeNotebook(notebookPath: string, parameters: any) {

@@ -1,7 +1,7 @@
-type SeriesSize = 'sm' | 'md' | 'lg';
-
-export interface SimpleOptions {
-  text: string;
-  showSeriesCount: boolean;
-  seriesCountSize: SeriesSize;
+export interface PanelOptions {
+  xAxisField: string;
+  yAxisField: string;
+  plotType: string;
+  stackBars: boolean;
+  showLegend: boolean;
 }
