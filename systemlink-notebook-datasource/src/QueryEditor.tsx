@@ -4,7 +4,7 @@
  */
 import defaults from 'lodash/defaults';
 import React, { PureComponent } from 'react';
-import { Field, Input, Select, Label } from '@grafana/ui';
+import { Alert, Field, Input, Select, Label } from '@grafana/ui';
 import { QueryEditorProps, SelectableValue } from '@grafana/data';
 import { DataSource } from './DataSource';
 import { NotebookDataSourceOptions, NotebookQuery, defaultQuery, Notebook } from './types';
@@ -12,15 +12,20 @@ import './QueryEditor.scss';
 
 type Props = QueryEditorProps<DataSource, NotebookQuery, NotebookDataSourceOptions>;
 
-export class QueryEditor extends PureComponent<Props, { notebooks: Notebook[]; isLoading: boolean }> {
+export class QueryEditor extends PureComponent<Props, { notebooks: Notebook[]; isLoading: boolean; queryFailed: boolean }> {
   constructor(props: Props) {
     super(props);
-    this.state = { notebooks: [], isLoading: true };
+    this.state = { notebooks: [], isLoading: true, queryFailed: false };
   }
 
   async componentDidMount() {
-    const notebooks = await this.props.datasource.queryNotebooks('');
-    this.setState({ notebooks, isLoading: false });
+    try {
+      const notebooks = await this.props.datasource.queryNotebooks('');
+      this.setState({ notebooks, isLoading: false });
+    } catch (e) {
+      console.log(e);
+      this.setState({ queryFailed: true, isLoading: false });
+    }
   }
 
   getNotebook = (path: string) => {
@@ -130,7 +135,11 @@ export class QueryEditor extends PureComponent<Props, { notebooks: Notebook[]; i
             value={selectedNotebook ? this.formatNotebookOption(selectedNotebook) : undefined}
           />
         </Field>
-        {selectedNotebook && [
+        {this.state.queryFailed &&
+          <Alert title="SystemLink Notebook datasource failed to connect.">
+          </Alert>
+        }
+        {selectedNotebook && selectedNotebook.metadata.parameters && selectedNotebook.metadata.parameters.length && [
           <div className="sl-parameters">
             <Label>Parameters</Label>
             {selectedNotebook.metadata.parameters.map(this.getParameter)}

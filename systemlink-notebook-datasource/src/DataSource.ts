@@ -26,7 +26,14 @@ export class DataSource extends DataSourceApi<NotebookQuery, NotebookDataSourceO
   }
 
   async query(options: DataQueryRequest<NotebookQuery>): Promise<DataQueryResponse> {
-    // Assume one target for now, TODO: bubble up error AB#1108330
+    if (!options.targets || !options.targets.length) {
+      return { data: [], error: { message: 'The SystemLink notebook datasource is not configured properly.' } };
+    }
+
+    const error = options.targets.length > 1 ? 
+       { message: 'Only one SystemLink notebook output will be displayed in the panel.' } :
+       undefined;
+
     const target = options.targets[0];
     const query = defaults(target, defaultQuery);
 
@@ -40,7 +47,7 @@ export class DataSource extends DataSourceApi<NotebookQuery, NotebookDataSourceO
       // TODO: Verify result object AB#1108330
       const result = execution.result.result.find((result: any) => result.id === query.output);
       const frames = this.transformResultToDataFrames(result, query);
-      return { data: frames };
+      return { data: frames, error };
     } else {
       return { data: [], error: { message: 'The notebook failed to execute.' } };
     }
@@ -138,13 +145,16 @@ export class DataSource extends DataSourceApi<NotebookQuery, NotebookDataSourceO
 
   async queryNotebooks(path: string): Promise<Notebook[]> {
     const filter = `path.Contains("${path}")`;
-    const response = await getBackendSrv().post(this.url + '/ninbexec/v2/query-notebooks', { filter });
-    if (response.notebooks) {
-      const notebooks = response.notebooks as Notebook[];
-      return notebooks.filter(notebook => notebook.metadata.version === 2);
-    } else {
-      // TODO: Bubble up error AB#1108330
-      return [];
+    try {
+      const response = await getBackendSrv().post(this.url + '/ninbexec/v2/query-notebooks', { filter });
+      if (response.notebooks) {
+        const notebooks = response.notebooks as Notebook[];
+        return notebooks.filter(notebook => notebook.metadata.version === 2);
+      } else {
+        throw new Error('The query for SystemLink notebooks did not return any notebooks.');
+      }
+    } catch (e) {
+      throw new Error(`The query for SystemLink notebooks failed with error ${e.status}: ${e.statusText}.`);
     }
   }
 
