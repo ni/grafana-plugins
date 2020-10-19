@@ -35,7 +35,7 @@ describe('Notebook data source', () => {
     ds = new DataSource(instanceSettings);
   });
 
-  describe('transformResultToDataFrame', () => {
+  describe('transformResultToDataFrames', () => {
     it('transforms xy data', () => {
       let query = {
         refId: '123',
