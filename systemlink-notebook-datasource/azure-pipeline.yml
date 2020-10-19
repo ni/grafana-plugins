@@ -16,11 +16,11 @@ trigger:
 # Build & test
 
 steps:
-- script: npm ci
-  displayName: Install deps (npm ci)
-  workingDirectory: $(working_dir)
-  env:
-    NPM_TOKEN: $(NPM_TOKEN)
+- task: Npm@1
+  inputs:
+    command: 'ci'
+    workingDir: '$(working_dir)'
+    customEndpoint: 'NPM (ni-kismet)'
 
 - script: npm run build
   displayName: Build and test plugin
