@@ -19,6 +19,8 @@ import { getBackendSrv, getTemplateSrv } from '@grafana/runtime';
 import { NotebookQuery, NotebookDataSourceOptions, defaultQuery, Notebook, Execution } from './types';
 import { timeout } from './utils';
 
+import * as schema from './data/schema.json';
+
 export class DataSource extends DataSourceApi<NotebookQuery, NotebookDataSourceOptions> {
   url?: string;
 
@@ -47,82 +49,7 @@ export class DataSource extends DataSourceApi<NotebookQuery, NotebookDataSourceO
     const execution = await this.executeNotebook(query.path, parameters);
     if (execution.status === 'SUCCEEDED') {
       let ajv = new Ajv();
-      let validate = ajv.compile(
-        {
-          '$id': 'http://example.com/schemas/schema.json',
-          'type': 'object',
-          'required': [ 'result' ],
-          'properties': {
-            'result': {
-              'type': 'array',
-              'items': {
-                'oneOf': [
-                  {
-                    'type': 'object',
-                    'required': [ 'id', 'type', 'value' ],
-                    'properties': {
-                      'id': {
-                        'type': 'string'
-                      },
-                      'type': {
-                        'type': 'string'
-                      },
-                      'value': {}
-                    }
-                  },
-                  {
-                    'type': 'object',
-                    'required': [ 'id', 'type', 'data' ],
-                    'properties': {
-                      'id': {
-                        'type': 'string'
-                      },
-                      'type': {
-                        'type': 'string'
-                      },
-                      'data': {
-                        'type': 'array',
-                        'items': [
-                          {
-                            'type': 'object',
-                            'required': [ 'format', 'y' ],
-                            'properties': {
-                              'format': {
-                                'type': 'string'
-                              },
-                              'x': {
-                                'type': 'array',
-                                'items': {
-                                  'oneOf': [
-                                    {
-                                      'type': 'string'
-                                    },
-                                    {
-                                      'type': 'number'
-                                    }
-                                  ]
-                                }
-                              },
-                              'y': {
-                                'type': 'array',
-                                'items': [
-                                  {
-                                    'type': 'number'
-                                  }
-                                ]
-                              }
-                            }
-                          }
-                        ]
-                      }
-                    }
-                  }
-                ]
-              }
-            }
-          },
-        }
-      );
+      let validate = ajv.compile(schema);
       if (validate(execution.result)) {
         const result = execution.result.result.find((result: any) => result.id === query.output);
         if (!result) {
