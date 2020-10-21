@@ -4,6 +4,8 @@
  */
 import defaults from 'lodash/defaults';
 import range from 'lodash/range';
+import Ajv from 'ajv';
+
 import { PolicyEvaluator } from '@ni-kismet/helium-uicomponents/library/policyevaluator';
 import {
   DataQueryRequest,
@@ -44,10 +46,94 @@ export class DataSource extends DataSourceApi<NotebookQuery, NotebookDataSourceO
     const parameters = this.replaceParameterVariables(query.parameters, options);
     const execution = await this.executeNotebook(query.path, parameters);
     if (execution.status === 'SUCCEEDED') {
-      // TODO: Verify result object AB#1108330
-      const result = execution.result.result.find((result: any) => result.id === query.output);
-      const frames = this.transformResultToDataFrames(result, query);
-      return { data: frames, error };
+      let ajv = new Ajv();
+      let validate = ajv.compile(
+        {
+          '$id': 'http://example.com/schemas/schema.json',
+          'type': 'object',
+          'required': [ 'result' ],
+          'properties': {
+            'result': {
+              'type': 'array',
+              'items': {
+                'oneOf': [
+                  {
+                    'type': 'object',
+                    'required': [ 'id', 'type', 'value' ],
+                    'properties': {
+                      'id': {
+                        'type': 'string'
+                      },
+                      'type': {
+                        'type': 'string'
+                      },
+                      'value': {}
+                    }
+                  },
+                  {
+                    'type': 'object',
+                    'required': [ 'id', 'type', 'data' ],
+                    'properties': {
+                      'id': {
+                        'type': 'string'
+                      },
+                      'type': {
+                        'type': 'string'
+                      },
+                      'data': {
+                        'type': 'array',
+                        'items': [
+                          {
+                            'type': 'object',
+                            'required': [ 'format', 'y' ],
+                            'properties': {
+                              'format': {
+                                'type': 'string'
+                              },
+                              'x': {
+                                'type': 'array',
+                                'items': {
+                                  'oneOf': [
+                                    {
+                                      'type': 'string'
+                                    },
+                                    {
+                                      'type': 'number'
+                                    }
+                                  ]
+                                }
+                              },
+                              'y': {
+                                'type': 'array',
+                                'items': [
+                                  {
+                                    'type': 'number'
+                                  }
+                                ]
+                              }
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          },
+        }
+      );
+      if (validate(execution.result)) {
+        const result = execution.result.result.find((result: any) => result.id === query.output);
+        if (!result) {
+          return { data: [], error: { message: `The output of the notebook does not contain an output with id '${query.output}'.` } };
+        }
+
+        const frames = this.transformResultToDataFrames(result, query);
+        return { data: frames, error };
+      } else {
+        return { data: [], error: { message: 'The output format for the notebook is invalid.' } };
+      }
     } else {
       return { data: [], error: { message: 'The notebook failed to execute.' } };
     }
