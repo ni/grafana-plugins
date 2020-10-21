@@ -18,7 +18,7 @@
     "@ni-kismet/helium-uicomponents": "^1.323.0",
     "@testing-library/jest-dom": "5.4.0",
     "@testing-library/react": "^10.0.2",
-    "@types/lodash": "^4.14.162"
+    "@types/lodash": "latest"
   },
   "jest": {
     "moduleNameMapper": {
