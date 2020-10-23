@@ -12,10 +12,10 @@ import './QueryEditor.scss';
 
 type Props = QueryEditorProps<DataSource, NotebookQuery, NotebookDataSourceOptions>;
 
-export class QueryEditor extends PureComponent<Props, { notebooks: Notebook[]; isLoading: boolean; queryFailed: boolean }> {
+export class QueryEditor extends PureComponent<Props, { notebooks: Notebook[]; isLoading: boolean; queryError: string }> {
   constructor(props: Props) {
     super(props);
-    this.state = { notebooks: [], isLoading: true, queryFailed: false };
+    this.state = { notebooks: [], isLoading: true, queryError: '' };
   }
 
   async componentDidMount() {
@@ -24,7 +24,8 @@ export class QueryEditor extends PureComponent<Props, { notebooks: Notebook[]; i
       this.setState({ notebooks, isLoading: false });
     } catch (e) {
       console.log(e);
-      this.setState({ queryFailed: true, isLoading: false });
+      const error: string = e.message || 'SystemLink Notebook datasource failed to connect.';
+      this.setState({ queryError: error, isLoading: false });
     }
   }
 
@@ -135,8 +136,8 @@ export class QueryEditor extends PureComponent<Props, { notebooks: Notebook[]; i
             value={selectedNotebook ? this.formatNotebookOption(selectedNotebook) : undefined}
           />
         </Field>
-        {this.state.queryFailed &&
-          <Alert title="SystemLink Notebook datasource failed to connect.">
+        {this.state.queryError &&
+          <Alert title={this.state.queryError}>
           </Alert>
         }
         {selectedNotebook && selectedNotebook.metadata.parameters && selectedNotebook.metadata.parameters.length && [

@@ -191,7 +191,7 @@ describe('Notebook data source', () => {
       expect(Object.values(frame.get(0))).toEqual([1]);
     });
 
-    it('returns error for failed notebook execution', async () => {
+    it('throws error for failed notebook execution', async () => {
       const options = ({
         targets: [
           {
@@ -202,13 +202,10 @@ describe('Notebook data source', () => {
         ],
       } as unknown) as DataQueryRequest<NotebookQuery>;
 
-      let result = await ds.query(options);
-
-      expect(result.data).toHaveLength(0);
-      expect(result.error).toBeTruthy();
+      expect(ds.query(options)).rejects.toThrow();
     });
 
-    it('returns error for notebook execution with invalid output', async () => {
+    it('throws error for notebook execution with invalid output', async () => {
       const options = ({
         targets: [{
           path: invalidNotebookPath,
@@ -217,10 +214,7 @@ describe('Notebook data source', () => {
         }]
       } as unknown) as DataQueryRequest<NotebookQuery>;
 
-      let result = await ds.query(options);
-
-      expect(result.data).toHaveLength(0);
-      expect(result.error).toBeTruthy();
+      expect(ds.query(options)).rejects.toThrow();
     });
   });
 

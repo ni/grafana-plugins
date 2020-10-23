@@ -23,10 +23,14 @@ import * as schema from './data/schema.json';
 
 export class DataSource extends DataSourceApi<NotebookQuery, NotebookDataSourceOptions> {
   url?: string;
+  validate: Ajv.ValidateFunction;
 
   constructor(instanceSettings: DataSourceInstanceSettings<NotebookDataSourceOptions>) {
     super(instanceSettings);
     this.url = instanceSettings.url;
+
+    let ajv = new Ajv();
+    this.validate = ajv.compile(schema);
   }
 
   async query(options: DataQueryRequest<NotebookQuery>): Promise<DataQueryResponse> {
@@ -34,7 +38,7 @@ export class DataSource extends DataSourceApi<NotebookQuery, NotebookDataSourceO
       return { data: [], error: { message: 'The SystemLink notebook datasource is not configured properly.' } };
     }
 
-    const error = options.targets.length > 1 ? 
+    const tooManyTargetsError = options.targets.length > 1 ? 
        { message: 'Only one SystemLink notebook output will be displayed in the panel.' } :
        undefined;
 
@@ -42,27 +46,25 @@ export class DataSource extends DataSourceApi<NotebookQuery, NotebookDataSourceO
     const query = defaults(target, defaultQuery);
 
     if (!query.path) {
-      return { data: [] };
+      return { data: [], error: tooManyTargetsError };
     }
 
     const parameters = this.replaceParameterVariables(query.parameters, options);
     const execution = await this.executeNotebook(query.path, parameters);
     if (execution.status === 'SUCCEEDED') {
-      let ajv = new Ajv();
-      let validate = ajv.compile(schema);
-      if (validate(execution.result)) {
+      if (this.validate(execution.result)) {
         const result = execution.result.result.find((result: any) => result.id === query.output);
         if (!result) {
-          return { data: [], error: { message: `The output of the notebook does not contain an output with id '${query.output}'.` } };
+          throw new Error(`The output of the notebook does not contain an output with id '${query.output}'.`);
+        } else {
+          const frames = this.transformResultToDataFrames(result, query);
+          return { data: frames, error: tooManyTargetsError };
         }
-
-        const frames = this.transformResultToDataFrames(result, query);
-        return { data: frames, error };
       } else {
-        return { data: [], error: { message: 'The output format for the notebook is invalid.' } };
+        throw new Error('The output for the notebook does not match the expected SystemLink format.')
       }
     } else {
-      return { data: [], error: { message: 'The notebook failed to execute.' } };
+      throw new Error('The notebook failed to execute.');
     }
   }
 
@@ -133,13 +135,17 @@ export class DataSource extends DataSourceApi<NotebookQuery, NotebookDataSourceO
   }
 
   private async executeNotebook(notebookPath: string, parameters: any) {
-    const response = await getBackendSrv().datasourceRequest({
-      url: this.url + '/ninbexec/v2/executions',
-      method: 'POST',
-      data: [{ notebookPath, parameters }],
-    });
+    try {
+      const response = await getBackendSrv().datasourceRequest({
+        url: this.url + '/ninbexec/v2/executions',
+        method: 'POST',
+        data: [{ notebookPath, parameters }],
+      });
 
-    return this.handleNotebookExecution(response.data[0].id);
+      return this.handleNotebookExecution(response.data[0].id);
+    } catch (e) {
+      throw new Error(`The request to execute the notebook failed with error ${e.status}: ${e.statusText}.`);
+    }
   }
 
   private async handleNotebookExecution(id: string): Promise<Execution> {
@@ -160,12 +166,8 @@ export class DataSource extends DataSourceApi<NotebookQuery, NotebookDataSourceO
     const filter = `path.Contains("${path}")`;
     try {
       const response = await getBackendSrv().post(this.url + '/ninbexec/v2/query-notebooks', { filter });
-      if (response.notebooks) {
-        const notebooks = response.notebooks as Notebook[];
-        return notebooks.filter(notebook => notebook.metadata.version === 2);
-      } else {
-        throw new Error('The query for SystemLink notebooks did not return any notebooks.');
-      }
+      const notebooks = response.notebooks as Notebook[];
+      return notebooks.filter(notebook => notebook.metadata.version === 2);
     } catch (e) {
       throw new Error(`The query for SystemLink notebooks failed with error ${e.status}: ${e.statusText}.`);
     }
