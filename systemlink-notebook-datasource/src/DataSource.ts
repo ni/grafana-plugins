@@ -35,7 +35,7 @@ export class DataSource extends DataSourceApi<NotebookQuery, NotebookDataSourceO
 
   async query(options: DataQueryRequest<NotebookQuery>): Promise<DataQueryResponse> {
     if (!options.targets || !options.targets.length) {
-      return { data: [], error: { message: 'The SystemLink notebook datasource is not configured properly.' } };
+      throw new Error('The SystemLink notebook datasource is not configured properly.');
     }
 
     const tooManyTargetsError = options.targets.length > 1 ? 
@@ -46,7 +46,7 @@ export class DataSource extends DataSourceApi<NotebookQuery, NotebookDataSourceO
     const query = defaults(target, defaultQuery);
 
     if (!query.path) {
-      return { data: [], error: tooManyTargetsError };
+      throw tooManyTargetsError;
     }
 
     const parameters = this.replaceParameterVariables(query.parameters, options);
