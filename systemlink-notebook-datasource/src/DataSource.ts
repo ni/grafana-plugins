@@ -61,30 +61,35 @@ export class DataSource extends DataSourceApi<NotebookQuery, NotebookDataSourceO
     const frames = [];
 
     if (result.type === 'data_frame') {
-      for (let [ix, dataframe] of result.data.entries()) {
-        const frame = new MutableDataFrame({
-          refId: query.refId,
-          fields: [],
-          name: result.config?.graph?.plot_labels?.[ix],
-        });
+      if (Array.isArray(result.data)) {
+        for (let [ix, dataframe] of result.data.entries()) {
+          const frame = new MutableDataFrame({
+            refId: query.refId,
+            fields: [],
+            name: result.config?.graph?.plot_labels?.[ix],
+          });
 
-        if (dataframe.format === 'XY') {
-          if (typeof dataframe.x[0] === 'string') {
-            frame.addField({ name: '', values: dataframe.x, type: FieldType.time });
-          } else {
-            frame.addField({ name: '', values: dataframe.x });
+          if (dataframe.format === 'XY') {
+            if (typeof dataframe.x[0] === 'string') {
+              frame.addField({ name: '', values: dataframe.x, type: FieldType.time });
+            } else {
+              frame.addField({ name: '', values: dataframe.x });
+            }
+
+            frame.addField({ name: '', values: dataframe.y });
+          } else if (dataframe.format === 'INDEX') {
+            frame.addField({ name: 'Index', values: range(0, dataframe.y.length) });
+            frame.addField({ name: '', values: dataframe.y });
           }
 
-          frame.addField({ name: '', values: dataframe.y });
-        } else if (dataframe.format === 'INDEX') {
-          frame.addField({ name: 'Index', values: range(0, dataframe.y.length) });
-          frame.addField({ name: '', values: dataframe.y });
-        } else if (dataframe.columns) {
-          for (let [ix, column] of dataframe.columns.entries()) {
-            // New dataframe format
-            const values = dataframe.values.map((row: any) => row[ix]);
-            frame.addField({ name: column.name, type: this.getFieldType(column.type), values });
-          }
+          frames.push(frame);
+        }
+      } else {
+        // Dataframe table format
+        const frame = new MutableDataFrame({ refId: query.refId, fields: [] });
+        for (let [ix, column] of result.data.columns.entries()) {
+          const values = result.data.values.map((row: any) => row[ix]);
+          frame.addField({ name: column.name, type: this.getFieldType(column.type), values });
         }
 
         frames.push(frame);

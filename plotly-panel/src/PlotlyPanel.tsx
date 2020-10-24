@@ -50,7 +50,7 @@ const getFields = (frame: DataFrame, props: Props) => {
 
   let yField = frame.fields.find(field => field.name === props.options.yAxisField);
   if (!yField) {
-    yField = frame.fields.find(field => field !== xField);
+    yField = frame.fields.find(field => field !== xField && field.type !== FieldType.time);
   }
 
   const xAxisField = xField?.name || '';
