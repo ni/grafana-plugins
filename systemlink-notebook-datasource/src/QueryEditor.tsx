@@ -98,6 +98,8 @@ export class QueryEditor extends PureComponent<Props, { notebooks: Notebook[]; i
           options={options}
           onChange={event => this.onParameterChange(param.id, event.value as string)}
           defaultValue={{ label: value, value }}
+          menuPlacement="auto"
+          maxMenuHeight={110}
         />
       );
     } else {

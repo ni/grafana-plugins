@@ -13,12 +13,12 @@ jest.mock('@grafana/runtime', () => ({
   // @ts-ignore
   ...jest.requireActual('@grafana/runtime'),
   getBackendSrv: () => ({
-    datasourceRequest: jest.fn((options) => mockNotebookApiResponse(options)),
-    post: postMock
+    datasourceRequest: jest.fn(options => mockNotebookApiResponse(options)),
+    post: postMock,
   }),
   getTemplateSrv: () => ({
-    replace: replaceMock
-  })
+    replace: replaceMock,
+  }),
 }));
 
 beforeEach(() => {
@@ -28,20 +28,20 @@ beforeEach(() => {
 describe('Notebook data source', () => {
   let ds: DataSource;
   const instanceSettings = ({
-    url: 'http://test'
+    url: 'http://test',
   } as unknown) as DataSourceInstanceSettings<NotebookDataSourceOptions>;
 
   beforeEach(() => {
     ds = new DataSource(instanceSettings);
   });
 
-  describe('transformResultToDataFrame', () => {
+  describe('transformResultToDataFrames', () => {
     it('transforms xy data', () => {
       let query = {
         refId: '123',
         path: '/test/notebook',
         parameters: null,
-        output: 'test_output'
+        output: 'test_output',
       };
       let dataFrame = {
         type: 'data_frame',
@@ -50,20 +50,26 @@ describe('Notebook data source', () => {
         config: {
           title: 'Horizontal Bar Chart',
           graph: {
-            axis_labels: ['Labels','Values'],
-            tick_labels: [{ x: 0, label: 'label 1' }, {x: 1, label: 'label 2' }, {x: 2, label: 'label 3' }, {x: 3, label: 'label 4' }],
+            axis_labels: ['Labels', 'Values'],
+            tick_labels: [
+              { x: 0, label: 'label 1' },
+              { x: 1, label: 'label 2' },
+              { x: 2, label: 'label 3' },
+              { x: 3, label: 'label 4' },
+            ],
             orientation: 'HORIZONTAL',
             plot_style: ['BAR'],
-            plot_labels: ['plot1']
-          }
-        }
+            plot_labels: ['plot1'],
+          },
+        },
       };
 
-      let result = ds.transformResultToDataFrame(dataFrame, query);
+      let [result] = ds.transformResultToDataFrames(dataFrame, query);
 
+      expect(result.name).toBe('plot1');
       expect(result.fields).toHaveLength(2);
       expect(result.length).toBe(4);
-      expect(result.get(0)).toHaveProperty('plot1', 950);
+      expect(result.get(0)).toHaveProperty('Field 2', 950);
     });
 
     it('transforms index data', () => {
@@ -71,7 +77,7 @@ describe('Notebook data source', () => {
         refId: '123',
         path: '/test/notebook',
         parameters: null,
-        output: 'test_output'
+        output: 'test_output',
       };
       let dataFrame = {
         type: 'data_frame',
@@ -81,19 +87,25 @@ describe('Notebook data source', () => {
           title: 'Horizontal Bar Chart',
           graph: {
             axis_labels: ['Labels', 'Values'],
-            tick_labels: [{ x: 0, label: 'label 1' }, { x: 1, label: 'label 2' }, { x: 2, label: 'label 3' }, { x: 3, label: 'label 4' }],
+            tick_labels: [
+              { x: 0, label: 'label 1' },
+              { x: 1, label: 'label 2' },
+              { x: 2, label: 'label 3' },
+              { x: 3, label: 'label 4' },
+            ],
             orientation: 'HORIZONTAL',
             plot_style: ['BAR'],
-            plot_labels: ['plot1']
-          }
-        }
+            plot_labels: ['plot1'],
+          },
+        },
       };
 
-      let result = ds.transformResultToDataFrame(dataFrame, query);
+      let [result] = ds.transformResultToDataFrames(dataFrame, query);
 
-      expect(result.fields).toHaveLength(1);
+      expect(result.name).toBe('plot1');
+      expect(result.fields).toHaveLength(2);
       expect(result.length).toBe(4);
-      expect(result.get(0)).toHaveProperty('plot1', 950);
+      expect(result.get(0)).toEqual({ 'Field 2': 950, 'Index': 0 });
     });
 
     it('transforms scalar data', () => {
@@ -101,11 +113,11 @@ describe('Notebook data source', () => {
         refId: '123',
         path: '/test/notebook',
         parameters: null,
-        output: 'test_output'
+        output: 'test_output',
       };
-      let dataFrame = { type: 'scalar', id: 'output1', value: 2.5};
+      let dataFrame = { type: 'scalar', id: 'output1', value: 2.5 };
 
-      let result = ds.transformResultToDataFrame(dataFrame, query);
+      let [result] = ds.transformResultToDataFrames(dataFrame, query);
 
       expect(result.fields).toHaveLength(1);
       expect(result.length).toBe(1);
@@ -121,10 +133,10 @@ describe('Notebook data source', () => {
         string_param: s1,
         another_string_param: s2,
         number_param: 1,
-        object_param: { a : 1 }
+        object_param: { a: 1 },
       };
       const options = ({
-        scopedVars: {}
+        scopedVars: {},
       } as unknown) as DataQueryRequest<NotebookQuery>;
 
       ds.replaceParameterVariables(parameters, options);
@@ -137,10 +149,10 @@ describe('Notebook data source', () => {
     it('does not attempt to replace variables in non-string parameters', () => {
       const parameters = {
         number_param: 1,
-        object_param: {a : 1}
+        object_param: { a: 1 },
       };
       const options = ({
-        scopedVars: {}
+        scopedVars: {},
       } as unknown) as DataQueryRequest<NotebookQuery>;
 
       ds.replaceParameterVariables(parameters, options);
@@ -160,11 +172,13 @@ describe('Notebook data source', () => {
 
     it('returns frame for successful notebook execution', async () => {
       const options = ({
-        targets: [{
-          path: successfulNotebookPath,
-          parameters: [],
-          output: 'test'
-        }]
+        targets: [
+          {
+            path: successfulNotebookPath,
+            parameters: [],
+            output: 'test',
+          },
+        ],
       } as unknown) as DataQueryRequest<NotebookQuery>;
 
       let result = await ds.query(options);
@@ -178,11 +192,13 @@ describe('Notebook data source', () => {
 
     it('returns error for failed notebook execution', async () => {
       const options = ({
-        targets: [{
-          path: failedNotebookPath,
-          parameters: [],
-          output: 'test'
-        }]
+        targets: [
+          {
+            path: failedNotebookPath,
+            parameters: [],
+            output: 'test',
+          },
+        ],
       } as unknown) as DataQueryRequest<NotebookQuery>;
 
       let result = await ds.query(options);
@@ -209,7 +225,8 @@ describe('Notebook data source', () => {
 
       expect(postMock).toBeCalledWith(
         expect.any(String),
-        expect.objectContaining({ filter: expect.stringContaining(path) }));
+        expect.objectContaining({ filter: expect.stringContaining(path) })
+      );
     });
   });
 });
@@ -219,29 +236,33 @@ function mockNotebookApiResponse(options: any) {
   switch (options.url) {
     case 'http://test/ninbexec/v2/executions':
       return {
-        data: [{
-          id: options.data && options.data.length && options.data[0].notebookPath
-        }]
+        data: [
+          {
+            id: options.data && options.data.length && options.data[0].notebookPath,
+          },
+        ],
       };
     case `http://test/ninbexec/v2/executions/${successfulNotebookPath}`:
       return {
         data: {
           status: 'SUCCEEDED',
           result: {
-            result: [{
-              id: 'test',
-              type: 'scalar',
-              value: 1
-            }]
-          }
-        }
+            result: [
+              {
+                id: 'test',
+                type: 'scalar',
+                value: 1,
+              },
+            ],
+          },
+        },
       };
     case `http://test/ninbexec/v2/executions/${failedNotebookPath}`:
       return {
         data: {
           status: 'FAILED',
-          exception: 'a python exception'
-        }
+          exception: 'a python exception',
+        },
       };
     default:
       return {};
@@ -251,9 +272,9 @@ function mockNotebookApiResponse(options: any) {
 function mockQueryNotebooksResponse() {
   return {
     notebooks: [
-      { path: 'bad', metadata: { version: 1 }},
-      { path: 'good', metadata: { version: 2 }},
-      { path: 'also bad', metadata: { version: 3 }}
-    ]
+      { path: 'bad', metadata: { version: 1 } },
+      { path: 'good', metadata: { version: 2 } },
+      { path: 'also bad', metadata: { version: 3 } },
+    ],
   };
 }
