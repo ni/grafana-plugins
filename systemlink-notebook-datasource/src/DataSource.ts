@@ -38,15 +38,16 @@ export class DataSource extends DataSourceApi<NotebookQuery, NotebookDataSourceO
       throw new Error('The SystemLink notebook datasource is not configured properly.');
     }
 
-    const tooManyTargetsError = options.targets.length > 1 ? 
-       { message: 'Only one SystemLink notebook output will be displayed in the panel.' } :
-       undefined;
-
     const target = options.targets[0];
     const query = defaults(target, defaultQuery);
 
     if (!query.path) {
-      throw tooManyTargetsError;
+      return { data: [] };
+    }
+
+    const error = { message: '' };
+    if (options.targets.length > 1) {
+      error.message = 'Only one SystemLink notebook output will be displayed in the panel.';
     }
 
     const parameters = this.replaceParameterVariables(query.parameters, options);
@@ -58,7 +59,7 @@ export class DataSource extends DataSourceApi<NotebookQuery, NotebookDataSourceO
           throw new Error(`The output of the notebook does not contain an output with id '${query.output}'.`);
         } else {
           const frames = this.transformResultToDataFrames(result, query);
-          return { data: frames, error: tooManyTargetsError };
+          return { data: frames, error };
         }
       } else {
         throw new Error('The output for the notebook does not match the expected SystemLink format.')

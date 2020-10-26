@@ -28,7 +28,7 @@
                         }
                     },
                     {
-                        "description": "Dataframe data",
+                        "description": "Dataframe data (original)",
                         "type": "object",
                         "required": [
                             "id",
@@ -102,42 +102,60 @@
                                                     ]
                                                 }
                                             }
-                                        },
-                                        {
-                                            "type": "object",
-                                            "description": "Native dataframe",
-                                            "required": [
-                                                "columns",
-                                                "values"
-                                            ],
-                                            "properties": {
-                                                "columns": {
-                                                    "type": "array",
-                                                    "items": [{
-                                                        "type": "object",
-                                                        "required": [
-                                                            "name",
-                                                            "type"
-                                                        ],
-                                                        "properties": {
-                                                            "name": {
-                                                                "type": "string"
-                                                            },
-                                                            "type": {
-                                                                "type": "string"
-                                                            }
-                                                        }
-                                                    }]
-                                                },
-                                                "values": {
-                                                    "type": "array",
-                                                    "items": [{
-                                                        "type": "array"
-                                                    }]
-                                                }
-                                            }
                                         }
                                     ]
+                                }
+                            }
+                        }
+                    },
+                    {
+                        "description": "Dataframe data (native)",
+                        "type": "object",
+                        "required": [
+                            "id",
+                            "type",
+                            "data"
+                        ],
+                        "properties": {
+                            "id": {
+                                "description": "Output identifier",
+                                "type": "string"
+                            },
+                            "type": {
+                                "const": "data_frame"
+                            },
+                            "data": {
+                                "type": "object",
+                                "description": "Native dataframe",
+                                "required": [
+                                    "columns",
+                                    "values"
+                                ],
+                                "properties": {
+                                    "columns": {
+                                        "type": "array",
+                                        "items": [{
+                                            "type": "object",
+                                            "required": [
+                                                "name",
+                                                "type"
+                                            ],
+                                            "properties": {
+                                                "name": {
+                                                    "type": "string"
+                                                },
+                                                "type": {
+                                                    "type": "string"
+                                                }
+                                            }
+                                        }]
+                                    },
+                                    "values": {
+                                        "type": "array",
+                                        "items": [{
+                                            "type": "array"
+                                        }]
+                                    }
                                 }
                             }
                         }
