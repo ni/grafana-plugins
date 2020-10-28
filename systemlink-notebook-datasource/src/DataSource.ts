@@ -4,6 +4,8 @@
  */
 import defaults from 'lodash/defaults';
 import range from 'lodash/range';
+import Ajv from 'ajv';
+
 import { PolicyEvaluator } from '@ni-kismet/helium-uicomponents/library/policyevaluator';
 import {
   DataQueryRequest,
@@ -17,16 +19,25 @@ import { getBackendSrv, getTemplateSrv } from '@grafana/runtime';
 import { NotebookQuery, NotebookDataSourceOptions, defaultQuery, Notebook, Execution } from './types';
 import { timeout } from './utils';
 
+import * as schema from './data/schema.json';
+
 export class DataSource extends DataSourceApi<NotebookQuery, NotebookDataSourceOptions> {
   url?: string;
+  validate: Ajv.ValidateFunction;
 
   constructor(instanceSettings: DataSourceInstanceSettings<NotebookDataSourceOptions>) {
     super(instanceSettings);
     this.url = instanceSettings.url;
+
+    let ajv = new Ajv();
+    this.validate = ajv.compile(schema);
   }
 
   async query(options: DataQueryRequest<NotebookQuery>): Promise<DataQueryResponse> {
-    // Assume one target for now, TODO: bubble up error AB#1108330
+    if (!options.targets || !options.targets.length) {
+      throw new Error('The SystemLink notebook datasource is not configured properly.');
+    }
+
     const target = options.targets[0];
     const query = defaults(target, defaultQuery);
 
@@ -34,15 +45,27 @@ export class DataSource extends DataSourceApi<NotebookQuery, NotebookDataSourceO
       return { data: [] };
     }
 
+    const error = { message: '' };
+    if (options.targets.length > 1) {
+      error.message = 'Only one SystemLink notebook output will be displayed in the panel.';
+    }
+
     const parameters = this.replaceParameterVariables(query.parameters, options);
     const execution = await this.executeNotebook(query.path, parameters);
     if (execution.status === 'SUCCEEDED') {
-      // TODO: Verify result object AB#1108330
-      const result = execution.result.result.find((result: any) => result.id === query.output);
-      const frames = this.transformResultToDataFrames(result, query);
-      return { data: frames };
+      if (this.validate(execution.result)) {
+        const result = execution.result.result.find((result: any) => result.id === query.output);
+        if (!result) {
+          throw new Error(`The output of the notebook does not contain an output with id '${query.output}'.`);
+        } else {
+          const frames = this.transformResultToDataFrames(result, query);
+          return { data: frames, error };
+        }
+      } else {
+        throw new Error('The output for the notebook does not match the expected SystemLink format.')
+      }
     } else {
-      return { data: [], error: { message: 'The notebook failed to execute.' } };
+      throw new Error('The notebook failed to execute.');
     }
   }
 
@@ -113,13 +136,17 @@ export class DataSource extends DataSourceApi<NotebookQuery, NotebookDataSourceO
   }
 
   private async executeNotebook(notebookPath: string, parameters: any) {
-    const response = await getBackendSrv().datasourceRequest({
-      url: this.url + '/ninbexec/v2/executions',
-      method: 'POST',
-      data: [{ notebookPath, parameters }],
-    });
+    try {
+      const response = await getBackendSrv().datasourceRequest({
+        url: this.url + '/ninbexec/v2/executions',
+        method: 'POST',
+        data: [{ notebookPath, parameters }],
+      });
 
-    return this.handleNotebookExecution(response.data[0].id);
+      return this.handleNotebookExecution(response.data[0].id);
+    } catch (e) {
+      throw new Error(`The request to execute the notebook failed with error ${e.status}: ${e.statusText}.`);
+    }
   }
 
   private async handleNotebookExecution(id: string): Promise<Execution> {
@@ -138,13 +165,12 @@ export class DataSource extends DataSourceApi<NotebookQuery, NotebookDataSourceO
 
   async queryNotebooks(path: string): Promise<Notebook[]> {
     const filter = `path.Contains("${path}")`;
-    const response = await getBackendSrv().post(this.url + '/ninbexec/v2/query-notebooks', { filter });
-    if (response.notebooks) {
+    try {
+      const response = await getBackendSrv().post(this.url + '/ninbexec/v2/query-notebooks', { filter });
       const notebooks = response.notebooks as Notebook[];
       return notebooks.filter(notebook => notebook.metadata.version === 2);
-    } else {
-      // TODO: Bubble up error AB#1108330
-      return [];
+    } catch (e) {
+      throw new Error(`The query for SystemLink notebooks failed with error ${e.status}: ${e.statusText}.`);
     }
   }
 

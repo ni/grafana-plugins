@@ -8,6 +8,7 @@ const replaceMock = jest.fn((a: string, ...rest: any) => a);
 
 const successfulNotebookPath = '0';
 const failedNotebookPath = '1';
+const invalidNotebookPath = '2';
 
 jest.mock('@grafana/runtime', () => ({
   // @ts-ignore
@@ -162,12 +163,10 @@ describe('Notebook data source', () => {
   });
 
   describe('query', () => {
-    it('returns empty array for no query', async () => {
+    it('throws error for no query', async () => {
       const options = ({ targets: [{}] } as unknown) as DataQueryRequest<NotebookQuery>;
 
-      let result = await ds.query(options);
-
-      expect(result).toEqual({ data: [] });
+      expect(ds.query(options)).rejects.toThrow();
     });
 
     it('returns frame for successful notebook execution', async () => {
@@ -190,7 +189,7 @@ describe('Notebook data source', () => {
       expect(Object.values(frame.get(0))).toEqual([1]);
     });
 
-    it('returns error for failed notebook execution', async () => {
+    it('throws error for failed notebook execution', async () => {
       const options = ({
         targets: [
           {
@@ -201,10 +200,19 @@ describe('Notebook data source', () => {
         ],
       } as unknown) as DataQueryRequest<NotebookQuery>;
 
-      let result = await ds.query(options);
+      expect(ds.query(options)).rejects.toThrow();
+    });
 
-      expect(result.data).toHaveLength(0);
-      expect(result.error).toBeTruthy();
+    it('throws error for notebook execution with invalid output', async () => {
+      const options = ({
+        targets: [{
+          path: invalidNotebookPath,
+          parameters: [],
+          output: 'test'
+        }]
+      } as unknown) as DataQueryRequest<NotebookQuery>;
+
+      expect(ds.query(options)).rejects.toThrow();
     });
   });
 
@@ -263,6 +271,23 @@ function mockNotebookApiResponse(options: any) {
           status: 'FAILED',
           exception: 'a python exception',
         },
+      };
+    case `http://test/ninbexec/v2/executions/${invalidNotebookPath}`:
+      return {
+        data: {
+          status: 'SUCCEEDED',
+          result: {
+            result: [
+              {
+                id: 'test',
+                type: 'data_frame',
+                data: {
+                  values: [1, 2, 3]
+                }
+              }
+            ]
+          }
+        }
       };
     default:
       return {};

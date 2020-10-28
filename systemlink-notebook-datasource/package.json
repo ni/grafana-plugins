@@ -27,5 +27,8 @@
   },
   "engines": {
     "node": ">=12 <13"
+  },
+  "dependencies": {
+    "ajv": "^6.12.6"
   }
 }
