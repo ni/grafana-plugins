@@ -163,10 +163,12 @@ describe('Notebook data source', () => {
   });
 
   describe('query', () => {
-    it('throws error for no query', async () => {
+    it('returns no data for no query', async () => {
       const options = ({ targets: [{}] } as unknown) as DataQueryRequest<NotebookQuery>;
 
-      expect(ds.query(options)).rejects.toThrow();
+      let result = await ds.query(options);
+
+      expect(result.data.length).toBe(0);
     });
 
     it('returns frame for successful notebook execution', async () => {

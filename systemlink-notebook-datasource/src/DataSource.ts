@@ -164,7 +164,7 @@ export class DataSource extends DataSourceApi<NotebookQuery, NotebookDataSourceO
   }
 
   async queryNotebooks(path: string): Promise<Notebook[]> {
-    const filter = `path.Contains("${path}")`;
+    const filter = `path.Contains("${path}") && !metadata["namespaces"].Contains("ni-testmanagement-parametric-data-statistics")`;
     try {
       const response = await getBackendSrv().post(this.url + '/ninbexec/v2/query-notebooks', { filter });
       const notebooks = response.notebooks as Notebook[];

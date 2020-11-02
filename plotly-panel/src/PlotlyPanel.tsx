@@ -28,7 +28,7 @@ export const PlotlyPanel: React.FC<Props> = props => {
       layout={{
         width,
         height,
-        annotations: plotData.length === 0 ? [{ text: 'No data', showarrow: false }] : [],
+        annotations: plotData.length === 0 || !plotData.find(d => d.y?.length) ? [{ text: 'No data', showarrow: false }] : [],
         ...getLayout(theme, options),
       }}
       config={{ displayModeBar: false }}
