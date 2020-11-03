@@ -106,7 +106,7 @@ describe('Notebook data source', () => {
       expect(result.name).toBe('plot1');
       expect(result.fields).toHaveLength(2);
       expect(result.length).toBe(4);
-      expect(result.get(0)).toEqual({ 'Field 2': 950, 'Index': 0 });
+      expect(result.get(0)).toEqual({ 'Field 2': 950, Index: 0 });
     });
 
     it('transforms scalar data', () => {
@@ -205,11 +205,13 @@ describe('Notebook data source', () => {
 
     it('throws error for notebook execution with invalid output', async () => {
       const options = ({
-        targets: [{
-          path: invalidNotebookPath,
-          parameters: [],
-          output: 'test'
-        }]
+        targets: [
+          {
+            path: invalidNotebookPath,
+            parameters: [],
+            output: 'test',
+          },
+        ],
       } as unknown) as DataQueryRequest<NotebookQuery>;
 
       expect(ds.query(options)).rejects.toThrow();
@@ -282,12 +284,12 @@ function mockNotebookApiResponse(options: any) {
                 id: 'test',
                 type: 'data_frame',
                 data: {
-                  values: [1, 2, 3]
-                }
-              }
-            ]
-          }
-        }
+                  values: [1, 2, 3],
+                },
+              },
+            ],
+          },
+        },
       };
     default:
       return {};

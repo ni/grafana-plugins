@@ -12,7 +12,10 @@ import './QueryEditor.scss';
 
 type Props = QueryEditorProps<DataSource, NotebookQuery, NotebookDataSourceOptions>;
 
-export class QueryEditor extends PureComponent<Props, { notebooks: Notebook[]; isLoading: boolean; queryError: string }> {
+export class QueryEditor extends PureComponent<
+  Props,
+  { notebooks: Notebook[]; isLoading: boolean; queryError: string }
+> {
   constructor(props: Props) {
     super(props);
     this.state = { notebooks: [], isLoading: true, queryError: '' };
@@ -88,7 +91,7 @@ export class QueryEditor extends PureComponent<Props, { notebooks: Notebook[]; i
     const selectedNotebook = this.getNotebook(query.path) as Notebook;
     const value = query.parameters[param.id] || selectedNotebook.parameters[param.id];
     return (
-      <div className="sl-parameter" key={param.id}>
+      <div className="sl-parameter" key={param.id + selectedNotebook.path}>
         <Label className="sl-parameter-label">{param.display_name}</Label>
         {this.getParameterInput(param, value)}
       </div>
@@ -136,25 +139,24 @@ export class QueryEditor extends PureComponent<Props, { notebooks: Notebook[]; i
             value={selectedNotebook ? this.formatNotebookOption(selectedNotebook) : undefined}
           />
         </Field>
-        {this.state.queryError &&
-          <Alert title={this.state.queryError}>
-          </Alert>
-        }
-        {selectedNotebook && selectedNotebook.metadata.parameters && selectedNotebook.metadata.parameters.length && [
-          <div className="sl-parameters">
-            <Label>Parameters</Label>
-            {selectedNotebook.metadata.parameters.map(this.getParameter)}
-          </div>,
-          <Field className="sl-output" label="Output">
-            <Select
-              options={selectedNotebook.metadata.outputs.map(this.formatOutputOption)}
-              onChange={this.onOutputChange}
-              value={this.formatOutputOption(
-                selectedNotebook.metadata.outputs.find((output: any) => output.id === query.output)
-              )}
-            />
-          </Field>,
-        ]}
+        {this.state.queryError && <Alert title={this.state.queryError}></Alert>}
+        {selectedNotebook &&
+          selectedNotebook.metadata.parameters &&
+          selectedNotebook.metadata.parameters.length && [
+            <div className="sl-parameters">
+              <Label>Parameters</Label>
+              {selectedNotebook.metadata.parameters.map(this.getParameter)}
+            </div>,
+            <Field className="sl-output" label="Output">
+              <Select
+                options={selectedNotebook.metadata.outputs.map(this.formatOutputOption)}
+                onChange={this.onOutputChange}
+                value={this.formatOutputOption(
+                  selectedNotebook.metadata.outputs.find((output: any) => output.id === query.output)
+                )}
+              />
+            </Field>,
+          ]}
       </div>
     );
   }
