@@ -1,5 +1,15 @@
 import React from 'react';
-import { PanelProps, DataFrame, FieldType, Field, GrafanaTheme, getFrameDisplayName } from '@grafana/data';
+import {
+  PanelProps,
+  DataFrame,
+  FieldType,
+  Field,
+  GrafanaTheme,
+  getFieldDisplayName,
+  getColorForTheme,
+  Color,
+  getColorDefinitionByName
+} from '@grafana/data';
 import { PanelOptions } from 'types';
 import { useTheme } from '@grafana/ui';
 import Plot from 'react-plotly.js';
@@ -8,17 +18,28 @@ import { PlotType } from 'plotly.js';
 interface Props extends PanelProps<PanelOptions> {}
 
 export const PlotlyPanel: React.FC<Props> = props => {
-  const { data, width, height, options } = props;
+  const { data, width, height, options, fieldConfig } = props;
   const theme = useTheme();
   const plotData: Plotly.Data[] = [];
-  for (const [index, dataframe] of data.series.entries()) {
+  for (const dataframe of data.series) {
     const [xField, yField] = getFields(dataframe, props);
+    const { mode, type } = getModeAndType(options.plotType);
 
     plotData.push({
       x: xField ? getFieldValues(xField) : [],
       y: yField ? getFieldValues(yField) : [],
-      name: getFrameDisplayName(dataframe, index),
-      type: options.plotType as PlotType,
+      name: getFieldDisplayName(yField as Field, dataframe, data.series),
+      mode: mode as any,
+      type: type as PlotType,
+      fill: options.areaFill && options.plotType === 'line' ? 'tozeroy' : 'none',
+      marker: {
+        size: options.markerSize,
+        color: getPlotlyColor(fieldConfig.defaults.custom?.color),
+      },
+      line: {
+        width: options.lineWidth,
+        shape: options.staircase ? 'hv' : 'linear',
+      },
     });
   }
 
@@ -61,6 +82,31 @@ const getFields = (frame: DataFrame, props: Props) => {
 
   return [xField, yField];
 };
+
+const getModeAndType = (type: string) => {
+  switch (type) {
+    case 'line':
+      return { mode: 'lines', type: 'scatter' };
+    case 'points':
+      return { mode: 'markers', type: 'scatter' };
+    default:
+      return { type: type };
+  }
+}
+
+const getPlotlyColor = (grafanaColor: string) => {
+  if (!grafanaColor) {
+    // Let plotly choose
+    return;
+  }
+
+  if (grafanaColor.startsWith('rgb(')) {
+    return grafanaColor;
+  }
+
+  const colorDefinition = getColorDefinitionByName(grafanaColor as Color);
+  return getColorForTheme(colorDefinition);
+}
 
 const getFieldValues = (field: Field) => {
   if (field.type === FieldType.time) {

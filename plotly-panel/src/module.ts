@@ -28,8 +28,9 @@ export const plugin = new PanelPlugin<PanelOptions>(PlotlyPanel)
         name: 'Plot type',
         settings: {
           options: [
-            { label: 'Line', value: 'scatter' },
+            { label: 'Line', value: 'line' },
             { label: 'Bar', value: 'bar' },
+            { label: 'Points', value: 'points' },
           ],
         },
         defaultValue: 'scatter',
@@ -41,12 +42,48 @@ export const plugin = new PanelPlugin<PanelOptions>(PlotlyPanel)
         showIf: options => options.plotType === 'bar',
       })
       .addBooleanSwitch({
+        path: 'areaFill',
+        name: 'Area fill',
+        defaultValue: false,
+        showIf: options => options.plotType === 'line',
+      })
+      .addBooleanSwitch({
+        path: 'staircase',
+        name: 'Staircase',
+        defaultValue: false,
+        showIf: options => options.plotType === 'line',
+      })
+      .addNumberInput({
+        path: 'lineWidth',
+        name: 'Line width',
+        defaultValue: 2,
+        showIf: options => options.plotType === 'line',
+      })
+      .addNumberInput({
+        path: 'markerSize',
+        name: 'Point size',
+        defaultValue: 6,
+        showIf: options => options.plotType === 'points',
+      })
+      .addBooleanSwitch({
         path: 'showLegend',
         name: 'Show legend',
         defaultValue: false,
       });
   })
-  .useFieldConfig();
+  .useFieldConfig({
+    useCustomConfig: builder => {
+      builder
+        .addColorPicker({
+          path: 'color',
+          name: 'Color',
+          description: 'Color of the series',
+          settings: {
+            enableNamedColors: false,
+          },
+        });
+    },
+  });
 
 const getFieldOptions = (context: FieldOverrideContext) => {
   const options = [];
