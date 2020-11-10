@@ -62,7 +62,7 @@ export class DataSource extends DataSourceApi<NotebookQuery, NotebookDataSourceO
           return { data: frames, error };
         }
       } else {
-        throw new Error('The output for the notebook does not match the expected SystemLink format.')
+        throw new Error('The output for the notebook does not match the expected SystemLink format.');
       }
     } else {
       throw new Error('The notebook failed to execute.');
@@ -126,8 +126,10 @@ export class DataSource extends DataSourceApi<NotebookQuery, NotebookDataSourceO
   }
 
   private getFieldType(type: string): FieldType {
-    if (type === 'string' || type === 'number' || type === 'boolean') {
+    if (type === 'string' || type === 'boolean') {
       return FieldType[type];
+    } else if (type === 'number' || type === 'integer') {
+      return FieldType.number;
     } else if (type === 'datetime') {
       return FieldType.time;
     } else {
