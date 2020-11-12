@@ -13,7 +13,7 @@ import {
 import { PanelOptions } from 'types';
 import { useTheme } from '@grafana/ui';
 import Plot from 'react-plotly.js';
-import { PlotType } from 'plotly.js';
+import { AxisType, PlotData, PlotType } from 'plotly.js';
 
 interface Props extends PanelProps<PanelOptions> {}
 
@@ -29,8 +29,8 @@ export const PlotlyPanel: React.FC<Props> = props => {
       x: xField ? getFieldValues(xField) : [],
       y: yField ? getFieldValues(yField) : [],
       name: getFieldDisplayName(yField as Field, dataframe, data.series),
-      mode: mode as any,
-      type: type as PlotType,
+      mode: mode,
+      type: type,
       fill: options.series.areaFill && options.series.plotType === 'line' ? 'tozeroy' : 'none',
       marker: {
         size: options.series.markerSize,
@@ -49,8 +49,8 @@ export const PlotlyPanel: React.FC<Props> = props => {
         y: yField2 ? getFieldValues(yField2) : [],
         yaxis: 'y2',
         name: getFieldDisplayName(yField2 as Field, dataframe, data.series),
-        mode: mode as any,
-        type: type as PlotType,
+        mode: mode,
+        type: type,
         fill: options.series2.areaFill && options.series2.plotType === 'line' ? 'tozeroy' : 'none',
         marker: {
           size: options.series2.markerSize,
@@ -115,11 +115,11 @@ const getFields = (frame: DataFrame, props: Props) => {
 const getModeAndType = (type: string) => {
   switch (type) {
     case 'line':
-      return { mode: 'lines', type: 'scatter' };
+      return { mode: 'lines' as PlotData['mode'], type: 'scatter' as PlotType };
     case 'points':
-      return { mode: 'markers', type: 'scatter' };
+      return { mode: 'markers' as PlotData['mode'], type: 'scatter' as PlotType };
     default:
-      return { type: type };
+      return { type: type as PlotType };
   }
 }
 
@@ -156,14 +156,14 @@ const getLayout = (theme: GrafanaTheme, options: PanelOptions) => {
     xaxis: {
       fixedrange: true,
       title: options.xAxis.title,
-      type: options.xAxis.scale as any,
+      type: options.xAxis.scale as AxisType,
     },
     yaxis: {
       fixedrange: true,
       automargin: true,
       title: options.yAxis.title,
       range: [options.yAxis.min, options.yAxis.max],
-      type: options.yAxis.scale as any,
+      type: options.yAxis.scale as AxisType,
       tickformat: options.yAxis.decimals ? `.${options.yAxis.decimals}f` : '',
       ticksuffix: options.yAxis.unit ? ` ${options.yAxis.unit}` : '',
     },
@@ -175,7 +175,7 @@ const getLayout = (theme: GrafanaTheme, options: PanelOptions) => {
       side: 'right',
       title: options.yAxis2?.title,
       range: [options.yAxis2?.min, options.yAxis2?.max],
-      type: options.yAxis2?.scale as any,
+      type: options.yAxis2?.scale as AxisType,
       tickformat: options.yAxis2?.decimals ? `.${options.yAxis2?.decimals}f` : '',
       ticksuffix: options.yAxis2?.unit ? ` ${options.yAxis2?.unit}` : '',
     },
