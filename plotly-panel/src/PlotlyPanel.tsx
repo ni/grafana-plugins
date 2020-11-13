@@ -193,7 +193,7 @@ const getLegendLayout = (position: string, showYAxis2: boolean, showXAxisLabel: 
       orientation: 'h',
       x: 0,
       xanchor: 'left',
-      y: showXAxisLabel ? -0.2 : -0.3,
+      y: showXAxisLabel ? -0.3 : -0.2,
       yanchor: 'top',
     };
   }
