@@ -13,7 +13,7 @@ import {
 import { PanelOptions } from 'types';
 import { useTheme } from '@grafana/ui';
 import Plot from 'react-plotly.js';
-import { AxisType, PlotData, PlotType } from 'plotly.js';
+import { AxisType, Legend, PlotData, PlotType } from 'plotly.js';
 
 interface Props extends PanelProps<PanelOptions> {}
 
@@ -180,11 +180,28 @@ const getLayout = (theme: GrafanaTheme, options: PanelOptions) => {
       ticksuffix: options.yAxis2?.unit ? ` ${options.yAxis2?.unit}` : '',
     },
     showlegend: options.showLegend,
-    legend: {
-      x: options.showYAxis2 ? 1.1 : 1,
-    },
+    legend: getLegendLayout(options.legendPosition, options.showYAxis2, !!options.xAxis.title),
     barmode: options.series.stackBars ? 'stack' : 'group',
   };
 
   return layout;
 };
+
+const getLegendLayout = (position: string, showYAxis2: boolean, showXAxisLabel: boolean): Partial<Legend> => {
+  if (position === 'bottom') {
+    return {
+      orientation: 'h',
+      x: 0,
+      xanchor: 'left',
+      y: showXAxisLabel ? -0.2 : -0.3,
+      yanchor: 'top',
+    };
+  }
+  return {
+    orientation: 'v',
+		x: showYAxis2 ? 1.1 : 1,
+    xanchor: 'left',
+		y: 1,
+    yanchor: 'top',
+  };
+}

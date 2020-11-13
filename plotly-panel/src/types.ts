@@ -4,6 +4,7 @@ export interface PanelOptions {
   yAxis2?: AxisOptions;
   showYAxis2: boolean;
   showLegend: boolean;
+  legendPosition: string;
   series: SeriesOptions;
   series2: SeriesOptions;
 }

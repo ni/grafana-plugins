@@ -263,6 +263,17 @@ export const plugin = new PanelPlugin<PanelOptions>(PlotlyPanel)
         path: 'showLegend',
         name: 'Show legend',
         defaultValue: false,
+      })
+      .addRadio({
+        path: 'legendPosition',
+        name: 'Legend position',
+        settings: {
+          options: [
+            { label: 'Right', value: 'right' },
+            { label: 'Bottom', value: 'bottom' },
+          ],
+        },
+        defaultValue: 'right',
       });
   })
   .useFieldConfig({
