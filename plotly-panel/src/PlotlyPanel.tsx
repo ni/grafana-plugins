@@ -23,14 +23,12 @@ export const PlotlyPanel: React.FC<Props> = props => {
   const plotData: Plotly.Data[] = [];
   for (const dataframe of data.series) {
     const [xField, yField, yField2] = getFields(dataframe, props);
-    const { mode, type } = getModeAndType(options.series.plotType);
 
     plotData.push({
       x: xField ? getFieldValues(xField) : [],
       y: yField ? getFieldValues(yField) : [],
       name: getFieldDisplayName(yField as Field, dataframe, data.series),
-      mode: mode,
-      type: type,
+      ...getModeAndType(options.series.plotType),
       fill: options.series.areaFill && options.series.plotType === 'line' ? 'tozeroy' : 'none',
       marker: {
         size: options.series.markerSize,
@@ -43,14 +41,12 @@ export const PlotlyPanel: React.FC<Props> = props => {
     });
 
     if (yField2 && props.options.showYAxis2) {
-      const { mode, type } = getModeAndType(options.series2.plotType);
       plotData.push({
         x: xField ? getFieldValues(xField) : [],
         y: yField2 ? getFieldValues(yField2) : [],
         yaxis: 'y2',
         name: getFieldDisplayName(yField2 as Field, dataframe, data.series),
-        mode: mode,
-        type: type,
+        ...getModeAndType(options.series2.plotType),
         fill: options.series2.areaFill && options.series2.plotType === 'line' ? 'tozeroy' : 'none',
         marker: {
           size: options.series2.markerSize,
