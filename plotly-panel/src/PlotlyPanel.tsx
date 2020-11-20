@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   PanelProps,
   DataFrame,
@@ -8,20 +8,31 @@ import {
   getFieldDisplayName,
   getColorForTheme,
   Color,
-  getColorDefinitionByName
+  getColorDefinitionByName,
 } from '@grafana/data';
 import { PanelOptions } from 'types';
-import { useTheme } from '@grafana/ui';
+import { useTheme, ContextMenu, ContextMenuGroup, linkModelToContextMenuItems } from '@grafana/ui';
+import { getGuid } from 'utils';
+
 import Plot from 'react-plotly.js';
 import { AxisType, Legend, PlotData, PlotType } from 'plotly.js';
+
+interface MenuState {
+  x: number;
+  y: number;
+  show: boolean;
+  items: ContextMenuGroup[];
+}
 
 interface Props extends PanelProps<PanelOptions> {}
 
 export const PlotlyPanel: React.FC<Props> = props => {
   const { data, width, height, options } = props;
+  const [menu, setMenu] = useState<MenuState>({ x: 0, y: 0, show: false, items: [] });
   const theme = useTheme();
   const plotData: Plotly.Data[] = [];
   for (const dataframe of data.series) {
+    setDataFrameId(dataframe);
     const [xField, yField, yField2] = getFields(dataframe, props);
 
     plotData.push({
@@ -38,6 +49,7 @@ export const PlotlyPanel: React.FC<Props> = props => {
         width: options.series.lineWidth,
         shape: options.series.staircase ? 'hv' : 'linear',
       },
+      customdata: [dataframe.meta?.custom?.id],
     });
 
     if (yField2 && props.options.showYAxis2) {
@@ -56,22 +68,66 @@ export const PlotlyPanel: React.FC<Props> = props => {
           width: options.series2.lineWidth,
           shape: options.series2.staircase ? 'hv' : 'linear',
         },
+        customdata: [dataframe.meta?.custom?.id],
       });
     }
   }
 
+  const handlePlotClick = (plotEvent: Readonly<Plotly.PlotMouseEvent>) => {
+    const point = plotEvent.points[0];
+    const [id] = point.data.customdata;
+    const frame = data.series.find(frame => frame.meta?.custom?.id === id);
+    if (!frame) {
+      return;
+    }
+
+    const field = frame.fields.find(field => point.data.name === getFieldDisplayName(field, frame, data.series));
+
+    if (!field || !field.getLinks) {
+      return;
+    }
+
+    const links = field.getLinks({ valueRowIndex: point.pointIndex });
+    setMenu({
+      x: plotEvent.event.x,
+      y: plotEvent.event.y,
+      show: true,
+      items: [{ label: 'Data links', items: linkModelToContextMenuItems(() => links) }],
+    });
+  };
+
   return (
-    <Plot
-      data={plotData}
-      layout={{
-        width,
-        height,
-        annotations: plotData.length === 0 || !plotData.find(d => d.y?.length) ? [{ text: 'No data', showarrow: false }] : [],
-        ...getLayout(theme, options),
-      }}
-      config={{ displayModeBar: false }}
-    />
+    <div>
+      <Plot
+        data={plotData}
+        layout={{
+          width,
+          height,
+          annotations:
+            plotData.length === 0 || !plotData.find(d => d.y?.length) ? [{ text: 'No data', showarrow: false }] : [],
+          ...getLayout(theme, options),
+        }}
+        config={{ displayModeBar: false }}
+        onClick={handlePlotClick}
+      />
+      {menu.show && (
+        <ContextMenu items={menu.items} x={menu.x} y={menu.y} onClose={() => setMenu({ ...menu, show: false })} />
+      )}
+    </div>
   );
+};
+
+// Fingerprint a dataframe so we can backreference it when a plot is clicked
+const setDataFrameId = (frame: DataFrame) => {
+  if (frame.meta?.custom?.id) {
+    return;
+  } else if (frame.meta?.custom) {
+    frame.meta.custom['id'] = getGuid();
+  } else if (frame.meta) {
+    frame.meta.custom = { id: getGuid() };
+  } else {
+    frame.meta = { custom: { id: getGuid() } };
+  }
 };
 
 // Pull out user-selected fields from a DataFrame.
@@ -117,7 +173,7 @@ const getModeAndType = (type: string) => {
     default:
       return { type: type as PlotType };
   }
-}
+};
 
 const getPlotlyColor = (grafanaColor: string) => {
   if (!grafanaColor) {
@@ -131,7 +187,7 @@ const getPlotlyColor = (grafanaColor: string) => {
 
   const colorDefinition = getColorDefinitionByName(grafanaColor as Color);
   return getColorForTheme(colorDefinition);
-}
+};
 
 const getFieldValues = (field: Field) => {
   if (field.type === FieldType.time) {
@@ -178,6 +234,7 @@ const getLayout = (theme: GrafanaTheme, options: PanelOptions) => {
     showlegend: options.showLegend,
     legend: getLegendLayout(options.legendPosition, options.showYAxis2, !!options.xAxis.title),
     barmode: options.series.stackBars ? 'stack' : 'group',
+    hovermode: 'closest',
   };
 
   return layout;
@@ -195,9 +252,9 @@ const getLegendLayout = (position: string, showYAxis2: boolean, showXAxisLabel: 
   }
   return {
     orientation: 'v',
-		x: showYAxis2 ? 1.1 : 1,
+    x: showYAxis2 ? 1.1 : 1,
     xanchor: 'left',
-		y: 1,
+    y: 1,
     yanchor: 'top',
   };
-}
+};
