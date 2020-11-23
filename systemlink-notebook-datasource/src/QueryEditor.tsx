@@ -3,6 +3,7 @@
  * when editing a Grafana panel.
  */
 import defaults from 'lodash/defaults';
+import pickBy from 'lodash/pickBy';
 import React, { PureComponent } from 'react';
 import { Alert, Field, Input, Select, Label } from '@grafana/ui';
 import { QueryEditorProps, SelectableValue } from '@grafana/data';
@@ -51,7 +52,8 @@ export class QueryEditor extends PureComponent<
   onNotebookChange = (option: SelectableValue) => {
     const { onChange, onRunQuery, query } = this.props;
     const notebook = this.getNotebook(option.value) as Notebook;
-    onChange({ ...query, parameters: {}, path: notebook.path, output: notebook.metadata.outputs[0].id });
+    const parameters = pickBy(query.parameters, (_, key) => notebook.parameters.hasOwnProperty(key));
+    onChange({ ...query, parameters, path: notebook.path, output: notebook.metadata.outputs[0].id });
     onRunQuery();
   };
 
