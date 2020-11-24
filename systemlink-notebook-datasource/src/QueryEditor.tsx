@@ -3,8 +3,9 @@
  * when editing a Grafana panel.
  */
 import defaults from 'lodash/defaults';
+import pickBy from 'lodash/pickBy';
 import React, { PureComponent } from 'react';
-import { Alert, Field, Input, Select, Label } from '@grafana/ui';
+import { Alert, Field, Input, Select, Label, TextArea } from '@grafana/ui';
 import { QueryEditorProps, SelectableValue } from '@grafana/data';
 import { DataSource } from './DataSource';
 import { NotebookDataSourceOptions, NotebookQuery, defaultQuery, Notebook } from './types';
@@ -51,7 +52,25 @@ export class QueryEditor extends PureComponent<
   onNotebookChange = (option: SelectableValue) => {
     const { onChange, onRunQuery, query } = this.props;
     const notebook = this.getNotebook(option.value) as Notebook;
-    onChange({ ...query, parameters: {}, path: notebook.path, output: notebook.metadata.outputs[0].id });
+    const oldNotebook = this.getNotebook(query.path);
+    let parameters = {};
+    if (oldNotebook) {
+      // Preseve matching parameter values
+      parameters = pickBy(query.parameters, (value: any, id: string) => {
+        const newParam = notebook.metadata.parameters.find((param: any) => param.id === id);
+        if (!newParam) {
+          return false;
+        }
+
+        if (newParam.options) {
+          return newParam.options.includes(value);
+        }
+
+        const oldParam = oldNotebook.metadata.parameters.find((param: any) => param.id === id);
+        return oldParam.type === newParam.type;
+      });
+    }
+    onChange({ ...query, parameters, path: notebook.path, output: notebook.metadata.outputs[0].id });
     onRunQuery();
   };
 
@@ -109,6 +128,14 @@ export class QueryEditor extends PureComponent<
           defaultValue={{ label: value, value }}
           menuPlacement="auto"
           maxMenuHeight={110}
+        />
+      );
+    } else if (param.type === 'test_monitor_result_query') {
+      return (
+        <TextArea
+          className="sl-parameter-value"
+          onBlur={event => this.onParameterChange(param.id, event.target.value)}
+          defaultValue={value}
         />
       );
     } else {
