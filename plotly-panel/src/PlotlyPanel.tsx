@@ -35,7 +35,7 @@ export const PlotlyPanel: React.FC<Props> = props => {
   const axisLabels = {
     xAxis: '',
     yAxis: '',
-    yAxis2: ''
+    yAxis2: '',
   };
   for (const dataframe of data.series) {
     setDataFrameId(dataframe);
@@ -167,9 +167,11 @@ const getFields = (frame: DataFrame, props: Props) => {
   const xAxisField = xField?.name || '';
   const yAxisFields = yFields.map(yField => yField?.name || '');
   const yAxisFields2 = yFields2?.map(yField => yField?.name || '') || [];
-  if (xAxisField !== props.options.xAxis.field ||
-      !isEqual(yAxisFields, props.options.yAxis.fields) ||
-      !isEqual(yAxisFields2, props.options.yAxis2?.fields)) {
+  if (
+    xAxisField !== props.options.xAxis.field ||
+    !isEqual(yAxisFields, props.options.yAxis.fields) ||
+    !isEqual(yAxisFields2, props.options.yAxis2?.fields)
+  ) {
     props.onOptionsChange({
       ...props.options,
       xAxis: { ...props.options.xAxis, field: xAxisField },
@@ -198,7 +200,7 @@ const getYFields = (selection: string[], frame: DataFrame, xField: Field | undef
     }
   }
   return yFields;
-}
+};
 
 const getModeAndType = (type: string) => {
   switch (type) {
