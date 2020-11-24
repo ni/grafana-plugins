@@ -1,6 +1,7 @@
 import { PanelPlugin, FieldOverrideContext, getFieldDisplayName } from '@grafana/data';
 import { PanelOptions } from './types';
 import { PlotlyPanel } from './PlotlyPanel';
+import { MultiSelectValueEditor } from './MultiSelect';
 
 export const plugin = new PanelPlugin<PanelOptions>(PlotlyPanel)
   .setPanelOptions(builder => {
@@ -18,7 +19,10 @@ export const plugin = new PanelPlugin<PanelOptions>(PlotlyPanel)
       .addTextInput({
         path: 'xAxis.title',
         name: 'Label',
-        defaultValue: 'X Axis',
+        defaultValue: '',
+        settings: {
+          placeholder: 'Auto',
+        },
         category: ['X Axis'],
       })
       .addSelect({
@@ -31,20 +35,25 @@ export const plugin = new PanelPlugin<PanelOptions>(PlotlyPanel)
         defaultValue: '',
         category: ['X Axis'],
       })
-      .addSelect({
-        path: 'yAxis.field',
-        name: 'Field',
+      .addCustomEditor({
+        path: 'yAxis.fields',
+        editor: MultiSelectValueEditor as any,
         settings: {
           options: [],
           getOptions: getFieldOptions,
         },
-        defaultValue: '',
+        name: 'Field',
+        id: 'yAxisField',
+        defaultValue: [],
         category: ['Y Axis'],
       })
       .addTextInput({
         path: 'yAxis.title',
         name: 'Label',
-        defaultValue: 'Y Axis',
+        defaultValue: '',
+        settings: {
+          placeholder: 'Auto',
+        },
         category: ['Y Axis'],
       })
       .addSelect({
@@ -148,20 +157,25 @@ export const plugin = new PanelPlugin<PanelOptions>(PlotlyPanel)
         defaultValue: false,
         category: ['Right Y Axis'],
       })
-      .addSelect({
-        path: 'yAxis2.field',
-        name: 'Field',
+      .addCustomEditor({
+        path: 'yAxis2.fields',
+        editor: MultiSelectValueEditor as any,
         settings: {
           options: [],
           getOptions: getFieldOptions,
         },
-        defaultValue: '',
+        name: 'Field',
+        id: 'yAxis2Field',
+        defaultValue: [],
         category: ['Right Y Axis'],
       })
       .addTextInput({
         path: 'yAxis2.title',
         name: 'Label',
-        defaultValue: 'Right Y Axis',
+        defaultValue: '',
+        settings: {
+          placeholder: 'Auto',
+        },
         category: ['Right Y Axis'],
       })
       .addSelect({

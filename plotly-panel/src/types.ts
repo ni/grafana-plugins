@@ -1,7 +1,7 @@
 export interface PanelOptions {
-  xAxis: AxisOptions;
-  yAxis: AxisOptions;
-  yAxis2?: AxisOptions;
+  xAxis: XAxisOptions;
+  yAxis: YAxisOptions;
+  yAxis2?: YAxisOptions;
   showYAxis2: boolean;
   showLegend: boolean;
   legendPosition: string;
@@ -10,13 +10,20 @@ export interface PanelOptions {
 }
 
 export interface AxisOptions {
-  field: string;
   title?: string;
   min?: number;
   max?: number;
   decimals?: number;
   unit?: string;
   scale?: string;
+}
+
+export interface XAxisOptions extends AxisOptions {
+  field: string;
+}
+
+export interface YAxisOptions extends AxisOptions {
+  fields: string[];
 }
 
 export interface SeriesOptions {
@@ -26,4 +33,10 @@ export interface SeriesOptions {
   staircase: boolean;
   markerSize: number;
   lineWidth: number;
+}
+
+export interface AxisLabels {
+  xAxis: string;
+  yAxis: string;
+  yAxis2: string;
 }
