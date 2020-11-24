@@ -16,6 +16,7 @@ import { getGuid } from 'utils';
 
 import Plot from 'react-plotly.js';
 import { AxisType, Legend, PlotData, PlotType } from 'plotly.js';
+import isEqual from 'lodash/isEqual';
 
 interface MenuState {
   x: number;
@@ -167,8 +168,8 @@ const getFields = (frame: DataFrame, props: Props) => {
   const yAxisFields = yFields.map(yField => yField?.name || '');
   const yAxisFields2 = yFields2?.map(yField => yField?.name || '') || [];
   if (xAxisField !== props.options.xAxis.field ||
-      !arrayEquals(yAxisFields, props.options.yAxis.fields) ||
-      !arrayEquals(yAxisFields2, props.options.yAxis2?.fields)) {
+      !isEqual(yAxisFields, props.options.yAxis.fields) ||
+      !isEqual(yAxisFields2, props.options.yAxis2?.fields)) {
     props.onOptionsChange({
       ...props.options,
       xAxis: { ...props.options.xAxis, field: xAxisField },
@@ -197,29 +198,6 @@ const getYFields = (selection: string[], frame: DataFrame, xField: Field | undef
     }
   }
   return yFields;
-}
-
-const arrayEquals = (a: string[] | undefined, b: string[] | undefined) => {
-  if (!a) {
-    return !b;
-  }
-
-  if (!b) {
-    return !a;
-  }
-
-  if (a.length !== b.length) {
-    return false;
-  }
-
-  let i = 0;
-  for (; i < a.length; i++) {
-    if (a[i] !== b[i]) {
-      return false;
-    }
-  }
-
-  return true;
 }
 
 const getModeAndType = (type: string) => {
