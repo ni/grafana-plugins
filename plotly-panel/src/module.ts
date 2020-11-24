@@ -278,12 +278,11 @@ export const plugin = new PanelPlugin<PanelOptions>(PlotlyPanel)
   })
   .useFieldConfig({
     useCustomConfig: builder => {
-      builder
-        .addColorPicker({
-          path: 'color',
-          name: 'Color',
-          description: 'Color of the series',
-        });
+      builder.addColorPicker({
+        path: 'color',
+        name: 'Color',
+        description: 'Color of the series',
+      });
     },
   });
 
