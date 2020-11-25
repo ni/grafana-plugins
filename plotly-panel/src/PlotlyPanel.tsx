@@ -161,7 +161,7 @@ const getFields = (frame: DataFrame, props: Props) => {
   let yFields = getYFields(props.options.yAxis.fields, frame, xField);
   let yFields2;
   if (props.options.yAxis2?.fields) {
-    yFields2 = getYFields(props.options.yAxis2?.fields, frame, xField);
+    yFields2 = getYFields(props.options.yAxis2?.fields, frame, xField, true);
   }
 
   const xAxisField = xField?.name || '';
@@ -183,8 +183,8 @@ const getFields = (frame: DataFrame, props: Props) => {
   return [xField, yFields, yFields2];
 };
 
-const getYFields = (selection: string[], frame: DataFrame, xField: Field | undefined) => {
-  if (!selection || !selection.length) {
+const getYFields = (selection: string[], frame: DataFrame, xField: Field | undefined, skipAutoFill = false) => {
+  if (!skipAutoFill && (!selection || !selection.length)) {
     let yField = frame.fields.find(field => field !== xField && field.type !== FieldType.time);
     return [yField];
   }
@@ -192,7 +192,7 @@ const getYFields = (selection: string[], frame: DataFrame, xField: Field | undef
   let yFields = [];
   for (const yField of selection || []) {
     let selectedYField = frame.fields.find(field => field.name === yField);
-    if (!selectedYField) {
+    if (!selectedYField && !skipAutoFill) {
       selectedYField = frame.fields.find(field => field !== xField && field.type !== FieldType.time);
     }
     if (selectedYField) {

@@ -21,7 +21,7 @@ export const plugin = new PanelPlugin<PanelOptions>(PlotlyPanel)
         name: 'Label',
         defaultValue: '',
         settings: {
-          placeholder: 'Auto',
+          placeholder: 'auto',
         },
         category: ['X Axis'],
       })
@@ -52,7 +52,7 @@ export const plugin = new PanelPlugin<PanelOptions>(PlotlyPanel)
         name: 'Label',
         defaultValue: '',
         settings: {
-          placeholder: 'Auto',
+          placeholder: 'auto',
         },
         category: ['Y Axis'],
       })
@@ -167,6 +167,7 @@ export const plugin = new PanelPlugin<PanelOptions>(PlotlyPanel)
         name: 'Field',
         id: 'yAxis2Field',
         defaultValue: [],
+        showIf: options => options.showYAxis2,
         category: ['Right Y Axis'],
       })
       .addTextInput({
@@ -174,8 +175,9 @@ export const plugin = new PanelPlugin<PanelOptions>(PlotlyPanel)
         name: 'Label',
         defaultValue: '',
         settings: {
-          placeholder: 'Auto',
+          placeholder: 'auto',
         },
+        showIf: options => options.showYAxis2,
         category: ['Right Y Axis'],
       })
       .addSelect({
@@ -186,6 +188,7 @@ export const plugin = new PanelPlugin<PanelOptions>(PlotlyPanel)
           getOptions: getScaleOptions,
         },
         defaultValue: '',
+        showIf: options => options.showYAxis2,
         category: ['Right Y Axis'],
       })
       .addNumberInput({
@@ -194,6 +197,7 @@ export const plugin = new PanelPlugin<PanelOptions>(PlotlyPanel)
         settings: {
           placeholder: 'auto',
         },
+        showIf: options => options.showYAxis2,
         category: ['Right Y Axis'],
       })
       .addNumberInput({
@@ -202,6 +206,7 @@ export const plugin = new PanelPlugin<PanelOptions>(PlotlyPanel)
         settings: {
           placeholder: 'auto',
         },
+        showIf: options => options.showYAxis2,
         category: ['Right Y Axis'],
       })
       .addNumberInput({
@@ -211,12 +216,14 @@ export const plugin = new PanelPlugin<PanelOptions>(PlotlyPanel)
           placeholder: 'auto',
           min: 0,
         },
+        showIf: options => options.showYAxis2,
         category: ['Right Y Axis'],
       })
       .addTextInput({
         path: 'yAxis2.unit',
         name: 'Unit',
         defaultValue: '',
+        showIf: options => options.showYAxis2,
         category: ['Right Y Axis'],
       })
       .addRadio({
@@ -230,27 +237,28 @@ export const plugin = new PanelPlugin<PanelOptions>(PlotlyPanel)
           ],
         },
         defaultValue: 'line',
+        showIf: options => options.showYAxis2,
         category: ['Right Y Axis'],
       })
       .addBooleanSwitch({
         path: 'series2.stackBars',
         name: 'Stack bars',
         defaultValue: false,
-        showIf: options => options.series2.plotType === 'bar',
+        showIf: options => options.showYAxis2 && options.series2.plotType === 'bar',
         category: ['Right Y Axis'],
       })
       .addBooleanSwitch({
         path: 'series2.areaFill',
         name: 'Area fill',
         defaultValue: false,
-        showIf: options => options.series2.plotType === 'line',
+        showIf: options => options.showYAxis2 && options.series2.plotType === 'line',
         category: ['Right Y Axis'],
       })
       .addBooleanSwitch({
         path: 'series2.staircase',
         name: 'Staircase',
         defaultValue: false,
-        showIf: options => options.series2.plotType === 'line',
+        showIf: options => options.showYAxis2 && options.series2.plotType === 'line',
         category: ['Right Y Axis'],
       })
       .addNumberInput({
@@ -260,7 +268,7 @@ export const plugin = new PanelPlugin<PanelOptions>(PlotlyPanel)
         settings: {
           min: 1,
         },
-        showIf: options => options.series2.plotType === 'line',
+        showIf: options => options.showYAxis2 && options.series2.plotType === 'line',
         category: ['Right Y Axis'],
       })
       .addNumberInput({
@@ -271,7 +279,7 @@ export const plugin = new PanelPlugin<PanelOptions>(PlotlyPanel)
           min: 1,
         },
         category: ['Right Y Axis'],
-        showIf: options => options.series2.plotType === 'points',
+        showIf: options => options.showYAxis2 && options.series2.plotType === 'points',
       })
       .addBooleanSwitch({
         path: 'showLegend',
