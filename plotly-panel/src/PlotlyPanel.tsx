@@ -189,11 +189,11 @@ const getYFields = (selection: string[], frame: DataFrame, xField: Field | undef
     return [yField];
   }
 
-  let yFields = [];
+  let yFields: Field[] = [];
   for (const yField of selection || []) {
     let selectedYField = frame.fields.find(field => field.name === yField);
     if (!selectedYField && !skipAutoFill) {
-      selectedYField = frame.fields.find(field => field !== xField && field.type !== FieldType.time);
+      selectedYField = frame.fields.find(field => field !== xField && field.type !== FieldType.time && !yFields.includes(field));
     }
     if (selectedYField) {
       yFields.push(selectedYField);
