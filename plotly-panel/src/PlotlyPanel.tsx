@@ -17,6 +17,7 @@ import { getGuid } from 'utils';
 import Plot from 'react-plotly.js';
 import { AxisType, Legend, PlotData, PlotType } from 'plotly.js';
 import isEqual from 'lodash/isEqual';
+import union from 'lodash/union';
 
 interface MenuState {
   x: number;
@@ -32,20 +33,19 @@ export const PlotlyPanel: React.FC<Props> = props => {
   const [menu, setMenu] = useState<MenuState>({ x: 0, y: 0, show: false, items: [] });
   const theme = useTheme();
   const plotData: Plotly.Data[] = [];
-  const axisLabels = {
+  const axisLabels: AxisLabels = {
     xAxis: '',
-    yAxis: '',
-    yAxis2: '',
+    yAxis: [],
+    yAxis2: [],
   };
   for (const dataframe of data.series) {
     setDataFrameId(dataframe);
     const [xField, yFields, yFields2] = getFields(dataframe, props);
-    const xName = xField ? getFieldDisplayName(xField as Field, dataframe, data.series) : 'X Axis';
-    axisLabels.xAxis = axisLabels.xAxis ? `${axisLabels.xAxis}, ${xName}` : xName;
+    axisLabels.xAxis = (xField as Field).name;
 
     for (const yField of yFields || []) {
       const yName = getFieldDisplayName(yField as Field, dataframe, data.series);
-      axisLabels.yAxis = axisLabels.yAxis ? `${axisLabels.yAxis}, ${yName}` : yName;
+      axisLabels.yAxis = union(axisLabels.yAxis, [(yField as Field).name]);
       plotData.push({
         x: xField ? getFieldValues(xField as Field) : [],
         y: yField ? getFieldValues(yField) : [],
@@ -67,7 +67,7 @@ export const PlotlyPanel: React.FC<Props> = props => {
     if (yFields2 && props.options.showYAxis2) {
       for (const yField2 of yFields2 || []) {
         const yName = getFieldDisplayName(yField2 as Field, dataframe, data.series);
-        axisLabels.yAxis2 = axisLabels.yAxis2 ? `${axisLabels.yAxis2}, ${yName}` : yName;
+        axisLabels.yAxis2 = union(axisLabels.yAxis, [(yField2 as Field).name]);
         plotData.push({
           x: xField ? getFieldValues(xField as Field) : [],
           y: yField2 ? getFieldValues(yField2 as Field) : [],
@@ -251,7 +251,7 @@ const getLayout = (theme: GrafanaTheme, options: PanelOptions, axisLabels: AxisL
     yaxis: {
       fixedrange: true,
       automargin: true,
-      title: options.yAxis.title || axisLabels.yAxis,
+      title: options.yAxis.title || axisLabels.yAxis.join(', '),
       range: [options.yAxis.min, options.yAxis.max],
       type: options.yAxis.scale as AxisType,
       tickformat: options.yAxis.decimals ? `.${options.yAxis.decimals}f` : '',
@@ -263,7 +263,7 @@ const getLayout = (theme: GrafanaTheme, options: PanelOptions, axisLabels: AxisL
       automargin: true,
       overlaying: 'y',
       side: 'right',
-      title: options.yAxis2?.title || axisLabels.yAxis2,
+      title: options.yAxis2?.title || axisLabels.yAxis2.join(', '),
       range: [options.yAxis2?.min, options.yAxis2?.max],
       type: options.yAxis2?.scale as AxisType,
       tickformat: options.yAxis2?.decimals ? `.${options.yAxis2?.decimals}f` : '',

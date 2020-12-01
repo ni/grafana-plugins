@@ -1,5 +1,5 @@
-import { PanelPlugin, FieldOverrideContext, getFieldDisplayName } from '@grafana/data';
-import { PanelOptions } from './types';
+import { PanelPlugin, FieldOverrideContext } from '@grafana/data';
+import { PanelOptions, FieldOption } from './types';
 import { PlotlyPanel } from './PlotlyPanel';
 import { MultiSelectValueEditor } from './MultiSelect';
 
@@ -309,13 +309,13 @@ export const plugin = new PanelPlugin<PanelOptions>(PlotlyPanel)
   });
 
 const getFieldOptions = (context: FieldOverrideContext) => {
-  const options = [];
+  const options: FieldOption[] = [];
   if (context && context.data) {
     for (const frame of context.data) {
       for (const field of frame.fields) {
-        // TODO: this uses dataframe names instead of field names and is confusing
-        const label = getFieldDisplayName(field, frame, context.data);
-        options.push({ value: field.name, label });
+        if (!options.find(o => o.label === field.name)) {
+          options.push({ value: field.name, label: field.name });
+        }
       }
     }
   }

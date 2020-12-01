@@ -37,6 +37,11 @@ export interface SeriesOptions {
 
 export interface AxisLabels {
   xAxis: string;
-  yAxis: string;
-  yAxis2: string;
+  yAxis: string[];
+  yAxis2: string[];
+}
+
+export interface FieldOption {
+  value: string;
+  label: string;
 }
