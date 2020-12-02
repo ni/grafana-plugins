@@ -1,6 +1,7 @@
-import { PanelPlugin, FieldOverrideContext, getFieldDisplayName } from '@grafana/data';
-import { PanelOptions } from './types';
+import { PanelPlugin, FieldOverrideContext } from '@grafana/data';
+import { PanelOptions, FieldOption } from './types';
 import { PlotlyPanel } from './PlotlyPanel';
+import { MultiSelectValueEditor } from './MultiSelect';
 
 export const plugin = new PanelPlugin<PanelOptions>(PlotlyPanel)
   .setPanelOptions(builder => {
@@ -18,7 +19,10 @@ export const plugin = new PanelPlugin<PanelOptions>(PlotlyPanel)
       .addTextInput({
         path: 'xAxis.title',
         name: 'Label',
-        defaultValue: 'X Axis',
+        defaultValue: '',
+        settings: {
+          placeholder: 'auto',
+        },
         category: ['X Axis'],
       })
       .addSelect({
@@ -31,20 +35,25 @@ export const plugin = new PanelPlugin<PanelOptions>(PlotlyPanel)
         defaultValue: '',
         category: ['X Axis'],
       })
-      .addSelect({
-        path: 'yAxis.field',
-        name: 'Field',
+      .addCustomEditor({
+        path: 'yAxis.fields',
+        editor: MultiSelectValueEditor as any,
         settings: {
           options: [],
           getOptions: getFieldOptions,
         },
-        defaultValue: '',
+        name: 'Field',
+        id: 'yAxisField',
+        defaultValue: [],
         category: ['Y Axis'],
       })
       .addTextInput({
         path: 'yAxis.title',
         name: 'Label',
-        defaultValue: 'Y Axis',
+        defaultValue: '',
+        settings: {
+          placeholder: 'auto',
+        },
         category: ['Y Axis'],
       })
       .addSelect({
@@ -148,20 +157,27 @@ export const plugin = new PanelPlugin<PanelOptions>(PlotlyPanel)
         defaultValue: false,
         category: ['Right Y Axis'],
       })
-      .addSelect({
-        path: 'yAxis2.field',
-        name: 'Field',
+      .addCustomEditor({
+        path: 'yAxis2.fields',
+        editor: MultiSelectValueEditor as any,
         settings: {
           options: [],
           getOptions: getFieldOptions,
         },
-        defaultValue: '',
+        name: 'Field',
+        id: 'yAxis2Field',
+        defaultValue: [],
+        showIf: options => options.showYAxis2,
         category: ['Right Y Axis'],
       })
       .addTextInput({
         path: 'yAxis2.title',
         name: 'Label',
-        defaultValue: 'Right Y Axis',
+        defaultValue: '',
+        settings: {
+          placeholder: 'auto',
+        },
+        showIf: options => options.showYAxis2,
         category: ['Right Y Axis'],
       })
       .addSelect({
@@ -172,6 +188,7 @@ export const plugin = new PanelPlugin<PanelOptions>(PlotlyPanel)
           getOptions: getScaleOptions,
         },
         defaultValue: '',
+        showIf: options => options.showYAxis2,
         category: ['Right Y Axis'],
       })
       .addNumberInput({
@@ -180,6 +197,7 @@ export const plugin = new PanelPlugin<PanelOptions>(PlotlyPanel)
         settings: {
           placeholder: 'auto',
         },
+        showIf: options => options.showYAxis2,
         category: ['Right Y Axis'],
       })
       .addNumberInput({
@@ -188,6 +206,7 @@ export const plugin = new PanelPlugin<PanelOptions>(PlotlyPanel)
         settings: {
           placeholder: 'auto',
         },
+        showIf: options => options.showYAxis2,
         category: ['Right Y Axis'],
       })
       .addNumberInput({
@@ -197,12 +216,14 @@ export const plugin = new PanelPlugin<PanelOptions>(PlotlyPanel)
           placeholder: 'auto',
           min: 0,
         },
+        showIf: options => options.showYAxis2,
         category: ['Right Y Axis'],
       })
       .addTextInput({
         path: 'yAxis2.unit',
         name: 'Unit',
         defaultValue: '',
+        showIf: options => options.showYAxis2,
         category: ['Right Y Axis'],
       })
       .addRadio({
@@ -216,27 +237,28 @@ export const plugin = new PanelPlugin<PanelOptions>(PlotlyPanel)
           ],
         },
         defaultValue: 'line',
+        showIf: options => options.showYAxis2,
         category: ['Right Y Axis'],
       })
       .addBooleanSwitch({
         path: 'series2.stackBars',
         name: 'Stack bars',
         defaultValue: false,
-        showIf: options => options.series2.plotType === 'bar',
+        showIf: options => options.showYAxis2 && options.series2.plotType === 'bar',
         category: ['Right Y Axis'],
       })
       .addBooleanSwitch({
         path: 'series2.areaFill',
         name: 'Area fill',
         defaultValue: false,
-        showIf: options => options.series2.plotType === 'line',
+        showIf: options => options.showYAxis2 && options.series2.plotType === 'line',
         category: ['Right Y Axis'],
       })
       .addBooleanSwitch({
         path: 'series2.staircase',
         name: 'Staircase',
         defaultValue: false,
-        showIf: options => options.series2.plotType === 'line',
+        showIf: options => options.showYAxis2 && options.series2.plotType === 'line',
         category: ['Right Y Axis'],
       })
       .addNumberInput({
@@ -246,7 +268,7 @@ export const plugin = new PanelPlugin<PanelOptions>(PlotlyPanel)
         settings: {
           min: 1,
         },
-        showIf: options => options.series2.plotType === 'line',
+        showIf: options => options.showYAxis2 && options.series2.plotType === 'line',
         category: ['Right Y Axis'],
       })
       .addNumberInput({
@@ -257,7 +279,7 @@ export const plugin = new PanelPlugin<PanelOptions>(PlotlyPanel)
           min: 1,
         },
         category: ['Right Y Axis'],
-        showIf: options => options.series2.plotType === 'points',
+        showIf: options => options.showYAxis2 && options.series2.plotType === 'points',
       })
       .addBooleanSwitch({
         path: 'showLegend',
@@ -287,13 +309,13 @@ export const plugin = new PanelPlugin<PanelOptions>(PlotlyPanel)
   });
 
 const getFieldOptions = (context: FieldOverrideContext) => {
-  const options = [];
+  const options: FieldOption[] = [];
   if (context && context.data) {
     for (const frame of context.data) {
       for (const field of frame.fields) {
-        // TODO: this uses dataframe names instead of field names and is confusing
-        const label = getFieldDisplayName(field, frame, context.data);
-        options.push({ value: field.name, label });
+        if (!options.find(o => o.label === field.name)) {
+          options.push({ value: field.name, label: field.name });
+        }
       }
     }
   }
