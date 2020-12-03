@@ -27,13 +27,15 @@ interface MenuState {
 interface Props extends PanelProps<PanelOptions> {}
 
 export const PlotlyPanel: React.FC<Props> = props => {
-  const { data, width, height, options } = props;
+  const { data, width, height } = props;
+  const originalOptions = props.options;
   const [menu, setMenu] = useState<MenuState>({ x: 0, y: 0, show: false, items: [] });
   const theme = useTheme();
   const plotData: Plotly.Data[] = [];
+  const options = transposeAxesIfNecessary(originalOptions);
   for (const dataframe of data.series) {
     setDataFrameId(dataframe);
-    const [xField, yField, yField2] = getFields(dataframe, props);
+    const [xField, xField2, yField, yField2] = getFields(dataframe, props, options);
 
     plotData.push({
       x: xField ? getFieldValues(xField) : [],
@@ -49,6 +51,7 @@ export const PlotlyPanel: React.FC<Props> = props => {
         width: options.series.lineWidth,
         shape: options.series.staircase ? 'hv' : 'linear',
       },
+      orientation: options.orientation === 'horizontal' ? 'h' : 'v',
       customdata: [dataframe.meta?.custom?.id],
     });
 
@@ -68,6 +71,26 @@ export const PlotlyPanel: React.FC<Props> = props => {
           width: options.series2.lineWidth,
           shape: options.series2.staircase ? 'hv' : 'linear',
         },
+        orientation: options.orientation === 'horizontal' ? 'h' : 'v',
+        customdata: [dataframe.meta?.custom?.id],
+      });
+    } else if (xField2 && options.showXAxis2) {
+      plotData.push({
+        x: xField2 ? getFieldValues(xField2) : [],
+        y: yField ? getFieldValues(yField) : [],
+        xaxis: 'x2',
+        name: getFieldDisplayName(xField2 as Field, dataframe, data.series),
+        ...getModeAndType(options.series2.plotType),
+        fill: options.series2.areaFill && options.series2.plotType === 'line' ? 'tozeroy' : 'none',
+        marker: {
+          size: options.series2.markerSize,
+          color: getPlotlyColor(xField2?.config.custom?.color),
+        },
+        line: {
+          width: options.series2.lineWidth,
+          shape: options.series2.staircase ? 'hv' : 'linear',
+        },
+        orientation: options.orientation === 'horizontal' ? 'h' : 'v',
         customdata: [dataframe.meta?.custom?.id],
       });
     }
@@ -133,35 +156,40 @@ const setDataFrameId = (frame: DataFrame) => {
 // Pull out user-selected fields from a DataFrame.
 // If the options aren't set or the fields don't exist, try to pick the first
 // available fields, prioritizing time fields on the X axis.
-const getFields = (frame: DataFrame, props: Props) => {
-  let xField = frame.fields.find(field => field.name === props.options.xAxis.field);
+const getFields = (frame: DataFrame, props: Props, options: PanelOptions) => {
+  let xField = frame.fields.find(field => field.name === options.xAxis.field);
   if (!xField) {
     xField = frame.fields.find(field => field.type === FieldType.time);
     if (!xField) {
-      xField = frame.fields.find(field => field.name !== props.options.yAxis.field);
+      xField = frame.fields.find(field => field.name !== options.yAxis.field);
     }
   }
+  
+  let xField2 = frame.fields.find(field => field.name === options.xAxis2?.field);
 
-  let yField = frame.fields.find(field => field.name === props.options.yAxis.field);
+  let yField = frame.fields.find(field => field.name === options.yAxis.field);
   if (!yField) {
     yField = frame.fields.find(field => field !== xField && field.type !== FieldType.time);
   }
 
-  let yField2 = frame.fields.find(field => field.name === props.options.yAxis2?.field);
+  let yField2 = frame.fields.find(field => field.name === options.yAxis2?.field);
 
   const xAxisField = xField?.name || '';
+  const xAxisField2 = xField2?.name || '';
   const yAxisField = yField?.name || '';
   const yAxisField2 = yField2?.name || '';
-  if (xAxisField !== props.options.xAxis.field || yAxisField !== props.options.yAxis.field) {
+  if (xAxisField !== options.xAxis.field || yAxisField !== options.yAxis.field) {
+    //TODO: this is not going to work with my change
     props.onOptionsChange({
       ...props.options,
       xAxis: { ...props.options.xAxis, field: xAxisField },
+      xAxis2: { ...props.options.xAxis2, field: xAxisField2 },
       yAxis: { ...props.options.yAxis, field: yAxisField },
       yAxis2: { ...props.options.yAxis2, field: yAxisField2 },
     });
   }
 
-  return [xField, yField, yField2];
+  return [xField, xField2, yField, yField2];
 };
 
 const getModeAndType = (type: string) => {
@@ -208,7 +236,19 @@ const getLayout = (theme: GrafanaTheme, options: PanelOptions) => {
     xaxis: {
       fixedrange: true,
       title: options.xAxis.title,
-      type: options.xAxis.scale as AxisType,
+      type: options.xAxis.scale as AxisType, //TODO: range and ticks
+    },
+    xaxis2: {
+      fixedrange: true,
+      visible: options.showXAxis2,
+      automargin: true, // ?
+      overlaying: 'x',
+      side: 'top',
+      title: options.xAxis2?.title,
+      range: [options.xAxis2?.min, options.xAxis2?.max],
+      type: options.xAxis2?.scale as AxisType,
+      tickformat: options.xAxis2?.decimals ? `.${options.xAxis2?.decimals}f` : '',
+      ticksuffix: options.xAxis2?.unit ? ` ${options.xAxis2?.unit}` : '',
     },
     yaxis: {
       fixedrange: true,
@@ -257,4 +297,23 @@ const getLegendLayout = (position: string, showYAxis2: boolean, showXAxisLabel: 
     y: 1,
     yanchor: 'top',
   };
+};
+
+const transposeAxesIfNecessary = (originalOptions: PanelOptions): PanelOptions => {
+  if (originalOptions.orientation === 'vertical') {
+    return originalOptions;
+  }
+  const newOptions: PanelOptions = {
+    xAxis: originalOptions.yAxis,
+    xAxis2: originalOptions.yAxis2,
+    showXAxis2: originalOptions.showYAxis2,
+    yAxis: originalOptions.xAxis,
+    showYAxis2: false,
+    showLegend: originalOptions.showLegend,
+    legendPosition: originalOptions.legendPosition,
+    orientation: originalOptions.orientation,
+    series: originalOptions.series,
+    series2: originalOptions.series2,
+  };
+  return newOptions;
 };
