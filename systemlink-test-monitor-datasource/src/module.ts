@@ -3,9 +3,9 @@ import { DataSource } from './DataSource';
 import { ConfigEditor } from './ConfigEditor';
 import { QueryEditor } from './QueryEditor';
 import { VariableQueryEditor } from './VariableQueryEditor';
-import { MyQuery, MyDataSourceOptions } from './types';
+import { TestMonitorQuery, TestMonitorDataSourceOptions } from './types';
 
-export const plugin = new DataSourcePlugin<DataSource, MyQuery, MyDataSourceOptions>(DataSource)
+export const plugin = new DataSourcePlugin<DataSource, TestMonitorQuery, TestMonitorDataSourceOptions>(DataSource)
   .setConfigEditor(ConfigEditor)
   .setQueryEditor(QueryEditor)
   .setVariableQueryEditor(VariableQueryEditor);

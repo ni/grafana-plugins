@@ -11,12 +11,12 @@ import {
 } from '@grafana/data';
 import { getBackendSrv } from '@grafana/runtime';
 
-import { MyQuery, MyDataSourceOptions, defaultQuery, TestMonitorVariableQuery } from './types';
+import { TestMonitorQuery, TestMonitorDataSourceOptions, defaultQuery, TestMonitorVariableQuery } from './types';
 
-export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
+export class DataSource extends DataSourceApi<TestMonitorQuery, TestMonitorDataSourceOptions> {
   url?: string;
 
-  constructor(instanceSettings: DataSourceInstanceSettings<MyDataSourceOptions>) {
+  constructor(instanceSettings: DataSourceInstanceSettings<TestMonitorDataSourceOptions>) {
     super(instanceSettings);
     this.url = instanceSettings.url;
   }
@@ -32,7 +32,7 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
     return values.map((value: string) => ({ text: value }));
   }
 
-  async query(options: DataQueryRequest<MyQuery>): Promise<DataQueryResponse> {
+  async query(options: DataQueryRequest<TestMonitorQuery>): Promise<DataQueryResponse> {
     const { range } = options;
     const from = range!.from.valueOf();
     const to = range!.to.valueOf();

@@ -1,21 +1,19 @@
 /**
- * ConfigEditor is a React component that implements the UI for editing the notebook
+ * ConfigEditor is a React component that implements the UI for editing the test monitor
  * datasource configuration options, including the server URL, authentication, etc.
  */
 import React, { PureComponent } from 'react';
 import { DataSourcePluginOptionsEditorProps } from '@grafana/data';
 import { DataSourceHttpSettings } from '@grafana/ui';
-import { MyDataSourceOptions } from './types';
+import { TestMonitorDataSourceOptions } from './types';
 
-interface Props extends DataSourcePluginOptionsEditorProps<MyDataSourceOptions> {}
+interface Props extends DataSourcePluginOptionsEditorProps<TestMonitorDataSourceOptions> {}
 
 interface State {}
 
 export class ConfigEditor extends PureComponent<Props, State> {
   render() {
     const { options, onOptionsChange } = this.props;
-    //const { jsonData, secureJsonFields } = options;
-    //const secureJsonData = (options.secureJsonData || {}) as MySecureJsonData;
 
     return (
       <DataSourceHttpSettings
