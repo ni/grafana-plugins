@@ -1,6 +1,6 @@
 {
   "type": "panel",
-  "name": "Plotly graph",
+  "name": "Tabular graph",
   "id": "ni-plotly-panel",
   "info": {
     "description": "plotly graphs for grafana",
