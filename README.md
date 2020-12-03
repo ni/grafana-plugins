@@ -17,3 +17,5 @@ To discover plugins, Grafana scans a plugin directory, the location of which dep
 plugins = "/path/to/grafana-plugins"
 ```
 3. Restart Grafana if it’s already running, to load the new configuration.
+
+*Note: Any additional installed plugins will also need to be placed in this directory. To prevent git from tracking them, put them in a directory named `external-plugins/`.*
