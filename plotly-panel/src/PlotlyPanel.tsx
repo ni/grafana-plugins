@@ -194,7 +194,9 @@ const getYFields = (selection: string[], frame: DataFrame, xField: Field | undef
   for (const yField of selection || []) {
     let selectedYField = frame.fields.find(field => field.name === yField);
     if (!selectedYField && autoFill) {
-      selectedYField = frame.fields.find(field => field !== xField && field.type !== FieldType.time && !yFields.includes(field));
+      selectedYField = frame.fields.find(
+        field => field !== xField && field.type !== FieldType.time && !yFields.includes(field)
+      );
     }
     if (selectedYField) {
       yFields.push(selectedYField);
