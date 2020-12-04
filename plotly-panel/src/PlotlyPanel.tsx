@@ -47,8 +47,8 @@ export const PlotlyPanel: React.FC<Props> = props => {
       const yName = getFieldDisplayName(yField as Field, dataframe, data.series);
       axisLabels.yAxis = union(axisLabels.yAxis, [(yField as Field).name]);
       plotData.push({
-        x: xField ? getFieldValues(xField as Field) : [],
-        y: yField ? getFieldValues(yField) : [],
+        x: getPlotlyXAxisFieldValues(xField as Field, yField as Field, options),
+        y: getPlotlyYAxisFieldValues(xField as Field, yField as Field, options),
         name: yName,
         ...getModeAndType(options.series.plotType),
         fill: options.series.areaFill && options.series.plotType === 'line' ? 'tozeroy' : 'none',
@@ -60,6 +60,7 @@ export const PlotlyPanel: React.FC<Props> = props => {
           width: options.series.lineWidth,
           shape: options.series.staircase ? 'hv' : 'linear',
         },
+        orientation: displayVertically(options) ? 'v' : 'h',
         customdata: [dataframe.meta?.custom?.id],
       });
     }
@@ -67,11 +68,13 @@ export const PlotlyPanel: React.FC<Props> = props => {
     if (yFields2 && props.options.showYAxis2) {
       for (const yField2 of yFields2 || []) {
         const yName = getFieldDisplayName(yField2 as Field, dataframe, data.series);
-        axisLabels.yAxis2 = union(axisLabels.yAxis, [(yField2 as Field).name]);
+        //TODO: define the fields to use as the Plotly x and y as const above instead of using fn
+        axisLabels.yAxis2 = union(axisLabels.yAxis2, [(yField2 as Field).name]);
         plotData.push({
-          x: xField ? getFieldValues(xField as Field) : [],
-          y: yField2 ? getFieldValues(yField2 as Field) : [],
-          yaxis: 'y2',
+          x: getPlotlyXAxisFieldValues(xField as Field, yField2 as Field, options),
+          y: getPlotlyYAxisFieldValues(xField as Field, yField2 as Field, options),
+          xaxis: displayVertically(options) ? 'x' : 'x2',
+          yaxis: displayVertically(options) ? 'y2' : 'y',
           name: yName,
           ...getModeAndType(options.series2.plotType),
           fill: options.series2.areaFill && options.series2.plotType === 'line' ? 'tozeroy' : 'none',
@@ -83,6 +86,7 @@ export const PlotlyPanel: React.FC<Props> = props => {
             width: options.series2.lineWidth,
             shape: options.series2.staircase ? 'hv' : 'linear',
           },
+          orientation: displayVertically(options) ? 'v' : 'h',
         });
       }
     }
@@ -227,6 +231,22 @@ const getPlotlyColor = (grafanaColor: string) => {
   return getColorForTheme(colorDefinition);
 };
 
+const displayVertically = (options: PanelOptions) => {
+  return options.orientation === 'vertical';
+};
+
+const getPlotlyXAxisFieldValues = (xField: Field, yField: Field, options: PanelOptions) => {
+  return displayVertically(options)
+    ? xField ? getFieldValues(xField) : []
+    : yField ? getFieldValues(yField) : [];
+};
+
+const getPlotlyYAxisFieldValues = (xField: Field, yField: Field, options: PanelOptions) => {
+  return displayVertically(options)
+    ? yField ? getFieldValues(yField) : []
+    : xField ? getFieldValues(xField) : [];
+};
+
 const getFieldValues = (field: Field) => {
   if (field.type === FieldType.time) {
     return field.values.toArray().map(value => {
@@ -238,6 +258,11 @@ const getFieldValues = (field: Field) => {
 };
 
 const getLayout = (theme: GrafanaTheme, options: PanelOptions, axisLabels: AxisLabels) => {
+  const plotlyXAxisOptions = displayVertically(options) ? options.xAxis : options.yAxis;
+  //TODO: maybe just make these the plotly x axis labels? instead of forming the title?
+  const plotlyXAxisTitle = displayVertically(options) ? (options.xAxis.title || axisLabels.xAxis) : (options.yAxis.title || axisLabels.yAxis.join(', '));
+  const plotlyYAxisOptions = displayVertically(options) ? options.yAxis : options.xAxis;
+  const plotlyYAxisTitle = displayVertically(options) ? (options.yAxis.title || axisLabels.yAxis.join(', ')) : (options.xAxis.title || axisLabels.xAxis);
   const layout: Partial<Plotly.Layout> = {
     margin: { r: 40, l: 40, t: 20, b: 40 },
     paper_bgcolor: theme.colors.panelBg,
@@ -245,21 +270,36 @@ const getLayout = (theme: GrafanaTheme, options: PanelOptions, axisLabels: AxisL
     font: { color: theme.colors.text },
     xaxis: {
       fixedrange: true,
-      title: options.xAxis.title || axisLabels.xAxis,
-      type: options.xAxis.scale as AxisType,
+      title: plotlyXAxisTitle,
+      range: [plotlyXAxisOptions.min, plotlyXAxisOptions.max],
+      type: plotlyXAxisOptions.scale as AxisType,
+      tickformat: plotlyXAxisOptions.decimals ? `.${plotlyXAxisOptions.decimals}f` : '',
+      ticksuffix: plotlyXAxisOptions.unit ? ` ${plotlyXAxisOptions.unit}` : '',
+    },
+    xaxis2: {
+      fixedrange: true,
+      visible: options.showYAxis2 && !displayVertically(options),
+      automargin: true,
+      overlaying: 'x',
+      side: 'top',
+      title: options.yAxis2?.title || axisLabels.yAxis2.join(', '),
+      range: [options.yAxis2?.min, options.yAxis2?.max],
+      type: options.yAxis2?.scale as AxisType,
+      tickformat: options.yAxis2?.decimals ? `.${options.yAxis2?.decimals}f` : '',
+      ticksuffix: options.yAxis2?.unit ? ` ${options.yAxis2?.unit}` : '',
     },
     yaxis: {
       fixedrange: true,
       automargin: true,
-      title: options.yAxis.title || axisLabels.yAxis.join(', '),
-      range: [options.yAxis.min, options.yAxis.max],
-      type: options.yAxis.scale as AxisType,
-      tickformat: options.yAxis.decimals ? `.${options.yAxis.decimals}f` : '',
-      ticksuffix: options.yAxis.unit ? ` ${options.yAxis.unit}` : '',
+      title: plotlyYAxisTitle,
+      range: [plotlyYAxisOptions.min, plotlyYAxisOptions.max],
+      type: plotlyYAxisOptions.scale as AxisType,
+      tickformat: plotlyYAxisOptions.decimals ? `.${plotlyYAxisOptions.decimals}f` : '',
+      ticksuffix: plotlyYAxisOptions.unit ? ` ${plotlyYAxisOptions.unit}` : '',
     },
     yaxis2: {
       fixedrange: true,
-      visible: options.showYAxis2,
+      visible: options.showYAxis2 && displayVertically(options),
       automargin: true,
       overlaying: 'y',
       side: 'right',
@@ -270,7 +310,7 @@ const getLayout = (theme: GrafanaTheme, options: PanelOptions, axisLabels: AxisL
       ticksuffix: options.yAxis2?.unit ? ` ${options.yAxis2?.unit}` : '',
     },
     showlegend: options.showLegend,
-    legend: getLegendLayout(options.legendPosition, options.showYAxis2, !!options.xAxis.title),
+    legend: getLegendLayout(options.legendPosition, options.showYAxis2, !!plotlyXAxisOptions.title),
     barmode: options.series.stackBars ? 'stack' : 'group',
     hovermode: 'closest',
   };
@@ -279,6 +319,7 @@ const getLayout = (theme: GrafanaTheme, options: PanelOptions, axisLabels: AxisL
 };
 
 const getLegendLayout = (position: string, showYAxis2: boolean, showXAxisLabel: boolean): Partial<Legend> => {
+  //TODO
   if (position === 'bottom') {
     return {
       orientation: 'h',
