@@ -12,6 +12,7 @@ import {
 } from '@grafana/data';
 import { AxisLabels, PanelOptions } from 'types';
 import { useTheme, ContextMenu, ContextMenuGroup, linkModelToContextMenuItems } from '@grafana/ui';
+import { getTemplateSrv } from '@grafana/runtime';
 import { getGuid } from 'utils';
 
 import Plot from 'react-plotly.js';
@@ -245,17 +246,17 @@ const getLayout = (theme: GrafanaTheme, options: PanelOptions, axisLabels: AxisL
     font: { color: theme.colors.text },
     xaxis: {
       fixedrange: true,
-      title: options.xAxis.title || axisLabels.xAxis,
+      title: getTemplateSrv().replace(options.xAxis.title) || axisLabels.xAxis,
       type: options.xAxis.scale as AxisType,
     },
     yaxis: {
       fixedrange: true,
       automargin: true,
-      title: options.yAxis.title || axisLabels.yAxis.join(', '),
+      title: getTemplateSrv().replace(options.yAxis.title) || axisLabels.yAxis.join(', '),
       range: [options.yAxis.min, options.yAxis.max],
       type: options.yAxis.scale as AxisType,
       tickformat: options.yAxis.decimals ? `.${options.yAxis.decimals}f` : '',
-      ticksuffix: options.yAxis.unit ? ` ${options.yAxis.unit}` : '',
+      ticksuffix: options.yAxis.unit ? ` ${getTemplateSrv().replace(options.yAxis.unit)}` : '',
     },
     yaxis2: {
       fixedrange: true,
@@ -263,11 +264,11 @@ const getLayout = (theme: GrafanaTheme, options: PanelOptions, axisLabels: AxisL
       automargin: true,
       overlaying: 'y',
       side: 'right',
-      title: options.yAxis2?.title || axisLabels.yAxis2.join(', '),
+      title: getTemplateSrv().replace(options.yAxis2?.title) || axisLabels.yAxis2.join(', '),
       range: [options.yAxis2?.min, options.yAxis2?.max],
       type: options.yAxis2?.scale as AxisType,
       tickformat: options.yAxis2?.decimals ? `.${options.yAxis2?.decimals}f` : '',
-      ticksuffix: options.yAxis2?.unit ? ` ${options.yAxis2?.unit}` : '',
+      ticksuffix: options.yAxis2?.unit ? ` ${getTemplateSrv().replace(options.yAxis2?.unit)}` : '',
     },
     showlegend: options.showLegend,
     legend: getLegendLayout(options.legendPosition, options.showYAxis2, !!options.xAxis.title),
