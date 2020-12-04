@@ -129,7 +129,6 @@ export class QueryEditor extends PureComponent<
       return (
         <Select
           className="sl-parameter-value"
-          allowCustomValue
           options={options}
           onChange={event => this.onParameterChange(param.id, event.value as string)}
           defaultValue={{ label: value, value }}
