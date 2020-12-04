@@ -18,4 +18,10 @@ plugins = "/path/to/grafana-plugins"
 ```
 3. Restart Grafana if it’s already running, to load the new configuration.
 
-*Note: Any additional installed plugins will also need to be placed in this directory. To prevent git from tracking them, put them in a directory named `external-plugins/`.*
+## Installing additional plugins
+Any external plugins installed from Grafana's plugin library or another repo should be placed in a subdirectory `external-plugins`.
+
+For example, installing from the plugin library would look like this:
+```
+grafana-cli --pluginsDir "/path/to/grafana-plugins/external-plugins" plugins install <plugin-id>
+```
