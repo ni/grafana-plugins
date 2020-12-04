@@ -25,3 +25,11 @@ For example, installing from the plugin library would look like this:
 ```
 grafana-cli --pluginsDir "/path/to/grafana-plugins/external-plugins" plugins install <plugin-id>
 ```
+
+## Using example dashboards
+The `examples` subdirectory contains dashboard examples using these plugins that can be imported into any Grafana instance.
+
+Refer to the Grafana documentation for more information:
+https://grafana.com/docs/grafana/latest/dashboards/export-import/
+
+You should install and configure datasource plugins **before** importing a dashboard, as part of the import workflow includes picking the datasource instances to be used for the new dashboard.
