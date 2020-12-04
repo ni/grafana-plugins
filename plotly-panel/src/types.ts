@@ -1,13 +1,10 @@
 export interface PanelOptions {
   xAxis: AxisOptions;
-  xAxis2?: AxisOptions;
-  showXAxis2: boolean;
   yAxis: AxisOptions;
   yAxis2?: AxisOptions;
   showYAxis2: boolean;
   showLegend: boolean;
   legendPosition: string;
-  orientation: string;
   series: SeriesOptions;
   series2: SeriesOptions;
 }
