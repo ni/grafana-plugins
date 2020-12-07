@@ -281,7 +281,7 @@ const getLayout = (theme: GrafanaTheme, options: PanelOptions, axisLabels: AxisL
       automargin: true,
       overlaying: 'x',
       side: 'top',
-      title: options.yAxis2?.title || axisLabels.yAxis2.join(', '),
+      title: getTemplateSrv().replace(options.yAxis2?.title) || axisLabels.yAxis2.join(', '),
       range: [options.yAxis2?.min, options.yAxis2?.max],
       type: options.yAxis2?.scale as AxisType,
       tickformat: options.yAxis2?.decimals ? `.${options.yAxis2?.decimals}f` : '',
