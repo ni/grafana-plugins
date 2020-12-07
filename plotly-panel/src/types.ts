@@ -6,6 +6,7 @@ export interface PanelOptions {
   showLegend: boolean;
   legendPosition: string;
   orientation: string;
+  invertXAxis: boolean;
   series: SeriesOptions;
   series2: SeriesOptions;
 }

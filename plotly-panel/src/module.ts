@@ -307,6 +307,12 @@ export const plugin = new PanelPlugin<PanelOptions>(PlotlyPanel)
           ],
         },
         defaultValue: 'vertical',
+      })
+      .addBooleanSwitch({
+        path: 'invertXAxis',
+        name: 'Invert X axis',
+        defaultValue: true,
+        showIf: options => options.orientation === 'horizontal',
       });
   })
   .useFieldConfig({

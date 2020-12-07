@@ -10,7 +10,7 @@ import {
   Color,
   getColorDefinitionByName,
 } from '@grafana/data';
-import { AxisLabels, PanelOptions } from 'types';
+import { AxisLabels, PanelOptions, AxisOptions } from 'types';
 import { useTheme, ContextMenu, ContextMenuGroup, linkModelToContextMenuItems } from '@grafana/ui';
 import { getGuid } from 'utils';
 
@@ -45,10 +45,12 @@ export const PlotlyPanel: React.FC<Props> = props => {
 
     for (const yField of yFields || []) {
       const yName = getFieldDisplayName(yField as Field, dataframe, data.series);
+      const plotlyXAxisField = displayVertically(options) ? xField : yField;
+      const plotlyYAxisField = displayVertically(options) ? yField : xField;
       axisLabels.yAxis = union(axisLabels.yAxis, [(yField as Field).name]);
       plotData.push({
-        x: getPlotlyXAxisFieldValues(xField as Field, yField as Field, options),
-        y: getPlotlyYAxisFieldValues(xField as Field, yField as Field, options),
+        x: plotlyXAxisField ? getFieldValues(plotlyXAxisField as Field) : [],
+        y: plotlyYAxisField ? getFieldValues(plotlyYAxisField as Field) : [],
         name: yName,
         ...getModeAndType(options.series.plotType),
         fill: options.series.areaFill && options.series.plotType === 'line' ? 'tozeroy' : 'none',
@@ -68,11 +70,12 @@ export const PlotlyPanel: React.FC<Props> = props => {
     if (yFields2 && props.options.showYAxis2) {
       for (const yField2 of yFields2 || []) {
         const yName = getFieldDisplayName(yField2 as Field, dataframe, data.series);
-        //TODO: define the fields to use as the Plotly x and y as const above instead of using fn
+        const plotlyXAxisField = displayVertically(options) ? xField : yField2;
+        const plotlyYAxisField = displayVertically(options) ? yField2 : xField;
         axisLabels.yAxis2 = union(axisLabels.yAxis2, [(yField2 as Field).name]);
         plotData.push({
-          x: getPlotlyXAxisFieldValues(xField as Field, yField2 as Field, options),
-          y: getPlotlyYAxisFieldValues(xField as Field, yField2 as Field, options),
+          x: plotlyXAxisField ? getFieldValues(plotlyXAxisField as Field) : [],
+          y: plotlyYAxisField ? getFieldValues(plotlyYAxisField as Field) : [],
           xaxis: displayVertically(options) ? 'x' : 'x2',
           yaxis: displayVertically(options) ? 'y2' : 'y',
           name: yName,
@@ -235,18 +238,6 @@ const displayVertically = (options: PanelOptions) => {
   return options.orientation === 'vertical';
 };
 
-const getPlotlyXAxisFieldValues = (xField: Field, yField: Field, options: PanelOptions) => {
-  return displayVertically(options)
-    ? xField ? getFieldValues(xField) : []
-    : yField ? getFieldValues(yField) : [];
-};
-
-const getPlotlyYAxisFieldValues = (xField: Field, yField: Field, options: PanelOptions) => {
-  return displayVertically(options)
-    ? yField ? getFieldValues(yField) : []
-    : xField ? getFieldValues(xField) : [];
-};
-
 const getFieldValues = (field: Field) => {
   if (field.type === FieldType.time) {
     return field.values.toArray().map(value => {
@@ -296,6 +287,7 @@ const getLayout = (theme: GrafanaTheme, options: PanelOptions, axisLabels: AxisL
       type: plotlyYAxisOptions.scale as AxisType,
       tickformat: plotlyYAxisOptions.decimals ? `.${plotlyYAxisOptions.decimals}f` : '',
       ticksuffix: plotlyYAxisOptions.unit ? ` ${plotlyYAxisOptions.unit}` : '',
+      autorange: shouldInvertVerticalAxis(options) ? 'reversed' : undefined,
     },
     yaxis2: {
       fixedrange: true,
@@ -336,4 +328,8 @@ const getLegendLayout = (position: string, showYAxis2: boolean, showXAxisLabel: 
     y: 1,
     yanchor: 'top',
   };
+};
+
+const shouldInvertVerticalAxis = (options: PanelOptions) => {
+  return !displayVertically(options) && options.invertXAxis;
 };
