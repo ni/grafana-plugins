@@ -258,7 +258,7 @@ const getLayout = (theme: GrafanaTheme, options: PanelOptions, axisLabels: AxisL
   const displayVertically = shouldDisplayVertically(options);
   const xAxisOptions = displayVertically ? options.xAxis : options.yAxis;
   const xAxisTitle = displayVertically ? originalAxisTitleX : originalAxisTitleY;
-  const YAxisOptions = displayVertically ? options.yAxis : options.xAxis;
+  const yAxisOptions = displayVertically ? options.yAxis : options.xAxis;
   const yAxisTitle = displayVertically ? originalAxisTitleY : originalAxisTitleX;
   const showXAxis2 = options.showYAxis2 && !displayVertically;
   const showYAxis2 = options.showYAxis2 && displayVertically;
@@ -291,10 +291,10 @@ const getLayout = (theme: GrafanaTheme, options: PanelOptions, axisLabels: AxisL
       fixedrange: true,
       automargin: true,
       title: yAxisTitle,
-      range: [YAxisOptions.min, YAxisOptions.max],
-      type: YAxisOptions.scale as AxisType,
-      tickformat: YAxisOptions.decimals ? `.${YAxisOptions.decimals}f` : '',
-      ticksuffix: YAxisOptions.unit ? ` ${getTemplateSrv().replace(options.yAxis.unit)}` : '',
+      range: [yAxisOptions.min, yAxisOptions.max],
+      type: yAxisOptions.scale as AxisType,
+      tickformat: yAxisOptions.decimals ? `.${yAxisOptions.decimals}f` : '',
+      ticksuffix: yAxisOptions.unit ? ` ${getTemplateSrv().replace(options.yAxis.unit)}` : '',
       autorange: shouldInvertVerticalAxis(options) ? 'reversed' : undefined,
     },
     yaxis2: {
