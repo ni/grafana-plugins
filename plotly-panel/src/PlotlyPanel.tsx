@@ -12,6 +12,7 @@ import {
 } from '@grafana/data';
 import { AxisLabels, PanelOptions } from 'types';
 import { useTheme, ContextMenu, ContextMenuGroup, linkModelToContextMenuItems } from '@grafana/ui';
+import { getTemplateSrv } from '@grafana/runtime';
 import { getGuid } from 'utils';
 
 import Plot from 'react-plotly.js';
@@ -201,7 +202,9 @@ const getYFields = (selection: string[], frame: DataFrame, xField: Field | undef
   for (const yField of selection || []) {
     let selectedYField = frame.fields.find(field => field.name === yField);
     if (!selectedYField && autoFill) {
-      selectedYField = frame.fields.find(field => field !== xField && field.type !== FieldType.time && !yFields.includes(field));
+      selectedYField = frame.fields.find(
+        field => field !== xField && field.type !== FieldType.time && !yFields.includes(field)
+      );
     }
     if (selectedYField) {
       yFields.push(selectedYField);
@@ -250,8 +253,8 @@ const getFieldValues = (field: Field) => {
 };
 
 const getLayout = (theme: GrafanaTheme, options: PanelOptions, axisLabels: AxisLabels) => {
-  const originalAxisTitleX = options.xAxis.title || axisLabels.xAxis;
-  const originalAxisTitleY = options.yAxis.title || axisLabels.yAxis.join(', ');
+  const originalAxisTitleX = getTemplateSrv().replace(options.xAxis.title) || axisLabels.xAxis;
+  const originalAxisTitleY = getTemplateSrv().replace(options.yAxis.title) || axisLabels.yAxis.join(', ');
   const displayVertically = shouldDisplayVertically(options);
   const xAxisOptions = displayVertically ? options.xAxis : options.yAxis;
   const xAxisTitle = displayVertically ? originalAxisTitleX : originalAxisTitleY;
@@ -282,7 +285,7 @@ const getLayout = (theme: GrafanaTheme, options: PanelOptions, axisLabels: AxisL
       range: [options.yAxis2?.min, options.yAxis2?.max],
       type: options.yAxis2?.scale as AxisType,
       tickformat: options.yAxis2?.decimals ? `.${options.yAxis2?.decimals}f` : '',
-      ticksuffix: options.yAxis2?.unit ? ` ${options.yAxis2?.unit}` : '',
+      ticksuffix: options.yAxis2?.unit ? ` ${getTemplateSrv().replace(options.yAxis2?.unit)}` : '',
     },
     yaxis: {
       fixedrange: true,
@@ -291,7 +294,7 @@ const getLayout = (theme: GrafanaTheme, options: PanelOptions, axisLabels: AxisL
       range: [YAxisOptions.min, YAxisOptions.max],
       type: YAxisOptions.scale as AxisType,
       tickformat: YAxisOptions.decimals ? `.${YAxisOptions.decimals}f` : '',
-      ticksuffix: YAxisOptions.unit ? ` ${YAxisOptions.unit}` : '',
+      ticksuffix: YAxisOptions.unit ? ` ${getTemplateSrv().replace(options.yAxis.unit)}` : '',
       autorange: shouldInvertVerticalAxis(options) ? 'reversed' : undefined,
     },
     yaxis2: {
@@ -300,11 +303,11 @@ const getLayout = (theme: GrafanaTheme, options: PanelOptions, axisLabels: AxisL
       automargin: true,
       overlaying: 'y',
       side: 'right',
-      title: options.yAxis2?.title || axisLabels.yAxis2.join(', '),
+      title: getTemplateSrv().replace(options.yAxis2?.title) || axisLabels.yAxis2.join(', '),
       range: [options.yAxis2?.min, options.yAxis2?.max],
       type: options.yAxis2?.scale as AxisType,
       tickformat: options.yAxis2?.decimals ? `.${options.yAxis2?.decimals}f` : '',
-      ticksuffix: options.yAxis2?.unit ? ` ${options.yAxis2?.unit}` : '',
+      ticksuffix: options.yAxis2?.unit ? ` ${getTemplateSrv().replace(options.yAxis2?.unit)}` : '',
     },
     showlegend: options.showLegend,
     legend: getLegendLayout(options.legendPosition, showYAxis2, !!xAxisOptions.title),

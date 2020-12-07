@@ -7,6 +7,7 @@ import pickBy from 'lodash/pickBy';
 import React, { PureComponent } from 'react';
 import { Alert, Field, Input, Select, Label, TextArea } from '@grafana/ui';
 import { QueryEditorProps, SelectableValue } from '@grafana/data';
+import { getTemplateSrv } from '@grafana/runtime';
 import { DataSource } from './DataSource';
 import { NotebookDataSourceOptions, NotebookQuery, defaultQuery, Notebook } from './types';
 import './QueryEditor.scss';
@@ -63,7 +64,7 @@ export class QueryEditor extends PureComponent<
         }
 
         if (newParam.options) {
-          return newParam.options.includes(value);
+          return (typeof value === 'string' && value.startsWith('$')) || newParam.options.includes(value);
         }
 
         const oldParam = oldNotebook.metadata.parameters.find((param: any) => param.id === id);
@@ -119,7 +120,12 @@ export class QueryEditor extends PureComponent<
 
   getParameterInput = (param: any, value: any) => {
     if (param.options) {
-      const options = param.options.map((option: string) => ({ label: option, value: option }));
+      let options = param.options.map((option: string) => ({ label: option, value: option }));
+
+      if (param.type === 'string') {
+        options = options.concat(this.getVariableOptions());
+      }
+
       return (
         <Select
           className="sl-parameter-value"
@@ -149,6 +155,12 @@ export class QueryEditor extends PureComponent<
       );
     }
   };
+
+  getVariableOptions() {
+    return getTemplateSrv()
+      .getVariables()
+      .map(variable => ({ label: '$' + variable.name, value: '$' + variable.name }));
+  }
 
   render() {
     const query = defaults(this.props.query, defaultQuery);
