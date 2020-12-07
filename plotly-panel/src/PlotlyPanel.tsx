@@ -10,7 +10,7 @@ import {
   Color,
   getColorDefinitionByName,
 } from '@grafana/data';
-import { AxisLabels, PanelOptions, AxisOptions } from 'types';
+import { AxisLabels, PanelOptions } from 'types';
 import { useTheme, ContextMenu, ContextMenuGroup, linkModelToContextMenuItems } from '@grafana/ui';
 import { getGuid } from 'utils';
 
@@ -38,6 +38,7 @@ export const PlotlyPanel: React.FC<Props> = props => {
     yAxis: [],
     yAxis2: [],
   };
+  const displayVertically = shouldDisplayVertically(options);
   for (const dataframe of data.series) {
     setDataFrameId(dataframe);
     const [xField, yFields, yFields2] = getFields(dataframe, props);
@@ -45,8 +46,8 @@ export const PlotlyPanel: React.FC<Props> = props => {
 
     for (const yField of yFields || []) {
       const yName = getFieldDisplayName(yField as Field, dataframe, data.series);
-      const plotlyXAxisField = displayVertically(options) ? xField : yField;
-      const plotlyYAxisField = displayVertically(options) ? yField : xField;
+      const plotlyXAxisField = displayVertically ? xField : yField;
+      const plotlyYAxisField = displayVertically ? yField : xField;
       axisLabels.yAxis = union(axisLabels.yAxis, [(yField as Field).name]);
       plotData.push({
         x: plotlyXAxisField ? getFieldValues(plotlyXAxisField as Field) : [],
@@ -62,7 +63,7 @@ export const PlotlyPanel: React.FC<Props> = props => {
           width: options.series.lineWidth,
           shape: options.series.staircase ? 'hv' : 'linear',
         },
-        orientation: displayVertically(options) ? 'v' : 'h',
+        orientation: displayVertically ? 'v' : 'h',
         customdata: [dataframe.meta?.custom?.id],
       });
     }
@@ -70,14 +71,14 @@ export const PlotlyPanel: React.FC<Props> = props => {
     if (yFields2 && props.options.showYAxis2) {
       for (const yField2 of yFields2 || []) {
         const yName = getFieldDisplayName(yField2 as Field, dataframe, data.series);
-        const plotlyXAxisField = displayVertically(options) ? xField : yField2;
-        const plotlyYAxisField = displayVertically(options) ? yField2 : xField;
+        const plotlyXAxisField = displayVertically ? xField : yField2;
+        const plotlyYAxisField = displayVertically ? yField2 : xField;
         axisLabels.yAxis2 = union(axisLabels.yAxis2, [(yField2 as Field).name]);
         plotData.push({
           x: plotlyXAxisField ? getFieldValues(plotlyXAxisField as Field) : [],
           y: plotlyYAxisField ? getFieldValues(plotlyYAxisField as Field) : [],
-          xaxis: displayVertically(options) ? 'x' : 'x2',
-          yaxis: displayVertically(options) ? 'y2' : 'y',
+          xaxis: displayVertically ? 'x' : 'x2',
+          yaxis: displayVertically ? 'y2' : 'y',
           name: yName,
           ...getModeAndType(options.series2.plotType),
           fill: options.series2.areaFill && options.series2.plotType === 'line' ? 'tozeroy' : 'none',
@@ -89,7 +90,7 @@ export const PlotlyPanel: React.FC<Props> = props => {
             width: options.series2.lineWidth,
             shape: options.series2.staircase ? 'hv' : 'linear',
           },
-          orientation: displayVertically(options) ? 'v' : 'h',
+          orientation: displayVertically ? 'v' : 'h',
         });
       }
     }
@@ -234,7 +235,7 @@ const getPlotlyColor = (grafanaColor: string) => {
   return getColorForTheme(colorDefinition);
 };
 
-const displayVertically = (options: PanelOptions) => {
+const shouldDisplayVertically = (options: PanelOptions) => {
   return options.orientation === 'vertical';
 };
 
@@ -249,11 +250,15 @@ const getFieldValues = (field: Field) => {
 };
 
 const getLayout = (theme: GrafanaTheme, options: PanelOptions, axisLabels: AxisLabels) => {
-  const plotlyXAxisOptions = displayVertically(options) ? options.xAxis : options.yAxis;
-  //TODO: maybe just make these the plotly x axis labels? instead of forming the title?
-  const plotlyXAxisTitle = displayVertically(options) ? (options.xAxis.title || axisLabels.xAxis) : (options.yAxis.title || axisLabels.yAxis.join(', '));
-  const plotlyYAxisOptions = displayVertically(options) ? options.yAxis : options.xAxis;
-  const plotlyYAxisTitle = displayVertically(options) ? (options.yAxis.title || axisLabels.yAxis.join(', ')) : (options.xAxis.title || axisLabels.xAxis);
+  const originalAxisTitleX = options.xAxis.title || axisLabels.xAxis;
+  const originalAxisTitleY = options.yAxis.title || axisLabels.yAxis.join(', ');
+  const displayVertically = shouldDisplayVertically(options);
+  const xAxisOptions = displayVertically ? options.xAxis : options.yAxis;
+  const xAxisTitle = displayVertically ? originalAxisTitleX : originalAxisTitleY;
+  const YAxisOptions = displayVertically ? options.yAxis : options.xAxis;
+  const yAxisTitle = displayVertically ? originalAxisTitleY : originalAxisTitleX;
+  const showXAxis2 = options.showYAxis2 && !displayVertically;
+  const showYAxis2 = options.showYAxis2 && displayVertically;
   const layout: Partial<Plotly.Layout> = {
     margin: { r: 40, l: 40, t: 20, b: 40 },
     paper_bgcolor: theme.colors.panelBg,
@@ -261,15 +266,15 @@ const getLayout = (theme: GrafanaTheme, options: PanelOptions, axisLabels: AxisL
     font: { color: theme.colors.text },
     xaxis: {
       fixedrange: true,
-      title: plotlyXAxisTitle,
-      range: [plotlyXAxisOptions.min, plotlyXAxisOptions.max],
-      type: plotlyXAxisOptions.scale as AxisType,
-      tickformat: plotlyXAxisOptions.decimals ? `.${plotlyXAxisOptions.decimals}f` : '',
-      ticksuffix: plotlyXAxisOptions.unit ? ` ${plotlyXAxisOptions.unit}` : '',
+      title: xAxisTitle,
+      range: [xAxisOptions.min, xAxisOptions.max],
+      type: xAxisOptions.scale as AxisType,
+      tickformat: xAxisOptions.decimals ? `.${xAxisOptions.decimals}f` : '',
+      ticksuffix: xAxisOptions.unit ? ` ${xAxisOptions.unit}` : '',
     },
     xaxis2: {
       fixedrange: true,
-      visible: options.showYAxis2 && !displayVertically(options),
+      visible: showXAxis2,
       automargin: true,
       overlaying: 'x',
       side: 'top',
@@ -282,16 +287,16 @@ const getLayout = (theme: GrafanaTheme, options: PanelOptions, axisLabels: AxisL
     yaxis: {
       fixedrange: true,
       automargin: true,
-      title: plotlyYAxisTitle,
-      range: [plotlyYAxisOptions.min, plotlyYAxisOptions.max],
-      type: plotlyYAxisOptions.scale as AxisType,
-      tickformat: plotlyYAxisOptions.decimals ? `.${plotlyYAxisOptions.decimals}f` : '',
-      ticksuffix: plotlyYAxisOptions.unit ? ` ${plotlyYAxisOptions.unit}` : '',
+      title: yAxisTitle,
+      range: [YAxisOptions.min, YAxisOptions.max],
+      type: YAxisOptions.scale as AxisType,
+      tickformat: YAxisOptions.decimals ? `.${YAxisOptions.decimals}f` : '',
+      ticksuffix: YAxisOptions.unit ? ` ${YAxisOptions.unit}` : '',
       autorange: shouldInvertVerticalAxis(options) ? 'reversed' : undefined,
     },
     yaxis2: {
       fixedrange: true,
-      visible: options.showYAxis2 && displayVertically(options),
+      visible: showYAxis2,
       automargin: true,
       overlaying: 'y',
       side: 'right',
@@ -302,7 +307,7 @@ const getLayout = (theme: GrafanaTheme, options: PanelOptions, axisLabels: AxisL
       ticksuffix: options.yAxis2?.unit ? ` ${options.yAxis2?.unit}` : '',
     },
     showlegend: options.showLegend,
-    legend: getLegendLayout(options.legendPosition, options.showYAxis2, !!plotlyXAxisOptions.title),
+    legend: getLegendLayout(options.legendPosition, showYAxis2, !!xAxisOptions.title),
     barmode: options.series.stackBars ? 'stack' : 'group',
     hovermode: 'closest',
   };
@@ -311,7 +316,6 @@ const getLayout = (theme: GrafanaTheme, options: PanelOptions, axisLabels: AxisL
 };
 
 const getLegendLayout = (position: string, showYAxis2: boolean, showXAxisLabel: boolean): Partial<Legend> => {
-  //TODO
   if (position === 'bottom') {
     return {
       orientation: 'h',
@@ -331,5 +335,5 @@ const getLegendLayout = (position: string, showYAxis2: boolean, showXAxisLabel: 
 };
 
 const shouldInvertVerticalAxis = (options: PanelOptions) => {
-  return !displayVertically(options) && options.invertXAxis;
+  return !shouldDisplayVertically(options) && options.invertXAxis;
 };
