@@ -39,7 +39,6 @@ export const PlotlyPanel: React.FC<Props> = props => {
     yAxis: [],
     yAxis2: [],
   };
-  const displayVertically = shouldDisplayVertically(options);
   for (const dataframe of data.series) {
     setDataFrameId(dataframe);
     const [xField, yFields, yFields2] = getFields(dataframe, props);
@@ -47,8 +46,8 @@ export const PlotlyPanel: React.FC<Props> = props => {
 
     for (const yField of yFields || []) {
       const yName = getFieldDisplayName(yField as Field, dataframe, data.series);
-      const plotlyXAxisField = displayVertically ? xField : yField;
-      const plotlyYAxisField = displayVertically ? yField : xField;
+      const plotlyXAxisField = options.displayVertically ? xField : yField;
+      const plotlyYAxisField = options.displayVertically ? yField : xField;
       axisLabels.yAxis = union(axisLabels.yAxis, [(yField as Field).name]);
       plotData.push({
         x: plotlyXAxisField ? getFieldValues(plotlyXAxisField as Field) : [],
@@ -64,7 +63,7 @@ export const PlotlyPanel: React.FC<Props> = props => {
           width: options.series.lineWidth,
           shape: options.series.staircase ? 'hv' : 'linear',
         },
-        orientation: displayVertically ? 'v' : 'h',
+        orientation: options.displayVertically ? 'v' : 'h',
         customdata: [dataframe.meta?.custom?.id],
       });
     }
@@ -72,14 +71,14 @@ export const PlotlyPanel: React.FC<Props> = props => {
     if (yFields2 && props.options.showYAxis2) {
       for (const yField2 of yFields2 || []) {
         const yName = getFieldDisplayName(yField2 as Field, dataframe, data.series);
-        const plotlyXAxisField = displayVertically ? xField : yField2;
-        const plotlyYAxisField = displayVertically ? yField2 : xField;
+        const plotlyXAxisField = options.displayVertically ? xField : yField2;
+        const plotlyYAxisField = options.displayVertically ? yField2 : xField;
         axisLabels.yAxis2 = union(axisLabels.yAxis2, [(yField2 as Field).name]);
         plotData.push({
           x: plotlyXAxisField ? getFieldValues(plotlyXAxisField as Field) : [],
           y: plotlyYAxisField ? getFieldValues(plotlyYAxisField as Field) : [],
-          xaxis: displayVertically ? 'x' : 'x2',
-          yaxis: displayVertically ? 'y2' : 'y',
+          xaxis: options.displayVertically ? 'x' : 'x2',
+          yaxis: options.displayVertically ? 'y2' : 'y',
           name: yName,
           ...getModeAndType(options.series2.plotType),
           fill: options.series2.areaFill && options.series2.plotType === 'line' ? 'tozeroy' : 'none',
@@ -91,7 +90,7 @@ export const PlotlyPanel: React.FC<Props> = props => {
             width: options.series2.lineWidth,
             shape: options.series2.staircase ? 'hv' : 'linear',
           },
-          orientation: displayVertically ? 'v' : 'h',
+          orientation: options.displayVertically ? 'v' : 'h',
         });
       }
     }
@@ -238,10 +237,6 @@ const getPlotlyColor = (grafanaColor: string) => {
   return getColorForTheme(colorDefinition);
 };
 
-const shouldDisplayVertically = (options: PanelOptions) => {
-  return options.orientation === 'vertical';
-};
-
 const getFieldValues = (field: Field) => {
   if (field.type === FieldType.time) {
     return field.values.toArray().map(value => {
@@ -255,13 +250,12 @@ const getFieldValues = (field: Field) => {
 const getLayout = (theme: GrafanaTheme, options: PanelOptions, axisLabels: AxisLabels) => {
   const originalAxisTitleX = getTemplateSrv().replace(options.xAxis.title) || axisLabels.xAxis;
   const originalAxisTitleY = getTemplateSrv().replace(options.yAxis.title) || axisLabels.yAxis.join(', ');
-  const displayVertically = shouldDisplayVertically(options);
-  const xAxisOptions = displayVertically ? options.xAxis : options.yAxis;
-  const xAxisTitle = displayVertically ? originalAxisTitleX : originalAxisTitleY;
-  const yAxisOptions = displayVertically ? options.yAxis : options.xAxis;
-  const yAxisTitle = displayVertically ? originalAxisTitleY : originalAxisTitleX;
-  const showXAxis2 = options.showYAxis2 && !displayVertically;
-  const showYAxis2 = options.showYAxis2 && displayVertically;
+  const xAxisOptions = options.displayVertically ? options.xAxis : options.yAxis;
+  const xAxisTitle = options.displayVertically ? originalAxisTitleX : originalAxisTitleY;
+  const yAxisOptions = options.displayVertically ? options.yAxis : options.xAxis;
+  const yAxisTitle = options.displayVertically ? originalAxisTitleY : originalAxisTitleX;
+  const showXAxis2 = options.showYAxis2 && !options.displayVertically;
+  const showYAxis2 = options.showYAxis2 && options.displayVertically;
   const layout: Partial<Plotly.Layout> = {
     margin: { r: 40, l: 40, t: 20, b: 40 },
     paper_bgcolor: theme.colors.panelBg,
@@ -338,5 +332,5 @@ const getLegendLayout = (position: string, showYAxis2: boolean, showXAxisLabel: 
 };
 
 const shouldInvertVerticalAxis = (options: PanelOptions) => {
-  return !shouldDisplayVertically(options) && options.invertXAxis;
+  return options.displayVertically === false && options.invertXAxis;
 };

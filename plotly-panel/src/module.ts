@@ -298,21 +298,21 @@ export const plugin = new PanelPlugin<PanelOptions>(PlotlyPanel)
         defaultValue: 'right',
       })
       .addRadio({
-        path: 'orientation',
+        path: 'displayVertically',
         name: 'Orientation',
         settings: {
           options: [
-            { label: 'Vertical', value: 'vertical' },
-            { label: 'Horizontal', value: 'horizontal' },
+            { label: 'Vertical', value: true },
+            { label: 'Horizontal', value: false },
           ],
         },
-        defaultValue: 'vertical',
+        defaultValue: true,
       })
       .addBooleanSwitch({
         path: 'invertXAxis',
         name: 'Invert X axis',
         defaultValue: true,
-        showIf: options => options.orientation === 'horizontal',
+        showIf: options => options.displayVertically === false,
       });
   })
   .useFieldConfig({
