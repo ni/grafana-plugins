@@ -39,10 +39,9 @@ export class DataSource extends DataSourceApi<NotebookQuery, NotebookDataSourceO
       return [];
     }
 
-    const filter = `path == "${query.path}"`;
-    const response = await getBackendSrv().post(this.url + '/ninbexec/v2/query-notebooks', { filter });
-    const notebooks = response.notebooks as Notebook[];
+    const notebooks = await this.queryNotebooks(query.path);
     if (!notebooks || !notebooks.length || !Array.isArray(notebooks[0].metadata.parameters)) {
+      console.log('oops 1');
       return [];
     }
 
