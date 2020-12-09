@@ -39,3 +39,15 @@ export interface Execution {
   result: any;
   cachedResult: boolean;
 }
+
+export interface Parameter {
+  id: string;
+  display_name: string;
+  type: string;
+  options?: string[];
+}
+
+export interface NotebookParameterQuery {
+  path: string;
+  parameter: string;
+}
