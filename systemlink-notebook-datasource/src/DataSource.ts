@@ -41,7 +41,6 @@ export class DataSource extends DataSourceApi<NotebookQuery, NotebookDataSourceO
 
     const notebooks = await this.queryNotebooks(query.path);
     if (!notebooks || !notebooks.length || !Array.isArray(notebooks[0].metadata.parameters)) {
-      console.log('oops 1');
       return [];
     }
 
