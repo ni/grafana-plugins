@@ -46,14 +46,18 @@ export const VariableQueryEditor: React.FC<NotebookVariableQueryProps> = ({ data
 
   useEffect(() => {
     const notebook = notebooks.find(n => n.path === state.path);
-    const allParams = notebook && Array.isArray(notebook.metadata.parameters) ? notebook.metadata.parameters : [];
+    if (!notebook) {
+      return;
+    }
+
+    const allParams = Array.isArray(notebook.metadata.parameters) ? notebook.metadata.parameters : [];
     const enumParams = allParams.filter(param => !!param.options);
     setParams(enumParams);
     setState({
       ...state,
       parameter: enumParams[0] ? enumParams[0].id : '',
     });
-  }, [state.path]);
+  }, [notebooks, state.path]);
 
   return (
     <>
