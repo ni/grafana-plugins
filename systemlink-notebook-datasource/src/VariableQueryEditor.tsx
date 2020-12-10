@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { getBackendSrv } from '@grafana/runtime';
 import { Notebook, Parameter, NotebookParameterQuery } from './types';
 import { DataSourceInstanceSettings } from '@grafana/data';
+import { formatNotebookOption } from 'utils';
 
 interface NotebookVariableQueryProps {
   datasource: DataSourceInstanceSettings;
@@ -58,10 +59,10 @@ export const VariableQueryEditor: React.FC<NotebookVariableQueryProps> = ({ data
     <>
       <div className="gf-form">
         <span className="gf-form-label width-10">Path</span>
-        <div className="gf-form-select-wrapper max-width-12">
+        <div className="gf-form-select-wrapper max-width-24">
           <select name="path" className="gf-form-input" value={state.path} onChange={handleChange}>
-            {notebooks.map(notebook => (
-              <option {...{label: notebook.path, value: notebook.path}} />
+            {notebooks.map((notebook) => (
+              <option {...formatNotebookOption(notebook)} />
             ))}
           </select>
         </div>

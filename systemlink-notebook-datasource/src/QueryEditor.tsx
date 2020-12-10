@@ -11,6 +11,7 @@ import { getTemplateSrv } from '@grafana/runtime';
 import { DataSource } from './DataSource';
 import { NotebookDataSourceOptions, NotebookQuery, defaultQuery, Notebook } from './types';
 import './QueryEditor.scss';
+import { formatNotebookOption } from 'utils';
 
 type Props = QueryEditorProps<DataSource, NotebookQuery, NotebookDataSourceOptions>;
 
@@ -36,14 +37,6 @@ export class QueryEditor extends PureComponent<
 
   getNotebook = (path: string) => {
     return this.state.notebooks.find(notebook => notebook.path === path);
-  };
-
-  formatNotebookOption = (notebook: Notebook): SelectableValue => {
-    const path = notebook.path;
-    return {
-      label: path.startsWith('_shared') ? path.substring(1) : path.substring(path.indexOf('/')),
-      value: path,
-    };
   };
 
   formatOutputOption = (output: any): SelectableValue => {
@@ -169,13 +162,13 @@ export class QueryEditor extends PureComponent<
       <div className="sl-notebook-query-editor">
         <Field label="Notebook" className="sl-notebook-selector">
           <Select
-            options={this.state.notebooks.map(this.formatNotebookOption)}
+            options={this.state.notebooks.map(formatNotebookOption)}
             isLoading={this.state.isLoading}
             onChange={this.onNotebookChange}
             menuPlacement="bottom"
             maxMenuHeight={110}
             placeholder="Select notebook"
-            value={selectedNotebook ? this.formatNotebookOption(selectedNotebook) : undefined}
+            value={selectedNotebook ? formatNotebookOption(selectedNotebook) : undefined}
           />
         </Field>
         {this.state.queryError && <Alert title={this.state.queryError}></Alert>}
