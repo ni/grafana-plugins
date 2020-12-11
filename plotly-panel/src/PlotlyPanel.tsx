@@ -7,11 +7,10 @@ import {
   GrafanaTheme,
   getFieldDisplayName,
   getColorForTheme,
-  Color,
-  getColorDefinitionByName,
+  getFieldColorModeForField,
 } from '@grafana/data';
 import { AxisLabels, PanelOptions } from 'types';
-import { useTheme, ContextMenu, ContextMenuGroup, linkModelToContextMenuItems } from '@grafana/ui';
+import { useTheme, ContextMenu, ContextMenuGroup, linkModelToContextMenuItems, getTheme } from '@grafana/ui';
 import { getTemplateSrv } from '@grafana/runtime';
 import { getGuid } from 'utils';
 
@@ -39,9 +38,17 @@ export const PlotlyPanel: React.FC<Props> = props => {
     yAxis: [],
     yAxis2: [],
   };
+  let allYFields: string[]  = [];
+  let allY2Fields: string[] = [];
   for (const dataframe of data.series) {
     setDataFrameId(dataframe);
     const [xField, yFields, yFields2] = getFields(dataframe, props);
+    if (yFields) {
+      allYFields = union(allYFields, (yFields as Field[]).map(f => f.name));
+    }
+    if (yFields2) {
+      allY2Fields = union(allY2Fields, (yFields2 as Field[]).map(f => f.name));
+    }
     axisLabels.xAxis = (xField as Field).name;
 
     for (const yField of yFields || []) {
@@ -57,7 +64,7 @@ export const PlotlyPanel: React.FC<Props> = props => {
         fill: options.series.areaFill && options.series.plotType === 'line' ? 'tozeroy' : 'none',
         marker: {
           size: options.series.markerSize,
-          color: getPlotlyColor(yField?.config.custom?.color),
+          color: getColor(yField as Field),
         },
         line: {
           width: options.series.lineWidth,
@@ -84,7 +91,7 @@ export const PlotlyPanel: React.FC<Props> = props => {
           fill: options.series2.areaFill && options.series2.plotType === 'line' ? 'tozeroy' : 'none',
           marker: {
             size: options.series2.markerSize,
-            color: getPlotlyColor((yField2 as Field)?.config.custom?.color),
+            color: getColor(yField2 as Field),
           },
           line: {
             width: options.series2.lineWidth,
@@ -94,6 +101,14 @@ export const PlotlyPanel: React.FC<Props> = props => {
         });
       }
     }
+  }
+
+  if (!isEqual(allYFields, props.options.yAxis.fields) || !isEqual(allY2Fields, props.options.yAxis2?.fields)) {
+    props.onOptionsChange({
+      ...props.options,
+      yAxis: { ...props.options.yAxis, fields: allYFields },
+      yAxis2: { ...props.options.yAxis2, fields: allY2Fields },
+    });
   }
 
   const handlePlotClick = (plotEvent: Readonly<Plotly.PlotMouseEvent>) => {
@@ -173,18 +188,10 @@ const getFields = (frame: DataFrame, props: Props) => {
   }
 
   const xAxisField = xField?.name || '';
-  const yAxisFields = yFields.map(yField => yField?.name || '');
-  const yAxisFields2 = yFields2?.map(yField => yField?.name || '') || [];
-  if (
-    xAxisField !== props.options.xAxis.field ||
-    !isEqual(yAxisFields, props.options.yAxis.fields) ||
-    !isEqual(yAxisFields2, props.options.yAxis2?.fields)
-  ) {
+  if (xAxisField !== props.options.xAxis.field) {
     props.onOptionsChange({
       ...props.options,
       xAxis: { ...props.options.xAxis, field: xAxisField },
-      yAxis: { ...props.options.yAxis, fields: yAxisFields },
-      yAxis2: { ...props.options.yAxis2, fields: yAxisFields2 },
     });
   }
 
@@ -223,6 +230,20 @@ const getModeAndType = (type: string) => {
   }
 };
 
+const getColor = (field: Field) => {
+  const colorMode = getFieldColorModeForField(field);
+  const seriesColor = colorMode.getCalculator(field, getTheme())(1, 100);
+  if (seriesColor) {
+    return seriesColor;
+  }
+
+  if (field?.config.color && field?.config.color.fixedColor) {
+    return getPlotlyColor(field?.config.color.fixedColor);
+  }
+
+  return;
+}
+
 const getPlotlyColor = (grafanaColor: string) => {
   if (!grafanaColor) {
     // Let plotly choose
@@ -233,8 +254,7 @@ const getPlotlyColor = (grafanaColor: string) => {
     return grafanaColor;
   }
 
-  const colorDefinition = getColorDefinitionByName(grafanaColor as Color);
-  return getColorForTheme(colorDefinition);
+  return getColorForTheme(grafanaColor, getTheme());
 };
 
 const getFieldValues = (field: Field) => {

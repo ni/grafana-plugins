@@ -16,7 +16,7 @@
     "email": "plugins@grafana.com"
   },
   "devDependencies": {
-    "@grafana/data": "7.0.1",
+    "@grafana/data": "^7.3.4",
     "@grafana/runtime": "^7.3.4",
     "@grafana/toolkit": "7.0.1",
     "@grafana/ui": "^7.3.3",
