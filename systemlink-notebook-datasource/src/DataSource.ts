@@ -15,6 +15,7 @@ import {
   MutableDataFrame,
   FieldType,
   MetricFindValue,
+  DataQueryResponseData,
 } from '@grafana/data';
 import { getBackendSrv, getTemplateSrv } from '@grafana/runtime';
 import { NotebookQuery, NotebookDataSourceOptions, defaultQuery, Notebook, Execution, NotebookParameterQuery } from './types';
@@ -58,35 +59,34 @@ export class DataSource extends DataSourceApi<NotebookQuery, NotebookDataSourceO
       throw new Error('The SystemLink notebook datasource is not configured properly.');
     }
 
-    const target = options.targets[0];
-    const query = defaults(target, defaultQuery);
+    let data: DataQueryResponseData[] = [];
+    for (const target of options.targets) {
+      const query = defaults(target, defaultQuery);
 
-    if (!query.path) {
-      return { data: [] };
-    }
+      if (!query.path) {
+        continue;
+      }
 
-    const error = { message: '' };
-    if (options.targets.length > 1) {
-      error.message = 'Only one SystemLink notebook output will be displayed in the panel.';
-    }
-
-    const parameters = this.replaceParameterVariables(query.parameters, options);
-    const execution = await this.executeNotebook(query.path, parameters);
-    if (execution.status === 'SUCCEEDED') {
-      if (this.validate(execution.result)) {
-        const result = execution.result.result.find((result: any) => result.id === query.output);
-        if (!result) {
-          throw new Error(`The output of the notebook does not contain an output with id '${query.output}'.`);
+      const parameters = this.replaceParameterVariables(query.parameters, options);
+      const execution = await this.executeNotebook(query.path, parameters);
+      if (execution.status === 'SUCCEEDED') {
+        if (this.validate(execution.result)) {
+          const result = execution.result.result.find((result: any) => result.id === query.output);
+          if (!result) {
+            throw new Error(`The output of the notebook does not contain an output with id '${query.output}'.`);
+          } else {
+            const frames = this.transformResultToDataFrames(result, query);
+            data = data.concat(frames);
+          }
         } else {
-          const frames = this.transformResultToDataFrames(result, query);
-          return { data: frames, error };
+          throw new Error('The output for the notebook does not match the expected SystemLink format.');
         }
       } else {
-        throw new Error('The output for the notebook does not match the expected SystemLink format.');
+        throw new Error('The notebook failed to execute.');
       }
-    } else {
-      throw new Error('The notebook failed to execute.');
     }
+
+    return { data };
   }
 
   replaceParameterVariables(parameters: any, options: DataQueryRequest<NotebookQuery>) {
