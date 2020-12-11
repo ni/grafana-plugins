@@ -241,6 +241,42 @@ describe('Notebook data source', () => {
       );
     });
   });
+
+  describe('metricFindQuery', () => {
+    it('returns empty when there are no parameters', async () => {
+      const path = 'bad';
+      const parameter = '';
+
+      const values = await ds.metricFindQuery({ path, parameter });
+
+      expect(postMock).not.toBeCalled();
+      expect(values.length).toBe(0);
+    });
+
+    it('returns empty when the parameter is not found on the notebook', async () => {
+      const path = 'good';
+      const parameter = 'bad';
+
+      const values = await ds.metricFindQuery({ path, parameter });
+
+      expect(postMock).toBeCalled();
+      expect(values.length).toBe(0);
+    });
+
+    it('returns valid options', async () => {
+      const path = 'good';
+      const parameter = 'good';
+
+      const values = await ds.metricFindQuery({ path, parameter });
+
+      expect(postMock).toBeCalled();
+      expect(values).toEqual([
+        { text: 'a' },
+        { text: 'b' },
+        { text: 'c' },
+      ]);
+    });
+  });
 });
 
 // @ts-ignore
@@ -302,7 +338,7 @@ function mockQueryNotebooksResponse() {
   return {
     notebooks: [
       { path: 'bad', metadata: { version: 1 } },
-      { path: 'good', metadata: { version: 2 } },
+      { path: 'good', metadata: { version: 2, parameters: [ { id: 'good', display_name: 'test me', options: ['a', 'b', 'c']} ] } },
       { path: 'also bad', metadata: { version: 3 } },
     ],
   };

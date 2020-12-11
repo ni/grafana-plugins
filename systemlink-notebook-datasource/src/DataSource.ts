@@ -14,9 +14,10 @@ import {
   DataSourceInstanceSettings,
   MutableDataFrame,
   FieldType,
+  MetricFindValue,
 } from '@grafana/data';
 import { getBackendSrv, getTemplateSrv } from '@grafana/runtime';
-import { NotebookQuery, NotebookDataSourceOptions, defaultQuery, Notebook, Execution } from './types';
+import { NotebookQuery, NotebookDataSourceOptions, defaultQuery, Notebook, Execution, NotebookParameterQuery } from './types';
 import { timeout } from './utils';
 
 import * as schema from './data/schema.json';
@@ -31,6 +32,25 @@ export class DataSource extends DataSourceApi<NotebookQuery, NotebookDataSourceO
 
     let ajv = new Ajv();
     this.validate = ajv.compile(schema);
+  }
+
+  async metricFindQuery(query: NotebookParameterQuery, options?: any): Promise<MetricFindValue[]> {
+    if (!query.path || !query.parameter) {
+      return [];
+    }
+
+    const notebooks = await this.queryNotebooks(query.path);
+    if (!notebooks || !notebooks.length || !Array.isArray(notebooks[0].metadata.parameters)) {
+      return [];
+    }
+
+    const parameter = notebooks[0].metadata.parameters.find((param: any) => param.id === query.parameter);
+    if (!parameter) {
+      return [];
+    }
+
+    const values = parameter.options || [];
+    return values.map((value: string) => ({ text: value }));
   }
 
   async query(options: DataQueryRequest<NotebookQuery>): Promise<DataQueryResponse> {
