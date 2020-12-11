@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { getBackendSrv } from '@grafana/runtime';
 import { Notebook, Parameter, NotebookParameterQuery } from './types';
 import { DataSourceInstanceSettings } from '@grafana/data';
-import { formatNotebookOption } from 'utils';
+import { formatNotebookOption, formatPath } from 'utils';
 
 interface NotebookVariableQueryProps {
   datasource: DataSourceInstanceSettings;
@@ -16,7 +16,7 @@ export const VariableQueryEditor: React.FC<NotebookVariableQueryProps> = ({ data
   const [params, setParams] = useState<Parameter[]>([]);
 
   useEffect(() => {
-    onChange(state, `${state.path} (${state.parameter})`);
+    onChange(state, `${formatPath(state.path)} (${state.parameter})`);
   }, [state])
 
   const handleChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
