@@ -191,6 +191,36 @@ describe('Notebook data source', () => {
       expect(Object.values(frame.get(0))).toEqual([1]);
     });
 
+    it('returns frames for multiple successful notebook executions', async () => {
+      const options = ({
+        targets: [
+          {
+            path: successfulNotebookPath,
+            parameters: [],
+            output: 'test',
+          },
+          {
+            path: successfulNotebookPath,
+            parameters: [],
+            output: 'test',
+          },
+        ],
+      } as unknown) as DataQueryRequest<NotebookQuery>;
+
+      let result = await ds.query(options);
+
+      expect(result.data).toHaveLength(2);
+      let frame = result.data[0];
+      expect(frame.fields).toHaveLength(1);
+      expect(frame.length).toBe(1);
+      expect(Object.values(frame.get(0))).toEqual([1]);
+
+      frame = result.data[1];
+      expect(frame.fields).toHaveLength(1);
+      expect(frame.length).toBe(1);
+      expect(Object.values(frame.get(0))).toEqual([1]);
+    });
+
     it('throws error for failed notebook execution', async () => {
       const options = ({
         targets: [
