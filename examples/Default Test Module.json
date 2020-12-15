@@ -1,0 +1,901 @@
+{
+  "__inputs": [
+    {
+      "name": "DS_SYSTEMLINK_NOTEBOOKS",
+      "label": "SystemLink Notebooks",
+      "description": "",
+      "type": "datasource",
+      "pluginId": "systemlink-notebook-datasource",
+      "pluginName": "SystemLink Notebooks"
+    }
+  ],
+  "__requires": [
+    {
+      "type": "grafana",
+      "id": "grafana",
+      "name": "Grafana",
+      "version": "7.3.4"
+    },
+    {
+      "type": "panel",
+      "id": "ni-plotly-panel",
+      "name": "Plotly graph",
+      "version": "1.0.0"
+    },
+    {
+      "type": "panel",
+      "id": "stat",
+      "name": "Stat",
+      "version": ""
+    },
+    {
+      "type": "datasource",
+      "id": "systemlink-notebook-datasource",
+      "name": "SystemLink Notebooks",
+      "version": "1.0.0"
+    },
+    {
+      "type": "panel",
+      "id": "table",
+      "name": "Table",
+      "version": ""
+    }
+  ],
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": "-- Grafana --",
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      }
+    ]
+  },
+  "editable": true,
+  "gnetId": null,
+  "graphTooltip": 0,
+  "id": null,
+  "iteration": 1608055072346,
+  "links": [],
+  "panels": [
+    {
+      "datasource": "${DS_SYSTEMLINK_NOTEBOOKS}",
+      "description": "",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "align": null,
+            "filterable": false
+          },
+          "links": [],
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Passed"
+            },
+            "properties": [
+              {
+                "id": "links",
+                "value": [
+                  {
+                    "targetBlank": true,
+                    "title": "View Passed Results",
+                    "url": "https://test.systemlink.io/#testmonitor/testresults/config/filter%5B0%5D%5BqueryOperandValue%5D=Passed&filter%5B0%5D%5BqueryOperator%5D=EQUALS&filter%5B0%5D%5BqueryOperatorName%5D=status.statusType&filter%5B1%5D%5BqueryOperandValue%5D=${__from:date:YYYY-MM-DD[T]HH[%3A]mm[%3A]00}&filter%5B1%5D%5BqueryOperator%5D=IS_AFTER&filter%5B1%5D%5BqueryOperatorName%5D=startedAt&filter%5B2%5D%5BqueryOperandValue%5D=${__to:date:YYYY-MM-DD[T]HH[%3A]mm[%3A]00}&filter%5B2%5D%5BqueryOperator%5D=IS_BEFORE&filter%5B2%5D%5BqueryOperatorName%5D=startedAt&groupField=None"
+                  }
+                ]
+              },
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "green",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Terminated"
+            },
+            "properties": [
+              {
+                "id": "links",
+                "value": [
+                  {
+                    "targetBlank": true,
+                    "title": "View Terminated Results",
+                    "url": "https://test.systemlink.io/#testmonitor/testresults/config/filter%5B0%5D%5BqueryOperandValue%5D=Terminated&filter%5B0%5D%5BqueryOperator%5D=EQUALS&filter%5B0%5D%5BqueryOperatorName%5D=status.statusType&filter%5B1%5D%5BqueryOperandValue%5D=${__from:date:YYYY-MM-DD[T]HH[%3A]mm[%3A]00}&filter%5B1%5D%5BqueryOperator%5D=IS_AFTER&filter%5B1%5D%5BqueryOperatorName%5D=startedAt&filter%5B2%5D%5BqueryOperandValue%5D=${__to:date:YYYY-MM-DD[T]HH[%3A]mm[%3A]00}&filter%5B2%5D%5BqueryOperator%5D=IS_BEFORE&filter%5B2%5D%5BqueryOperatorName%5D=startedAt&groupField=None"
+                  }
+                ]
+              },
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "blue",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Errored"
+            },
+            "properties": [
+              {
+                "id": "links",
+                "value": [
+                  {
+                    "targetBlank": true,
+                    "title": "View Errored Results",
+                    "url": "https://test.systemlink.io/#testmonitor/testresults/config/filter%5B0%5D%5BqueryOperandValue%5D=Errored&filter%5B0%5D%5BqueryOperator%5D=EQUALS&filter%5B0%5D%5BqueryOperatorName%5D=status.statusType&filter%5B1%5D%5BqueryOperandValue%5D=${__from:date:YYYY-MM-DD[T]HH[%3A]mm[%3A]00}&filter%5B1%5D%5BqueryOperator%5D=IS_AFTER&filter%5B1%5D%5BqueryOperatorName%5D=startedAt&filter%5B2%5D%5BqueryOperandValue%5D=${__to:date:YYYY-MM-DD[T]HH[%3A]mm[%3A]00}&filter%5B2%5D%5BqueryOperator%5D=IS_BEFORE&filter%5B2%5D%5BqueryOperatorName%5D=startedAt&groupField=None"
+                  }
+                ]
+              },
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "yellow",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Failed"
+            },
+            "properties": [
+              {
+                "id": "links",
+                "value": [
+                  {
+                    "targetBlank": true,
+                    "title": "View Failed Results",
+                    "url": "https://test.systemlink.io/#testmonitor/testresults/config/filter%5B0%5D%5BqueryOperandValue%5D=Failed&filter%5B0%5D%5BqueryOperator%5D=EQUALS&filter%5B0%5D%5BqueryOperatorName%5D=status.statusType&filter%5B1%5D%5BqueryOperandValue%5D=${__from:date:YYYY-MM-DD[T]HH[%3A]mm[%3A]00}&filter%5B1%5D%5BqueryOperator%5D=IS_AFTER&filter%5B1%5D%5BqueryOperatorName%5D=startedAt&filter%5B2%5D%5BqueryOperandValue%5D=${__to:date:YYYY-MM-DD[T]HH[%3A]mm[%3A]00}&filter%5B2%5D%5BqueryOperator%5D=IS_BEFORE&filter%5B2%5D%5BqueryOperatorName%5D=startedAt&groupField=None"
+                  }
+                ]
+              },
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "red",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 6,
+        "x": 0,
+        "y": 0
+      },
+      "id": 7,
+      "options": {
+        "displayVertically": true,
+        "invertXAxis": true,
+        "legendPosition": "right",
+        "series": {
+          "areaFill": false,
+          "lineWidth": 2,
+          "markerSize": 6,
+          "plotType": "bar",
+          "stackBars": true,
+          "staircase": false
+        },
+        "series2": {
+          "areaFill": false,
+          "lineWidth": 2,
+          "markerSize": 6,
+          "plotType": "line",
+          "stackBars": false,
+          "staircase": false
+        },
+        "showLegend": true,
+        "showYAxis2": false,
+        "xAxis": {
+          "field": " ",
+          "scale": "",
+          "title": ""
+        },
+        "yAxis": {
+          "fields": [
+            "PASSED (sum)",
+            "FAILED (sum)",
+            "ERRORED (sum)",
+            "TERMINATED (sum)"
+          ],
+          "scale": "",
+          "title": "Runs",
+          "unit": ""
+        },
+        "yAxis2": {
+          "fields": [],
+          "scale": "",
+          "title": "",
+          "unit": ""
+        },
+        "yAxis2Field": [],
+        "yAxisField": []
+      },
+      "pluginVersion": "7.2.2",
+      "targets": [
+        {
+          "output": "status_count_graph",
+          "parameters": {
+            "group_by": "$Grouping",
+            "results_filter": "startedAt > \"${__from:date:YYYY-MM-DD}\" && startedAt < \"${__to:date:YYYY-MM-DD}\""
+          },
+          "path": "S-1-5-21-2870851459-907067769-2954241570-1002/reports/KPIs.ipynb",
+          "refId": "A"
+        }
+      ],
+      "timeFrom": null,
+      "timeShift": null,
+      "title": "Status Summary",
+      "transformations": [
+        {
+          "id": "calculateField",
+          "options": {
+            "alias": " ",
+            "binary": {
+              "left": "PASSED",
+              "operator": "*",
+              "reducer": "sum",
+              "right": "0"
+            },
+            "mode": "binary",
+            "reduce": {
+              "reducer": "sum"
+            }
+          }
+        },
+        {
+          "id": "groupBy",
+          "options": {
+            "fields": {
+              " ": {
+                "aggregations": [],
+                "operation": "groupby"
+              },
+              " Aggregate": {
+                "aggregations": [],
+                "operation": "groupby"
+              },
+              "ERRORED": {
+                "aggregations": [
+                  "sum"
+                ],
+                "operation": "aggregate"
+              },
+              "FAILED": {
+                "aggregations": [
+                  "sum"
+                ],
+                "operation": "aggregate"
+              },
+              "PASSED": {
+                "aggregations": [
+                  "sum"
+                ],
+                "operation": "aggregate"
+              },
+              "TERMINATED": {
+                "aggregations": [
+                  "sum"
+                ],
+                "operation": "aggregate"
+              }
+            }
+          }
+        },
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {},
+            "indexByName": {},
+            "renameByName": {
+              " ": "",
+              " Aggregate": " ",
+              "ERRORED (sum)": "Errored",
+              "FAILED (sum)": "Failed",
+              "PASSED (sum)": "Passed",
+              "TERMINATED (sum)": "Terminated"
+            }
+          }
+        }
+      ],
+      "type": "ni-plotly-panel"
+    },
+    {
+      "datasource": "-- Dashboard --",
+      "fieldConfig": {
+        "defaults": {
+          "custom": {},
+          "links": [
+            {
+              "targetBlank": true,
+              "title": "View ${__field.name} Results",
+              "url": "https://test.systemlink.io/#testmonitor/testresults/config/filter%5B0%5D%5BqueryOperandValue%5D=${__field.name}&filter%5B0%5D%5BqueryOperator%5D=EQUALS&filter%5B0%5D%5BqueryOperatorName%5D=status.statusType&filter%5B1%5D%5BqueryOperandValue%5D=${__from:date:YYYY-MM-DD[T]HH[%3A]mm[%3A]00}&filter%5B1%5D%5BqueryOperator%5D=IS_AFTER&filter%5B1%5D%5BqueryOperatorName%5D=startedAt&filter%5B2%5D%5BqueryOperandValue%5D=${__to:date:YYYY-MM-DD[T]HH[%3A]mm[%3A]00}&filter%5B2%5D%5BqueryOperator%5D=IS_BEFORE&filter%5B2%5D%5BqueryOperatorName%5D=startedAt&groupField=None"
+            }
+          ],
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 18,
+        "x": 6,
+        "y": 0
+      },
+      "id": 9,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "sum"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto"
+      },
+      "pluginVersion": "7.3.4",
+      "targets": [
+        {
+          "panelId": 7,
+          "refId": "A"
+        }
+      ],
+      "timeFrom": null,
+      "timeShift": null,
+      "title": "Total Status Counts",
+      "transformations": [
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {},
+            "indexByName": {
+              "ERRORED": 3,
+              "FAILED": 2,
+              "PASSED": 1,
+              "TERMINATED": 4,
+              "started_at": 0
+            },
+            "renameByName": {
+              "ERRORED": "Errored",
+              "FAILED": "Failed",
+              "PASSED": "Passed",
+              "TERMINATED": "Terminated"
+            }
+          }
+        }
+      ],
+      "type": "stat"
+    },
+    {
+      "datasource": "${DS_SYSTEMLINK_NOTEBOOKS}",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {},
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "yield"
+            },
+            "properties": [
+              {
+                "id": "links",
+                "value": [
+                  {
+                    "targetBlank": true,
+                    "title": "View Yield Report",
+                    "url": "https://test.systemlink.io/#testmonitor/reports/config/filter%5B0%5D%5BqueryOperandValue%5D=${__from:date:YYYY-MM-DD[T]HH[%3A]mm[%3A]00}&filter%5B0%5D%5BqueryOperator%5D=IS_AFTER&filter%5B0%5D%5BqueryOperatorName%5D=startedAt&filter%5B1%5D%5BqueryOperandValue%5D=${__to:date:YYYY-MM-DD[T]HH[%3A]mm[%3A]00}&filter%5B1%5D%5BqueryOperator%5D=IS_BEFORE&filter%5B1%5D%5BqueryOperatorName%5D=startedAt&groupField=${Grouping}&notebookPath=S-1-5-21-2870851459-907067769-2954241570-1002%2Freports%2FFirst%20Pass%20Yield.ipynb&output=first_pass_yield_graph"
+                  }
+                ]
+              },
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "green",
+                  "mode": "fixed"
+                }
+              },
+              {
+                "id": "displayName",
+                "value": "Yield"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "fail_rate"
+            },
+            "properties": [
+              {
+                "id": "links",
+                "value": [
+                  {
+                    "targetBlank": true,
+                    "title": "View Failure Rate Report",
+                    "url": "https://test.systemlink.io/#testmonitor/reports/config/filter%5B0%5D%5BqueryOperandValue%5D=${__from:date:YYYY-MM-DD[T]HH[%3A]mm[%3A]00}&filter%5B0%5D%5BqueryOperator%5D=IS_AFTER&filter%5B0%5D%5BqueryOperatorName%5D=startedAt&filter%5B1%5D%5BqueryOperandValue%5D=${__to:date:YYYY-MM-DD[T]HH[%3A]mm[%3A]00}&filter%5B1%5D%5BqueryOperator%5D=IS_BEFORE&filter%5B1%5D%5BqueryOperatorName%5D=startedAt&groupField=${Grouping}&notebookPath=S-1-5-21-2870851459-907067769-2954241570-1002%2Freports%2FFailure%20Rate.ipynb&output=failure_rate_graph"
+                  }
+                ]
+              },
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "red",
+                  "mode": "fixed"
+                }
+              },
+              {
+                "id": "displayName",
+                "value": "Failure Rate"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "throughput"
+            },
+            "properties": [
+              {
+                "id": "links",
+                "value": [
+                  {
+                    "targetBlank": true,
+                    "title": "View Throughput Report",
+                    "url": "https://test.systemlink.io/#testmonitor/reports/config/filter%5B0%5D%5BqueryOperandValue%5D=${__from:date:YYYY-MM-DD[T]HH[%3A]mm[%3A]00}&filter%5B0%5D%5BqueryOperator%5D=IS_AFTER&filter%5B0%5D%5BqueryOperatorName%5D=startedAt&filter%5B1%5D%5BqueryOperandValue%5D=${__to:date:YYYY-MM-DD[T]HH[%3A]mm[%3A]00}&filter%5B1%5D%5BqueryOperator%5D=IS_BEFORE&filter%5B1%5D%5BqueryOperatorName%5D=startedAt&groupField=${Grouping}&notebookPath=S-1-5-21-2870851459-907067769-2954241570-1002%2Freports%2FThroughput.ipynb&output=throughput_graph"
+                  }
+                ]
+              },
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "rgb(0, 0, 0)",
+                  "mode": "fixed"
+                }
+              },
+              {
+                "id": "displayName",
+                "value": "Throughput"
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 11,
+        "w": 12,
+        "x": 0,
+        "y": 8
+      },
+      "id": 2,
+      "links": [],
+      "options": {
+        "displayVertically": true,
+        "invertXAxis": true,
+        "legendPosition": "bottom",
+        "series": {
+          "areaFill": false,
+          "lineWidth": 2,
+          "markerSize": 6,
+          "plotType": "bar",
+          "stackBars": true,
+          "staircase": false
+        },
+        "series2": {
+          "areaFill": false,
+          "lineWidth": 2,
+          "markerSize": 6,
+          "plotType": "points",
+          "stackBars": false,
+          "staircase": true
+        },
+        "showLegend": true,
+        "showYAxis2": true,
+        "xAxis": {
+          "field": "started_at",
+          "scale": "",
+          "title": "$Grouping"
+        },
+        "yAxis": {
+          "field": "yield",
+          "fields": [
+            "yield",
+            "fail_rate"
+          ],
+          "scale": "",
+          "title": "Yield",
+          "unit": "%"
+        },
+        "yAxis2": {
+          "field": "",
+          "fields": [
+            "throughput"
+          ],
+          "max": 500,
+          "min": 0,
+          "scale": "",
+          "title": "Throughput",
+          "unit": ""
+        },
+        "yAxis2Field": [],
+        "yAxisField": []
+      },
+      "pluginVersion": "7.2.2",
+      "targets": [
+        {
+          "output": "kpis_graph",
+          "parameters": {
+            "group_by": "$Grouping",
+            "results_filter": "startedAt > \"${__from:date:YYYY-MM-DD}\" && startedAt < \"${__to:date:YYYY-MM-DD}\""
+          },
+          "path": "S-1-5-21-2870851459-907067769-2954241570-1002/reports/KPIs.ipynb",
+          "refId": "A"
+        }
+      ],
+      "timeFrom": null,
+      "timeShift": null,
+      "title": "Yield and Throughput",
+      "type": "ni-plotly-panel"
+    },
+    {
+      "datasource": "${DS_SYSTEMLINK_NOTEBOOKS}",
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "align": null,
+            "filterable": false
+          },
+          "mappings": [],
+          "noValue": "(empty)",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Serial Number"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 106
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Part Number"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 113
+              },
+              {
+                "id": "custom.filterable",
+                "value": true
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "System"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 138
+              },
+              {
+                "id": "custom.filterable",
+                "value": true
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Operator"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 103
+              },
+              {
+                "id": "custom.filterable",
+                "value": true
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Elapsed Time (s)"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 127
+              },
+              {
+                "id": "custom.displayMode",
+                "value": "basic"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Status"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 81
+              },
+              {
+                "id": "custom.filterable",
+                "value": true
+              },
+              {
+                "id": "custom.displayMode",
+                "value": "auto"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Started At"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 157
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Test Program"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 120
+              },
+              {
+                "id": "custom.filterable",
+                "value": true
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Properties"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 336
+              },
+              {
+                "id": "custom.displayMode",
+                "value": "json-view"
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 11,
+        "w": 12,
+        "x": 12,
+        "y": 8
+      },
+      "id": 11,
+      "options": {
+        "showHeader": true,
+        "sortBy": [
+          {
+            "desc": true,
+            "displayName": "Started At"
+          }
+        ]
+      },
+      "pluginVersion": "7.3.4",
+      "targets": [
+        {
+          "output": "results_graph",
+          "parameters": {
+            "results_filter": "startedAt > \"${__from:date:YYYY-MM-DD}\" && startedAt < \"${__to:date:YYYY-MM-DD}\""
+          },
+          "path": "S-1-5-21-2870851459-907067769-2954241570-1002/reports/Result Query.ipynb",
+          "refId": "A"
+        }
+      ],
+      "timeFrom": null,
+      "timeShift": null,
+      "title": "Recent Results",
+      "transformations": [
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {
+              "file_ids": true,
+              "id": true,
+              "keywords": true,
+              "properties": false,
+              "status_name": false,
+              "status_type": true,
+              "system_id": true,
+              "updated_at": true,
+              "workspace": true
+            },
+            "indexByName": {
+              "file_ids": 14,
+              "host_name": 3,
+              "id": 11,
+              "keywords": 13,
+              "operator": 4,
+              "part_number": 1,
+              "program_name": 2,
+              "properties": 8,
+              "serial_number": 0,
+              "started_at": 6,
+              "status_name": 5,
+              "status_type": 9,
+              "system_id": 12,
+              "total_time_in_seconds": 7,
+              "updated_at": 10,
+              "workspace": 15
+            },
+            "renameByName": {
+              "host_name": "System",
+              "operator": "Operator",
+              "part_number": "Part Number",
+              "program_name": "Test Program",
+              "properties": "Properties",
+              "serial_number": "Serial Number",
+              "started_at": "Started At",
+              "status_name": "Status",
+              "status_type": "",
+              "total_time_in_seconds": "Elapsed Time (s)"
+            }
+          }
+        }
+      ],
+      "type": "table"
+    }
+  ],
+  "refresh": false,
+  "schemaVersion": 26,
+  "style": "dark",
+  "tags": [],
+  "templating": {
+    "list": [
+      {
+        "allValue": null,
+        "current": {},
+        "datasource": "${DS_SYSTEMLINK_NOTEBOOKS}",
+        "definition": "shared/reports/First Pass Yield.ipynb (group_by)",
+        "error": null,
+        "hide": 0,
+        "includeAll": false,
+        "label": null,
+        "multi": false,
+        "name": "Grouping",
+        "options": [],
+        "query": {
+          "parameter": "group_by",
+          "path": "_shared/reports/First Pass Yield.ipynb"
+        },
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      }
+    ]
+  },
+  "time": {
+    "from": "now-90d",
+    "to": "now"
+  },
+  "timepicker": {},
+  "timezone": "",
+  "title": "Default Test Module",
+  "uid": "4XS18YTMk",
+  "version": 58
+}
