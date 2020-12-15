@@ -38,18 +38,14 @@ export const PlotlyPanel: React.FC<Props> = props => {
     yAxis: [],
     yAxis2: [],
   };
-  let allYFields: string[]  = [];
-  let allY2Fields: string[] = [];
+
   for (const dataframe of data.series) {
     setDataFrameId(dataframe);
     const [xField, yFields, yFields2] = getFields(dataframe, props);
-    if (yFields) {
-      allYFields = union(allYFields, (yFields as Field[]).map(f => f.name));
+    if (!axisLabels.xAxis && xField) {
+      // If frames have different x-fields, the first one will show on the graph
+      axisLabels.xAxis = (xField as Field).name;
     }
-    if (yFields2) {
-      allY2Fields = union(allY2Fields, (yFields2 as Field[]).map(f => f.name));
-    }
-    axisLabels.xAxis = (xField as Field).name;
 
     for (const yField of yFields || []) {
       const yName = getFieldDisplayName(yField as Field, dataframe, data.series);
@@ -103,11 +99,16 @@ export const PlotlyPanel: React.FC<Props> = props => {
     }
   }
 
-  if (!isEqual(allYFields, props.options.yAxis.fields) || !isEqual(allY2Fields, props.options.yAxis2?.fields)) {
+  if (
+    axisLabels.xAxis !== props.options.xAxis.field ||
+    !isEqual(axisLabels.yAxis, props.options.yAxis.fields) ||
+    !isEqual(axisLabels.yAxis2, props.options.yAxis2?.fields)
+  ) {
     props.onOptionsChange({
       ...props.options,
-      yAxis: { ...props.options.yAxis, fields: allYFields },
-      yAxis2: { ...props.options.yAxis2, fields: allY2Fields },
+      xAxis: { ...props.options.xAxis, field: axisLabels.xAxis },
+      yAxis: { ...props.options.yAxis, fields: axisLabels.yAxis },
+      yAxis2: { ...props.options.yAxis2, fields: axisLabels.yAxis2 },
     });
   }
 
@@ -185,14 +186,6 @@ const getFields = (frame: DataFrame, props: Props) => {
   let yFields2;
   if (props.options.yAxis2?.fields) {
     yFields2 = getYFields(props.options.yAxis2?.fields, frame, xField, false);
-  }
-
-  const xAxisField = xField?.name || '';
-  if (xAxisField !== props.options.xAxis.field) {
-    props.onOptionsChange({
-      ...props.options,
-      xAxis: { ...props.options.xAxis, field: xAxisField },
-    });
   }
 
   return [xField, yFields, yFields2];
