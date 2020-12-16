@@ -35,6 +35,37 @@ export const plugin = new PanelPlugin<PanelOptions>(PlotlyPanel)
         defaultValue: '',
         category: ['X Axis'],
       })
+      .addNumberInput({
+        path: 'xAxis.min',
+        name: 'Min',
+        settings: {
+          placeholder: 'auto',
+        },
+        category: ['X Axis'],
+      })
+      .addNumberInput({
+        path: 'xAxis.max',
+        name: 'Max',
+        settings: {
+          placeholder: 'auto',
+        },
+        category: ['X Axis'],
+      })
+      .addNumberInput({
+        path: 'xAxis.decimals',
+        name: 'Decimals',
+        settings: {
+          placeholder: 'auto',
+          min: 0,
+        },
+        category: ['X Axis'],
+      })
+      .addTextInput({
+        path: 'xAxis.unit',
+        name: 'Unit',
+        defaultValue: '',
+        category: ['X Axis'],
+      })
       .addCustomEditor({
         path: 'yAxis.fields',
         editor: MultiSelectValueEditor as any,
