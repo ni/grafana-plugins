@@ -17,7 +17,7 @@ export const formatPath = (path: string): string => {
   }
 
   return path.substring(path.indexOf('/'));
-}
+};
 
 export const formatNotebookOption = (notebook: Notebook): SelectableValue => {
   const path = notebook.path;

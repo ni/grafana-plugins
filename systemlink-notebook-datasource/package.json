@@ -29,6 +29,7 @@
     "node": ">=12 <13"
   },
   "dependencies": {
-    "ajv": "^6.12.6"
+    "ajv": "^6.12.6",
+    "smart-webcomponents-react": "^8.2.7"
   }
 }

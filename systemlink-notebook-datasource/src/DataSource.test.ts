@@ -300,11 +300,7 @@ describe('Notebook data source', () => {
       const values = await ds.metricFindQuery({ path, parameter });
 
       expect(postMock).toBeCalled();
-      expect(values).toEqual([
-        { text: 'a' },
-        { text: 'b' },
-        { text: 'c' },
-      ]);
+      expect(values).toEqual([{ text: 'a' }, { text: 'b' }, { text: 'c' }]);
     });
   });
 });
@@ -368,7 +364,10 @@ function mockQueryNotebooksResponse() {
   return {
     notebooks: [
       { path: 'bad', metadata: { version: 1 } },
-      { path: 'good', metadata: { version: 2, parameters: [ { id: 'good', display_name: 'test me', options: ['a', 'b', 'c']} ] } },
+      {
+        path: 'good',
+        metadata: { version: 2, parameters: [{ id: 'good', display_name: 'test me', options: ['a', 'b', 'c'] }] },
+      },
       { path: 'also bad', metadata: { version: 3 } },
     ],
   };

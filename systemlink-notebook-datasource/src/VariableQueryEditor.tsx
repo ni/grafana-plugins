@@ -17,7 +17,7 @@ export const VariableQueryEditor: React.FC<NotebookVariableQueryProps> = ({ data
 
   useEffect(() => {
     onChange(state, `${formatPath(state.path)} (${state.parameter})`);
-  }, [state])
+  }, [state]);
 
   const handleChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     setState({
@@ -28,20 +28,20 @@ export const VariableQueryEditor: React.FC<NotebookVariableQueryProps> = ({ data
 
   useEffect(() => {
     getBackendSrv()
-    .post(datasource.url + '/ninbexec/v2/query-notebooks', {})
-    .then((response: any) => {
-      const notebooks = response.notebooks as Notebook[];
-      setNotebooks(notebooks.filter(notebook => notebook.metadata.version === 2));
-      if (notebooks.length) {
-        setState({
-          ...state,
-          path: notebooks[0].path,
-        });
-      }
-    })
-    .catch((e: any) => {
-      throw new Error(`The query for SystemLink notebooks failed with error ${e.status}: ${e.statusText}.`);
-    });
+      .post(datasource.url + '/ninbexec/v2/query-notebooks', {})
+      .then((response: any) => {
+        const notebooks = response.notebooks as Notebook[];
+        setNotebooks(notebooks.filter(notebook => notebook.metadata.version === 2));
+        if (notebooks.length) {
+          setState({
+            ...state,
+            path: notebooks[0].path,
+          });
+        }
+      })
+      .catch((e: any) => {
+        throw new Error(`The query for SystemLink notebooks failed with error ${e.status}: ${e.statusText}.`);
+      });
   }, []);
 
   useEffect(() => {
@@ -65,7 +65,7 @@ export const VariableQueryEditor: React.FC<NotebookVariableQueryProps> = ({ data
         <span className="gf-form-label width-10">Path</span>
         <div className="gf-form-select-wrapper max-width-24">
           <select name="path" className="gf-form-input" value={state.path} onChange={handleChange}>
-            {notebooks.map((notebook) => (
+            {notebooks.map(notebook => (
               <option {...formatNotebookOption(notebook)} />
             ))}
           </select>
@@ -76,7 +76,7 @@ export const VariableQueryEditor: React.FC<NotebookVariableQueryProps> = ({ data
         <div className="gf-form-select-wrapper max-width-12">
           <select name="parameter" className="gf-form-input" value={state.parameter} onChange={handleChange}>
             {params.map(param => (
-              <option {...{label: param.display_name, value: param.id}} />
+              <option {...{ label: param.display_name, value: param.id }} />
             ))}
           </select>
         </div>

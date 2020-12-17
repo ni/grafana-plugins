@@ -18,7 +18,14 @@ import {
   DataQueryResponseData,
 } from '@grafana/data';
 import { getBackendSrv, getTemplateSrv } from '@grafana/runtime';
-import { NotebookQuery, NotebookDataSourceOptions, defaultQuery, Notebook, Execution, NotebookParameterQuery } from './types';
+import {
+  NotebookQuery,
+  NotebookDataSourceOptions,
+  defaultQuery,
+  Notebook,
+  Execution,
+  NotebookParameterQuery,
+} from './types';
 import { timeout } from './utils';
 
 import * as schema from './data/schema.json';
@@ -194,6 +201,12 @@ export class DataSource extends DataSourceApi<NotebookQuery, NotebookDataSourceO
     } catch (e) {
       throw new Error(`The query for SystemLink notebooks failed with error ${e.status}: ${e.statusText}.`);
     }
+  }
+
+  async queryTestResultValues(field: string): Promise<string[]> {
+    const values = await getBackendSrv().post(this.url + '/nitestmonitor/v2/query-result-values', { field });
+    // Fiter out values that are '' or null
+    return values.filter((value: string) => value);
   }
 
   async testDatasource() {
