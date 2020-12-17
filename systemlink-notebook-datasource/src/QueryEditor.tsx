@@ -117,7 +117,7 @@ export class QueryEditor extends PureComponent<
     }
 
     return (
-      <div className={'sl-parameter'} key={param.id + selectedNotebook.path}>
+      <div className="sl-parameter" key={param.id + selectedNotebook.path}>
         <Label className="sl-parameter-label">{param.display_name}</Label>
         {this.getParameterInput(param, value)}
       </div>
