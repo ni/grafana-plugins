@@ -203,10 +203,11 @@ export class DataSource extends DataSourceApi<NotebookQuery, NotebookDataSourceO
     }
   }
 
-  async queryTestResultValues(field: string): Promise<string[]> {
-    const values = await getBackendSrv().post(this.url + '/nitestmonitor/v2/query-result-values', { field });
+  async queryTestResultValues(field: string, startsWith: string): Promise<string[]> {
+    const data = { field, startsWith };
+    const values = await getBackendSrv().post(this.url + '/nitestmonitor/v2/query-result-values', data);
     // Fiter out values that are '' or null
-    return values.filter((value: string) => value);
+    return values.slice(0, 20).filter((value: string) => value);
   }
 
   async testDatasource() {

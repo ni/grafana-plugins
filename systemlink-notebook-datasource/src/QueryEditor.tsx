@@ -110,7 +110,7 @@ export class QueryEditor extends PureComponent<
           <TestResultsQueryBuilder
             autoComplete={this.props.datasource.queryTestResultValues.bind(this.props.datasource)}
             onChange={(event: any) => this.onParameterChange(param.id, event.detail.linq)}
-            value={value}
+            defaultValue={value}
           />
         </Field>
       );

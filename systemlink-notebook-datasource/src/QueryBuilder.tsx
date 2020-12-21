@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useRef, useEffect } from 'react';
 import { QueryBuilder, QueryBuilderProps } from 'smart-webcomponents-react/querybuilder';
 import { useTheme } from '@grafana/ui';
 
@@ -7,16 +7,24 @@ import 'smart-webcomponents-react/source/styles/smart.dark-orange.css';
 import 'smart-webcomponents-react/source/styles/smart.orange.css';
 
 type TestResultsQueryBuilderProps = Omit<QueryBuilderProps, 'customOperations' | 'fields' | 'messages' | 'showIcons'> &
-  React.HTMLAttributes<Element> & { autoComplete: (field: string) => Promise<string[]> };
+  React.HTMLAttributes<Element> & {
+    autoComplete: (field: string, startsWith: string) => Promise<string[]>;
+    defaultValue?: string;
+  };
 
 export const TestResultsQueryBuilder: React.FC<TestResultsQueryBuilderProps> = props => {
   const theme = useTheme();
   // Need to set on body to affect dropdowns
   document.body.setAttribute('theme', theme.isDark ? 'dark-orange' : 'orange');
 
+  const initialize = useRef(true);
+  useEffect(() => {
+    initialize.current = false;
+  }, []);
+
   const getDataSource = (field: string) => {
-    return async (callback: Function) => {
-      callback(await props.autoComplete(field));
+    return async (query: string, callback: Function) => {
+      callback(await props.autoComplete(field, query));
     };
   };
 
@@ -26,14 +34,14 @@ export const TestResultsQueryBuilder: React.FC<TestResultsQueryBuilderProps> = p
       dataField: 'partNumber',
       dataType: 'string',
       filterOperations: ['=', '<>', 'startswith', 'endswith', 'contains', 'notcontains', 'isblank', 'isnotblank'],
-      lookup: { dataSource: getDataSource('PART_NUMBER') },
+      lookup: { dataSource: getDataSource('PART_NUMBER'), minLength: 2 },
     },
     {
       label: 'Test Program',
       dataField: 'programName',
       dataType: 'string',
       filterOperations: ['=', '<>', 'startswith', 'endswith', 'contains', 'notcontains', 'isblank', 'isnotblank'],
-      lookup: { dataSource: getDataSource('PROGRAM_NAME') },
+      lookup: { dataSource: getDataSource('PROGRAM_NAME'), minLength: 2 },
     },
     {
       label: 'Batch SN',
@@ -61,14 +69,14 @@ export const TestResultsQueryBuilder: React.FC<TestResultsQueryBuilderProps> = p
       dataField: 'operator',
       dataType: 'string',
       filterOperations: ['=', '<>', 'startswith', 'endswith', 'contains', 'notcontains', 'isblank', 'isnotblank'],
-      lookup: { dataSource: getDataSource('OPERATOR') },
+      lookup: { dataSource: getDataSource('OPERATOR'), minLength: 2 },
     },
     {
       label: 'Serial Number',
       dataField: 'serialNumber',
       dataType: 'string',
       filterOperations: ['=', '<>', 'startswith', 'endswith', 'contains', 'notcontains', 'isblank', 'isnotblank'],
-      lookup: { dataSource: getDataSource('SERIAL_NUMBER') },
+      lookup: { dataSource: getDataSource('SERIAL_NUMBER'), minLength: 2 },
     },
     {
       label: 'Started At',
@@ -76,7 +84,12 @@ export const TestResultsQueryBuilder: React.FC<TestResultsQueryBuilderProps> = p
       dataType: 'string',
       filterOperations: ['>', '>=', '<', '<='],
       lookup: {
-        dataSource: ['${__from:date}', '${__to:date}', '${__from:date:YYYY-MM-DD}', '${__to:date:YYYY-MM-DD}'],
+        dataSource: [
+          { label: 'From', value: '${__from:date}' },
+          { label: 'To', value: '${__to:date}' },
+          { label: 'From (YYYY-MM-DD)', value: '${__from:date:YYYY-MM-DD}' },
+          { label: 'To (YYYY-MM-DD)', value: '${__to:date:YYYY-MM-DD}' },
+        ],
       },
     },
     { label: 'Started within', dataField: 'startedWithin', dataType: 'string', filterOperations: ['<='] },
@@ -107,7 +120,7 @@ export const TestResultsQueryBuilder: React.FC<TestResultsQueryBuilderProps> = p
       dataField: 'systemId',
       dataType: 'string',
       filterOperations: ['=', '<>', 'contains', 'notcontains'],
-      lookup: { dataSource: getDataSource('SYSTEM_ID') },
+      lookup: { dataSource: getDataSource('SYSTEM_ID'), minLength: 2 },
     },
     {
       label: 'System Alias',
@@ -130,6 +143,8 @@ export const TestResultsQueryBuilder: React.FC<TestResultsQueryBuilderProps> = p
       fields={fields}
       messages={messages}
       showIcons
+      // Only set value on first render
+      {...(initialize.current && { value: props.defaultValue })}
       {...props}
     />
   );
