@@ -58,7 +58,7 @@
   "gnetId": null,
   "graphTooltip": 0,
   "id": null,
-  "iteration": 1608055072346,
+  "iteration": 1608232239692,
   "links": [],
   "panels": [
     {
@@ -224,7 +224,8 @@
         "xAxis": {
           "field": " ",
           "scale": "",
-          "title": ""
+          "title": "",
+          "unit": ""
         },
         "yAxis": {
           "fields": [
@@ -564,7 +565,8 @@
         "xAxis": {
           "field": "started_at",
           "scale": "",
-          "title": "$Grouping"
+          "title": "$Grouping",
+          "unit": ""
         },
         "yAxis": {
           "field": "yield",
@@ -581,7 +583,6 @@
           "fields": [
             "throughput"
           ],
-          "max": 500,
           "min": 0,
           "scale": "",
           "title": "Throughput",
@@ -897,5 +898,5 @@
   "timezone": "",
   "title": "Default Test Module",
   "uid": "4XS18YTMk",
-  "version": 58
+  "version": 1
 }
