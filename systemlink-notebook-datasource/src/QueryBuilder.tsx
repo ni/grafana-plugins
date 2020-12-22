@@ -79,7 +79,7 @@ export const TestResultsQueryBuilder: React.FC<TestResultsQueryBuilderProps> = p
       lookup: { dataSource: getDataSource('SERIAL_NUMBER'), minLength: 2 },
     },
     {
-      label: 'Started At',
+      label: 'Started at',
       dataField: 'startedAt',
       dataType: 'string',
       filterOperations: ['>', '>=', '<', '<='],
@@ -92,7 +92,22 @@ export const TestResultsQueryBuilder: React.FC<TestResultsQueryBuilderProps> = p
         ],
       },
     },
+    {
+      label: 'Updated at',
+      dataField: 'updatedAt',
+      dataType: 'string',
+      filterOperations: ['>', '>=', '<', '<='],
+      lookup: {
+        dataSource: [
+          { label: 'From', value: '${__from:date}' },
+          { label: 'To', value: '${__to:date}' },
+          { label: 'From (YYYY-MM-DD)', value: '${__from:date:YYYY-MM-DD}' },
+          { label: 'To (YYYY-MM-DD)', value: '${__to:date:YYYY-MM-DD}' },
+        ],
+      },
+    },
     { label: 'Started within', dataField: 'startedWithin', dataType: 'string', filterOperations: ['<='] },
+    { label: 'Updated within', dataField: 'updatedWithin', dataType: 'string', filterOperations: ['<='] },
     {
       label: 'Status',
       dataField: 'status.statusType',
