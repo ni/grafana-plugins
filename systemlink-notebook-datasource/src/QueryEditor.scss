@@ -4,12 +4,17 @@
 
     .sl-notebook-selector {
         flex-basis: 50%;
-        margin-right: 50%;
+        margin-right: 10%;
+    }
+
+    .sl-output {
+        flex-basis: 30%;
     }
 
     .sl-parameters {
-        flex-basis: 50%;
+        width: 50%;
         margin-bottom: -10px;
+        overflow: visible;
 
         .sl-parameter {
             display: flex;
@@ -26,10 +31,27 @@
             }
         }
     }
-
-    .sl-output {
-        flex-basis: 30%;
-        margin: 0 10%;
-    }
 }
 
+body {
+    --smart-query-builder-editor-width: 150px;
+    --smart-query-builder-default-width: 600px;
+
+    &.theme-dark {
+        --smart-primary-rgb: 235, 122, 24;
+        --smart-background: rgb(11, 12, 14);
+        --smart-background-color: rgb(199, 208, 217);
+        --smart-border: rgb(44, 50, 53);
+        --smart-ui-state-focus: rgb(32, 34, 38);
+        --smart-ui-state-color-focus: rgb(199, 208, 217);
+    }
+
+    &.theme-light {
+        --smart-primary-rgb: 235, 122, 24;
+        --smart-background: rgb(255, 255, 255);
+        --smart-background-color: rgb(70, 76, 84);
+        --smart-border: rgb(199, 208, 217);
+        --smart-ui-state-focus: rgb(241, 245, 249);
+        --smart-ui-state-color-focus: rgb(70, 76, 84);
+    }
+}

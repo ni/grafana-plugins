@@ -5,11 +5,12 @@
 import defaults from 'lodash/defaults';
 import pickBy from 'lodash/pickBy';
 import React, { PureComponent } from 'react';
-import { Alert, Field, Input, Select, Label, TextArea } from '@grafana/ui';
+import { Alert, Field, Input, Select, Label } from '@grafana/ui';
 import { QueryEditorProps, SelectableValue } from '@grafana/data';
 import { getTemplateSrv } from '@grafana/runtime';
 import { DataSource } from './DataSource';
 import { NotebookDataSourceOptions, NotebookQuery, defaultQuery, Notebook } from './types';
+import { TestResultsQueryBuilder } from './QueryBuilder';
 import './QueryEditor.scss';
 import { formatNotebookOption } from 'utils';
 
@@ -103,6 +104,18 @@ export class QueryEditor extends PureComponent<
     const query = defaults(this.props.query, defaultQuery);
     const selectedNotebook = this.getNotebook(query.path) as Notebook;
     const value = query.parameters[param.id] || selectedNotebook.parameters[param.id];
+    if (param.type === 'test_monitor_result_query') {
+      return (
+        <Field label={param.display_name} key={param.id + selectedNotebook.path}>
+          <TestResultsQueryBuilder
+            autoComplete={this.props.datasource.queryTestResultValues.bind(this.props.datasource)}
+            onChange={(event: any) => this.onParameterChange(param.id, event.detail.linq)}
+            defaultValue={value}
+          />
+        </Field>
+      );
+    }
+
     return (
       <div className="sl-parameter" key={param.id + selectedNotebook.path}>
         <Label className="sl-parameter-label">{param.display_name}</Label>
@@ -127,14 +140,6 @@ export class QueryEditor extends PureComponent<
           defaultValue={{ label: value, value }}
           menuPlacement="auto"
           maxMenuHeight={110}
-        />
-      );
-    } else if (param.type === 'test_monitor_result_query') {
-      return (
-        <TextArea
-          className="sl-parameter-value"
-          onBlur={event => this.onParameterChange(param.id, event.target.value)}
-          defaultValue={value}
         />
       );
     } else {
@@ -171,6 +176,17 @@ export class QueryEditor extends PureComponent<
             value={selectedNotebook ? formatNotebookOption(selectedNotebook) : undefined}
           />
         </Field>
+        {selectedNotebook && (
+          <Field className="sl-output" label="Output">
+            <Select
+              options={selectedNotebook.metadata.outputs.map(this.formatOutputOption)}
+              onChange={this.onOutputChange}
+              value={this.formatOutputOption(
+                selectedNotebook.metadata.outputs.find((output: any) => output.id === query.output)
+              )}
+            />
+          </Field>
+        )}
         {this.state.queryError && <Alert title={this.state.queryError}></Alert>}
         {selectedNotebook &&
           selectedNotebook.metadata.parameters &&
@@ -179,15 +195,6 @@ export class QueryEditor extends PureComponent<
               <Label>Parameters</Label>
               {selectedNotebook.metadata.parameters.map(this.getParameter)}
             </div>,
-            <Field className="sl-output" label="Output">
-              <Select
-                options={selectedNotebook.metadata.outputs.map(this.formatOutputOption)}
-                onChange={this.onOutputChange}
-                value={this.formatOutputOption(
-                  selectedNotebook.metadata.outputs.find((output: any) => output.id === query.output)
-                )}
-              />
-            </Field>,
           ]}
       </div>
     );
