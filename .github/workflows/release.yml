@@ -13,11 +13,14 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
+    
+    - name: Create .npmrc
+      run: echo //registry.npmjs.org/:_authToken=${NPM_TOKEN} > .npmrc
+      env:
+        NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
 
     - name: Run build script
       run: sh build.sh
-      env: 
-        NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
 
     - name: Create a Release
       id: create_release
