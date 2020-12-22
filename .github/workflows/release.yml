@@ -16,6 +16,8 @@ jobs:
 
     - name: Run build script
       run: sh build.sh
+      env: 
+        NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
 
     - name: Create a Release
       id: create_release
