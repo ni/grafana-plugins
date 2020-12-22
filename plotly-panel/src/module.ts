@@ -352,7 +352,7 @@ export const plugin = new PanelPlugin<PanelOptions>(PlotlyPanel)
       FieldConfigProperty.DisplayName,
       FieldConfigProperty.Thresholds,
       FieldConfigProperty.Links,
-    ]
+    ],
   });
 
 const getFieldOptions = async (context: FieldOverrideContext) => {

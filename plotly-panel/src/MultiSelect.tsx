@@ -11,6 +11,7 @@ export const MultiSelectValueEditor = <T extends object>(props: Props<T>) => {
 
   useEffect(() => {
     updateOptions();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [props.item?.settings, props.context?.data]);
 
   const updateOptions = async () => {

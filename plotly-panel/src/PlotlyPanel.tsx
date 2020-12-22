@@ -233,7 +233,7 @@ const getColor = (field: Field) => {
   }
 
   return;
-}
+};
 
 const getPlotlyColor = (grafanaColor: string) => {
   if (!grafanaColor) {
@@ -258,7 +258,7 @@ const getFieldValues = (field: Field) => {
   }
 };
 
-const getRange = (minimum: number|undefined, maximum: number|undefined, axisData: any[]) => {
+const getRange = (minimum: number | undefined, maximum: number | undefined, axisData: any[]) => {
   const data = flatten(axisData);
   if (minimum !== undefined) {
     if (maximum !== undefined) {
@@ -273,9 +273,14 @@ const getRange = (minimum: number|undefined, maximum: number|undefined, axisData
   }
 
   return;
-}
+};
 
-const getLayout = (theme: GrafanaTheme, options: PanelOptions, data: Partial<PlotData>[], axisLabels: AxisLabels) => {
+const getLayout = (
+  theme: GrafanaTheme,
+  options: PanelOptions,
+  data: Array<Partial<PlotData>>,
+  axisLabels: AxisLabels
+) => {
   const originalAxisTitleX = getTemplateSrv().replace(options.xAxis.title) || axisLabels.xAxis;
   const originalAxisTitleY = getTemplateSrv().replace(options.yAxis.title) || axisLabels.yAxis.join(', ');
   const xAxisOptions = options.displayVertically ? options.xAxis : options.yAxis;
@@ -292,7 +297,11 @@ const getLayout = (theme: GrafanaTheme, options: PanelOptions, data: Partial<Plo
     xaxis: {
       fixedrange: true,
       title: xAxisTitle,
-      range: getRange(xAxisOptions.min, xAxisOptions.max, data.filter(d => d.xaxis !== 'x2').map(d => d.x)),
+      range: getRange(
+        xAxisOptions.min,
+        xAxisOptions.max,
+        data.filter(d => d.xaxis !== 'x2').map(d => d.x)
+      ),
       type: xAxisOptions.scale as AxisType,
       tickformat: xAxisOptions.decimals ? `.${xAxisOptions.decimals}f` : '',
       ticksuffix: xAxisOptions.unit ? ` ${xAxisOptions.unit}` : '',
@@ -304,7 +313,11 @@ const getLayout = (theme: GrafanaTheme, options: PanelOptions, data: Partial<Plo
       overlaying: 'x',
       side: 'top',
       title: getTemplateSrv().replace(options.yAxis2?.title) || axisLabels.yAxis2.join(', '),
-      range: getRange(options.yAxis2?.min, options.yAxis2?.max, data.filter(d => d.xaxis === 'x2').map(d => d.x)),
+      range: getRange(
+        options.yAxis2?.min,
+        options.yAxis2?.max,
+        data.filter(d => d.xaxis === 'x2').map(d => d.x)
+      ),
       type: options.yAxis2?.scale as AxisType,
       tickformat: options.yAxis2?.decimals ? `.${options.yAxis2?.decimals}f` : '',
       ticksuffix: options.yAxis2?.unit ? ` ${getTemplateSrv().replace(options.yAxis2?.unit)}` : '',
@@ -313,7 +326,11 @@ const getLayout = (theme: GrafanaTheme, options: PanelOptions, data: Partial<Plo
       fixedrange: true,
       automargin: true,
       title: yAxisTitle,
-      range: getRange(yAxisOptions.min, yAxisOptions.max, data.filter(d => d.yaxis !== 'y2').map(d => d.y)),
+      range: getRange(
+        yAxisOptions.min,
+        yAxisOptions.max,
+        data.filter(d => d.yaxis !== 'y2').map(d => d.y)
+      ),
       type: yAxisOptions.scale as AxisType,
       tickformat: yAxisOptions.decimals ? `.${yAxisOptions.decimals}f` : '',
       ticksuffix: yAxisOptions.unit ? ` ${getTemplateSrv().replace(options.yAxis.unit)}` : '',
@@ -326,7 +343,11 @@ const getLayout = (theme: GrafanaTheme, options: PanelOptions, data: Partial<Plo
       overlaying: 'y',
       side: 'right',
       title: getTemplateSrv().replace(options.yAxis2?.title) || axisLabels.yAxis2.join(', '),
-      range: getRange(options.yAxis2?.min, options.yAxis2?.max, data.filter(d => d.yaxis === 'y2').map(d => d.y)),
+      range: getRange(
+        options.yAxis2?.min,
+        options.yAxis2?.max,
+        data.filter(d => d.yaxis === 'y2').map(d => d.y)
+      ),
       type: options.yAxis2?.scale as AxisType,
       tickformat: options.yAxis2?.decimals ? `.${options.yAxis2?.decimals}f` : '',
       ticksuffix: options.yAxis2?.unit ? ` ${getTemplateSrv().replace(options.yAxis2?.unit)}` : '',
