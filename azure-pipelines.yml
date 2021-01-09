@@ -7,7 +7,7 @@ steps:
 - script: sh build.sh
 - task: GitHubRelease@1
   inputs:
-    gitHubConnection: 'ni-kismet oauth'
+    gitHubConnection: 'ni-kismet-helium'
     repositoryName: 'ni-kismet/grafana-plugins'
     action: 'create'
     target: '$(Build.SourceVersion)'
