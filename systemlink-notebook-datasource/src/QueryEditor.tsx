@@ -5,7 +5,7 @@
 import defaults from 'lodash/defaults';
 import pickBy from 'lodash/pickBy';
 import React, { PureComponent } from 'react';
-import { Alert, Field, Input, Select, Label } from '@grafana/ui';
+import { Alert, Field, Input, Select, Label, IconButton, TextArea } from '@grafana/ui';
 import { QueryEditorProps, SelectableValue } from '@grafana/data';
 import { getTemplateSrv } from '@grafana/runtime';
 import { DataSource } from './DataSource';
@@ -18,11 +18,11 @@ type Props = QueryEditorProps<DataSource, NotebookQuery, NotebookDataSourceOptio
 
 export class QueryEditor extends PureComponent<
   Props,
-  { notebooks: Notebook[]; isLoading: boolean; queryError: string }
+  { notebooks: Notebook[]; isLoading: boolean; queryError: string; showTextQuery: boolean }
 > {
   constructor(props: Props) {
     super(props);
-    this.state = { notebooks: [], isLoading: true, queryError: '' };
+    this.state = { notebooks: [], isLoading: true, queryError: '', showTextQuery: false };
   }
 
   async componentDidMount() {
@@ -106,13 +106,25 @@ export class QueryEditor extends PureComponent<
     const value = query.parameters[param.id] || selectedNotebook.parameters[param.id];
     if (param.type === 'test_monitor_result_query') {
       return (
-        <Field label={param.display_name} key={param.id + selectedNotebook.path}>
-          <TestResultsQueryBuilder
-            autoComplete={this.props.datasource.queryTestResultValues.bind(this.props.datasource)}
-            onChange={(event: any) => this.onParameterChange(param.id, event.detail.linq)}
-            defaultValue={value}
-          />
-        </Field>
+        <div key={param.id + selectedNotebook.path}>
+          <div className="sl-label-button">
+            <Label>{param.display_name}</Label>
+            <IconButton
+              name={this.state.showTextQuery ? 'list-ul' : 'pen'}
+              size="sm"
+              onClick={() => this.setState({ showTextQuery: !this.state.showTextQuery })}
+            />
+          </div>
+          {this.state.showTextQuery ? (
+            <TextArea defaultValue={value} onBlur={event => this.onParameterChange(param.id, event.target.value)} />
+          ) : (
+            <TestResultsQueryBuilder
+              autoComplete={this.props.datasource.queryTestResultValues.bind(this.props.datasource)}
+              onChange={(event: any) => this.onParameterChange(param.id, event.detail.linq)}
+              defaultValue={value}
+            />
+          )}
+        </div>
       );
     }
 

@@ -31,6 +31,14 @@
             }
         }
     }
+
+    .sl-label-button {
+        display: flex;
+
+        button {
+            margin-left: 6px;
+        }
+    }
 }
 
 body {
