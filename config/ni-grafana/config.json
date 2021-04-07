@@ -1,0 +1,43 @@
+{
+   "buttonIconCls": "grafana_plugin-icon",
+   "buttonLabelToken": "grafana_plugin.pluginTitle",
+   "favicon": "plugins/ni-grafana/resources/images/grafana.png",
+   "helpMenu": [
+      {
+         "textToken": "grafana_plugin.helpText",
+         "urlToken": "grafana_plugin.helpUrl"
+      },
+      {
+         "textToken": "grafana_plugin.pythonAPIHelpText",
+         "urlToken": "grafana_plugin.pythonAPIHelpUrl"
+      }
+   ],
+   "iframeSrc": "/grafana/?orgId=1",
+   "id": "grafana",
+   "orderWeight": 2,
+   "resources": {
+      "en": {
+         "json": [
+            "plugins/ni-grafana/resources/json/locales/en-US/swif.json"
+         ]
+      },
+      "de": {
+         "json": [
+            "plugins/ni-grafana/resources/json/locales/de-DE/swif.json"
+         ]
+      },
+      "ja": {
+         "json": [
+            "plugins/ni-grafana/resources/json/locales/ja/swif.json"
+         ]
+      },
+      "zh": {
+         "json": [
+            "plugins/ni-grafana/resources/json/locales/zh-CN/swif.json"
+         ]
+      }
+   },
+   "routeToken": "grafana_plugin",
+   "titleToken": "grafana_plugin.pluginTitle",
+   "waitUntilLaunched": false
+}

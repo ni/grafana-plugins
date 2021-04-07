@@ -1,0 +1,9 @@
+﻿{
+   "grafana_plugin": {
+      "pluginTitle": "Grafana",
+      "helpText": "Manual",
+      "helpUrl": "https://digital.ni.com/express.nsf/bycode/pythonapi",
+      "pythonAPIHelpText": "Python APIs",
+      "pythonAPIHelpUrl": "/niapis/python/index.html"
+   }
+}
