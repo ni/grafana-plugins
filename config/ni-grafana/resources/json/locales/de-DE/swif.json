@@ -1,0 +1,9 @@
+﻿{
+  "jupyterhub_plugin": {
+    "pluginTitle": "Jupyter",
+    "helpText": "Anleitung",
+    "helpUrl": "https://digital.ni.com/express.nsf/bycode/pythonapi",
+    "pythonAPIHelpText": "Python-APIs",
+    "pythonAPIHelpUrl": "/niapis/python/index.html"
+  }
+}

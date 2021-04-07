@@ -30,6 +30,6 @@
   },
   "dependencies": {
     "ajv": "^6.12.6",
-    "smart-webcomponents-react": "^9.0.0"
+    "smart-webcomponents-react": "^9.1.12"
   }
 }
