@@ -42,6 +42,7 @@ Write-Output 'Copying over plugins to Grafana'
 Copy-Item -Path './grafana-plugins/*' -Destination "$GrafanaRoot/data/plugins" -Recurse -Force
 
 Write-Output 'Provisioning datasources'
+New-Item -ItemType 'directory' -Path "$ConfigRoot/Grafana/dashboards" -Force
 Copy-Item -Path './examples/*.ipynb' -Destination "$ConfigRoot/JupyterHub/notebooks/_shared/reports" -Force
 Copy-Item -Path './config/datasources.yml' -Destination "$GrafanaRoot/conf/provisioning/datasources" -Force
 Copy-Item -Path './examples/Default Test Module.json' -Destination "$ConfigRoot/Grafana/dashboards" -Force
