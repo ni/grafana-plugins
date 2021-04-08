@@ -7,7 +7,7 @@ If (-NOT ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdent
 {
   Write-Output 'Restarting as an elevated process...'
   Start-Sleep 1
-  Start-Process powershell.exe "-File",('"{0}"' -f $MyInvocation.MyCommand.Path) -Verb RunAs
+  Start-Process powershell.exe -Verb RunAs "-Command cd \`"$pwd\`"; & \`"$($MyInvocation.MyCommand.Path)\`""
   exit
 }
 
