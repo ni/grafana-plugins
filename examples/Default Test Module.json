@@ -14,13 +14,19 @@
       "type": "grafana",
       "id": "grafana",
       "name": "Grafana",
-      "version": "7.3.4"
+      "version": "7.5.3"
     },
     {
       "type": "panel",
       "id": "ni-plotly-panel",
       "name": "Plotly graph",
       "version": "1.0.0"
+    },
+    {
+      "type": "panel",
+      "id": "piechart",
+      "name": "Pie chart v2",
+      "version": ""
     },
     {
       "type": "panel",
@@ -58,22 +64,177 @@
   "gnetId": null,
   "graphTooltip": 0,
   "id": null,
-  "iteration": 1608232239692,
   "links": [],
   "panels": [
     {
       "datasource": "${DS_SYSTEMLINK_NOTEBOOKS}",
-      "description": "",
       "fieldConfig": {
         "defaults": {
           "color": {
             "mode": "palette-classic"
           },
-          "custom": {
-            "align": null,
-            "filterable": false
-          },
           "links": [],
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "PASSED"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "green",
+                  "mode": "fixed"
+                }
+              },
+              {
+                "id": "displayName",
+                "value": "Passed"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "FAILED"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "red",
+                  "mode": "fixed"
+                }
+              },
+              {
+                "id": "displayName",
+                "value": "Failed"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "ERRORED"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "yellow",
+                  "mode": "fixed"
+                }
+              },
+              {
+                "id": "displayName",
+                "value": "Errored"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "TERMINATED"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "blue",
+                  "mode": "fixed"
+                }
+              },
+              {
+                "id": "displayName",
+                "value": "Terminated"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "TIMED_OUT"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed"
+                }
+              },
+              {
+                "id": "displayName",
+                "value": "Timed Out"
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 6,
+        "x": 0,
+        "y": 0
+      },
+      "id": 13,
+      "options": {
+        "displayLabels": [],
+        "legend": {
+          "displayMode": "list",
+          "placement": "right",
+          "values": []
+        },
+        "pieType": "donut",
+        "reduceOptions": {
+          "calcs": [
+            "sum"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "text": {}
+      },
+      "pluginVersion": "7.5.3",
+      "targets": [
+        {
+          "output": "status_count_graph",
+          "parameters": {
+            "results_filter": "(startedAt >= \"${__from:date:YYYY-MM-DD}\" && startedAt <= \"${__to:date:YYYY-MM-DD}\")"
+          },
+          "path": "_shared/reports/KPIs.ipynb",
+          "refId": "A"
+        }
+      ],
+      "title": "Status Summary",
+      "type": "piechart"
+    },
+    {
+      "datasource": "-- Dashboard --",
+      "fieldConfig": {
+        "defaults": {
+          "links": [
+            {
+              "targetBlank": true,
+              "title": "View ${__field.name} Results",
+              "url": "../#testmonitor/testresults/config/filter%5B0%5D%5BqueryOperandValue%5D=${__field.name}&filter%5B0%5D%5BqueryOperator%5D=EQUALS&filter%5B0%5D%5BqueryOperatorName%5D=status.statusType&filter%5B1%5D%5BqueryOperandValue%5D=${__from:date:YYYY-MM-DD[T]HH[%3A]mm[%3A]00}&filter%5B1%5D%5BqueryOperator%5D=IS_AFTER&filter%5B1%5D%5BqueryOperatorName%5D=startedAt&filter%5B2%5D%5BqueryOperandValue%5D=${__to:date:YYYY-MM-DD[T]HH[%3A]mm[%3A]00}&filter%5B2%5D%5BqueryOperator%5D=IS_BEFORE&filter%5B2%5D%5BqueryOperatorName%5D=startedAt&groupField=None"
+            }
+          ],
           "mappings": [],
           "thresholds": {
             "mode": "absolute",
@@ -97,16 +258,6 @@
             },
             "properties": [
               {
-                "id": "links",
-                "value": [
-                  {
-                    "targetBlank": true,
-                    "title": "View Passed Results",
-                    "url": "https://test.systemlink.io/#testmonitor/testresults/config/filter%5B0%5D%5BqueryOperandValue%5D=Passed&filter%5B0%5D%5BqueryOperator%5D=EQUALS&filter%5B0%5D%5BqueryOperatorName%5D=status.statusType&filter%5B1%5D%5BqueryOperandValue%5D=${__from:date:YYYY-MM-DD[T]HH[%3A]mm[%3A]00}&filter%5B1%5D%5BqueryOperator%5D=IS_AFTER&filter%5B1%5D%5BqueryOperatorName%5D=startedAt&filter%5B2%5D%5BqueryOperandValue%5D=${__to:date:YYYY-MM-DD[T]HH[%3A]mm[%3A]00}&filter%5B2%5D%5BqueryOperator%5D=IS_BEFORE&filter%5B2%5D%5BqueryOperatorName%5D=startedAt&groupField=None"
-                  }
-                ]
-              },
-              {
                 "id": "color",
                 "value": {
                   "fixedColor": "green",
@@ -122,44 +273,9 @@
             },
             "properties": [
               {
-                "id": "links",
-                "value": [
-                  {
-                    "targetBlank": true,
-                    "title": "View Terminated Results",
-                    "url": "https://test.systemlink.io/#testmonitor/testresults/config/filter%5B0%5D%5BqueryOperandValue%5D=Terminated&filter%5B0%5D%5BqueryOperator%5D=EQUALS&filter%5B0%5D%5BqueryOperatorName%5D=status.statusType&filter%5B1%5D%5BqueryOperandValue%5D=${__from:date:YYYY-MM-DD[T]HH[%3A]mm[%3A]00}&filter%5B1%5D%5BqueryOperator%5D=IS_AFTER&filter%5B1%5D%5BqueryOperatorName%5D=startedAt&filter%5B2%5D%5BqueryOperandValue%5D=${__to:date:YYYY-MM-DD[T]HH[%3A]mm[%3A]00}&filter%5B2%5D%5BqueryOperator%5D=IS_BEFORE&filter%5B2%5D%5BqueryOperatorName%5D=startedAt&groupField=None"
-                  }
-                ]
-              },
-              {
                 "id": "color",
                 "value": {
                   "fixedColor": "blue",
-                  "mode": "fixed"
-                }
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "Errored"
-            },
-            "properties": [
-              {
-                "id": "links",
-                "value": [
-                  {
-                    "targetBlank": true,
-                    "title": "View Errored Results",
-                    "url": "https://test.systemlink.io/#testmonitor/testresults/config/filter%5B0%5D%5BqueryOperandValue%5D=Errored&filter%5B0%5D%5BqueryOperator%5D=EQUALS&filter%5B0%5D%5BqueryOperatorName%5D=status.statusType&filter%5B1%5D%5BqueryOperandValue%5D=${__from:date:YYYY-MM-DD[T]HH[%3A]mm[%3A]00}&filter%5B1%5D%5BqueryOperator%5D=IS_AFTER&filter%5B1%5D%5BqueryOperatorName%5D=startedAt&filter%5B2%5D%5BqueryOperandValue%5D=${__to:date:YYYY-MM-DD[T]HH[%3A]mm[%3A]00}&filter%5B2%5D%5BqueryOperator%5D=IS_BEFORE&filter%5B2%5D%5BqueryOperatorName%5D=startedAt&groupField=None"
-                  }
-                ]
-              },
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "yellow",
                   "mode": "fixed"
                 }
               }
@@ -172,16 +288,6 @@
             },
             "properties": [
               {
-                "id": "links",
-                "value": [
-                  {
-                    "targetBlank": true,
-                    "title": "View Failed Results",
-                    "url": "https://test.systemlink.io/#testmonitor/testresults/config/filter%5B0%5D%5BqueryOperandValue%5D=Failed&filter%5B0%5D%5BqueryOperator%5D=EQUALS&filter%5B0%5D%5BqueryOperatorName%5D=status.statusType&filter%5B1%5D%5BqueryOperandValue%5D=${__from:date:YYYY-MM-DD[T]HH[%3A]mm[%3A]00}&filter%5B1%5D%5BqueryOperator%5D=IS_AFTER&filter%5B1%5D%5BqueryOperatorName%5D=startedAt&filter%5B2%5D%5BqueryOperandValue%5D=${__to:date:YYYY-MM-DD[T]HH[%3A]mm[%3A]00}&filter%5B2%5D%5BqueryOperator%5D=IS_BEFORE&filter%5B2%5D%5BqueryOperatorName%5D=startedAt&groupField=None"
-                  }
-                ]
-              },
-              {
                 "id": "color",
                 "value": {
                   "fixedColor": "red",
@@ -189,181 +295,38 @@
                 }
               }
             ]
-          }
-        ]
-      },
-      "gridPos": {
-        "h": 8,
-        "w": 6,
-        "x": 0,
-        "y": 0
-      },
-      "id": 7,
-      "options": {
-        "displayVertically": true,
-        "invertXAxis": true,
-        "legendPosition": "right",
-        "series": {
-          "areaFill": false,
-          "lineWidth": 2,
-          "markerSize": 6,
-          "plotType": "bar",
-          "stackBars": true,
-          "staircase": false
-        },
-        "series2": {
-          "areaFill": false,
-          "lineWidth": 2,
-          "markerSize": 6,
-          "plotType": "line",
-          "stackBars": false,
-          "staircase": false
-        },
-        "showLegend": true,
-        "showYAxis2": false,
-        "xAxis": {
-          "field": " ",
-          "scale": "",
-          "title": "",
-          "unit": ""
-        },
-        "yAxis": {
-          "fields": [
-            "PASSED (sum)",
-            "FAILED (sum)",
-            "ERRORED (sum)",
-            "TERMINATED (sum)"
-          ],
-          "scale": "",
-          "title": "Runs",
-          "unit": ""
-        },
-        "yAxis2": {
-          "fields": [],
-          "scale": "",
-          "title": "",
-          "unit": ""
-        },
-        "yAxis2Field": [],
-        "yAxisField": []
-      },
-      "pluginVersion": "7.2.2",
-      "targets": [
-        {
-          "output": "status_count_graph",
-          "parameters": {
-            "group_by": "$Grouping",
-            "results_filter": "startedAt > \"${__from:date:YYYY-MM-DD}\" && startedAt < \"${__to:date:YYYY-MM-DD}\""
           },
-          "path": "S-1-5-21-2870851459-907067769-2954241570-1002/reports/KPIs.ipynb",
-          "refId": "A"
-        }
-      ],
-      "timeFrom": null,
-      "timeShift": null,
-      "title": "Status Summary",
-      "transformations": [
-        {
-          "id": "calculateField",
-          "options": {
-            "alias": " ",
-            "binary": {
-              "left": "PASSED",
-              "operator": "*",
-              "reducer": "sum",
-              "right": "0"
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Errored"
             },
-            "mode": "binary",
-            "reduce": {
-              "reducer": "sum"
-            }
-          }
-        },
-        {
-          "id": "groupBy",
-          "options": {
-            "fields": {
-              " ": {
-                "aggregations": [],
-                "operation": "groupby"
-              },
-              " Aggregate": {
-                "aggregations": [],
-                "operation": "groupby"
-              },
-              "ERRORED": {
-                "aggregations": [
-                  "sum"
-                ],
-                "operation": "aggregate"
-              },
-              "FAILED": {
-                "aggregations": [
-                  "sum"
-                ],
-                "operation": "aggregate"
-              },
-              "PASSED": {
-                "aggregations": [
-                  "sum"
-                ],
-                "operation": "aggregate"
-              },
-              "TERMINATED": {
-                "aggregations": [
-                  "sum"
-                ],
-                "operation": "aggregate"
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "yellow",
+                  "mode": "fixed"
+                }
               }
-            }
-          }
-        },
-        {
-          "id": "organize",
-          "options": {
-            "excludeByName": {},
-            "indexByName": {},
-            "renameByName": {
-              " ": "",
-              " Aggregate": " ",
-              "ERRORED (sum)": "Errored",
-              "FAILED (sum)": "Failed",
-              "PASSED (sum)": "Passed",
-              "TERMINATED (sum)": "Terminated"
-            }
-          }
-        }
-      ],
-      "type": "ni-plotly-panel"
-    },
-    {
-      "datasource": "-- Dashboard --",
-      "fieldConfig": {
-        "defaults": {
-          "custom": {},
-          "links": [
-            {
-              "targetBlank": true,
-              "title": "View ${__field.name} Results",
-              "url": "https://test.systemlink.io/#testmonitor/testresults/config/filter%5B0%5D%5BqueryOperandValue%5D=${__field.name}&filter%5B0%5D%5BqueryOperator%5D=EQUALS&filter%5B0%5D%5BqueryOperatorName%5D=status.statusType&filter%5B1%5D%5BqueryOperandValue%5D=${__from:date:YYYY-MM-DD[T]HH[%3A]mm[%3A]00}&filter%5B1%5D%5BqueryOperator%5D=IS_AFTER&filter%5B1%5D%5BqueryOperatorName%5D=startedAt&filter%5B2%5D%5BqueryOperandValue%5D=${__to:date:YYYY-MM-DD[T]HH[%3A]mm[%3A]00}&filter%5B2%5D%5BqueryOperator%5D=IS_BEFORE&filter%5B2%5D%5BqueryOperatorName%5D=startedAt&groupField=None"
-            }
-          ],
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Timed Out"
+            },
+            "properties": [
               {
-                "color": "green",
-                "value": null
-              },
-              {
-                "color": "red",
-                "value": 80
+                "id": "color",
+                "value": {
+                  "fixedColor": "rgb(168, 168, 168)",
+                  "mode": "fixed"
+                }
               }
             ]
           }
-        },
-        "overrides": []
+        ]
       },
       "gridPos": {
         "h": 8,
@@ -375,7 +338,7 @@
       "options": {
         "colorMode": "value",
         "graphMode": "area",
-        "justifyMode": "auto",
+        "justifyMode": "center",
         "orientation": "auto",
         "reduceOptions": {
           "calcs": [
@@ -384,12 +347,13 @@
           "fields": "",
           "values": false
         },
+        "text": {},
         "textMode": "auto"
       },
-      "pluginVersion": "7.3.4",
+      "pluginVersion": "7.5.3",
       "targets": [
         {
-          "panelId": 7,
+          "panelId": 13,
           "refId": "A"
         }
       ],
@@ -412,7 +376,8 @@
               "ERRORED": "Errored",
               "FAILED": "Failed",
               "PASSED": "Passed",
-              "TERMINATED": "Terminated"
+              "TERMINATED": "Terminated",
+              "TIMED_OUT": "Timed Out"
             }
           }
         }
@@ -426,7 +391,6 @@
           "color": {
             "mode": "palette-classic"
           },
-          "custom": {},
           "mappings": [],
           "thresholds": {
             "mode": "absolute",
@@ -455,7 +419,7 @@
                   {
                     "targetBlank": true,
                     "title": "View Yield Report",
-                    "url": "https://test.systemlink.io/#testmonitor/reports/config/filter%5B0%5D%5BqueryOperandValue%5D=${__from:date:YYYY-MM-DD[T]HH[%3A]mm[%3A]00}&filter%5B0%5D%5BqueryOperator%5D=IS_AFTER&filter%5B0%5D%5BqueryOperatorName%5D=startedAt&filter%5B1%5D%5BqueryOperandValue%5D=${__to:date:YYYY-MM-DD[T]HH[%3A]mm[%3A]00}&filter%5B1%5D%5BqueryOperator%5D=IS_BEFORE&filter%5B1%5D%5BqueryOperatorName%5D=startedAt&groupField=${Grouping}&notebookPath=S-1-5-21-2870851459-907067769-2954241570-1002%2Freports%2FFirst%20Pass%20Yield.ipynb&output=first_pass_yield_graph"
+                    "url": "../#testmonitor/reports/config/filter%5B0%5D%5BqueryOperandValue%5D=${__from:date:YYYY-MM-DD[T]HH[%3A]mm[%3A]00}&filter%5B0%5D%5BqueryOperator%5D=IS_AFTER&filter%5B0%5D%5BqueryOperatorName%5D=startedAt&filter%5B1%5D%5BqueryOperandValue%5D=${__to:date:YYYY-MM-DD[T]HH[%3A]mm[%3A]00}&filter%5B1%5D%5BqueryOperator%5D=IS_BEFORE&filter%5B1%5D%5BqueryOperatorName%5D=startedAt&groupField=${Grouping}&notebookPath=S-1-5-21-2870851459-907067769-2954241570-1002%2Freports%2FFirst%20Pass%20Yield.ipynb&output=first_pass_yield_graph"
                   }
                 ]
               },
@@ -484,7 +448,7 @@
                   {
                     "targetBlank": true,
                     "title": "View Failure Rate Report",
-                    "url": "https://test.systemlink.io/#testmonitor/reports/config/filter%5B0%5D%5BqueryOperandValue%5D=${__from:date:YYYY-MM-DD[T]HH[%3A]mm[%3A]00}&filter%5B0%5D%5BqueryOperator%5D=IS_AFTER&filter%5B0%5D%5BqueryOperatorName%5D=startedAt&filter%5B1%5D%5BqueryOperandValue%5D=${__to:date:YYYY-MM-DD[T]HH[%3A]mm[%3A]00}&filter%5B1%5D%5BqueryOperator%5D=IS_BEFORE&filter%5B1%5D%5BqueryOperatorName%5D=startedAt&groupField=${Grouping}&notebookPath=S-1-5-21-2870851459-907067769-2954241570-1002%2Freports%2FFailure%20Rate.ipynb&output=failure_rate_graph"
+                    "url": "../#testmonitor/reports/config/filter%5B0%5D%5BqueryOperandValue%5D=${__from:date:YYYY-MM-DD[T]HH[%3A]mm[%3A]00}&filter%5B0%5D%5BqueryOperator%5D=IS_AFTER&filter%5B0%5D%5BqueryOperatorName%5D=startedAt&filter%5B1%5D%5BqueryOperandValue%5D=${__to:date:YYYY-MM-DD[T]HH[%3A]mm[%3A]00}&filter%5B1%5D%5BqueryOperator%5D=IS_BEFORE&filter%5B1%5D%5BqueryOperatorName%5D=startedAt&groupField=${Grouping}&notebookPath=S-1-5-21-2870851459-907067769-2954241570-1002%2Freports%2FFailure%20Rate.ipynb&output=failure_rate_graph"
                   }
                 ]
               },
@@ -513,7 +477,7 @@
                   {
                     "targetBlank": true,
                     "title": "View Throughput Report",
-                    "url": "https://test.systemlink.io/#testmonitor/reports/config/filter%5B0%5D%5BqueryOperandValue%5D=${__from:date:YYYY-MM-DD[T]HH[%3A]mm[%3A]00}&filter%5B0%5D%5BqueryOperator%5D=IS_AFTER&filter%5B0%5D%5BqueryOperatorName%5D=startedAt&filter%5B1%5D%5BqueryOperandValue%5D=${__to:date:YYYY-MM-DD[T]HH[%3A]mm[%3A]00}&filter%5B1%5D%5BqueryOperator%5D=IS_BEFORE&filter%5B1%5D%5BqueryOperatorName%5D=startedAt&groupField=${Grouping}&notebookPath=S-1-5-21-2870851459-907067769-2954241570-1002%2Freports%2FThroughput.ipynb&output=throughput_graph"
+                    "url": "../#testmonitor/reports/config/filter%5B0%5D%5BqueryOperandValue%5D=${__from:date:YYYY-MM-DD[T]HH[%3A]mm[%3A]00}&filter%5B0%5D%5BqueryOperator%5D=IS_AFTER&filter%5B0%5D%5BqueryOperatorName%5D=startedAt&filter%5B1%5D%5BqueryOperandValue%5D=${__to:date:YYYY-MM-DD[T]HH[%3A]mm[%3A]00}&filter%5B1%5D%5BqueryOperator%5D=IS_BEFORE&filter%5B1%5D%5BqueryOperatorName%5D=startedAt&groupField=${Grouping}&notebookPath=S-1-5-21-2870851459-907067769-2954241570-1002%2Freports%2FThroughput.ipynb&output=throughput_graph"
                   }
                 ]
               },
@@ -596,10 +560,9 @@
         {
           "output": "kpis_graph",
           "parameters": {
-            "group_by": "$Grouping",
-            "results_filter": "startedAt > \"${__from:date:YYYY-MM-DD}\" && startedAt < \"${__to:date:YYYY-MM-DD}\""
+            "results_filter": "(startedAt >= \"${__from:date:YYYY-MM-DD}\" && startedAt <= \"${__to:date:YYYY-MM-DD}\")"
           },
-          "path": "S-1-5-21-2870851459-907067769-2954241570-1002/reports/KPIs.ipynb",
+          "path": "_shared/reports/KPIs.ipynb",
           "refId": "A"
         }
       ],
@@ -616,6 +579,13 @@
             "align": null,
             "filterable": false
           },
+          "links": [
+            {
+              "targetBlank": true,
+              "title": "See Test Details",
+              "url": "../#testmonitor/testresults/testresult/${__data.fields.Id}"
+            }
+          ],
           "mappings": [],
           "noValue": "(empty)",
           "thresholds": {
@@ -685,7 +655,7 @@
             "properties": [
               {
                 "id": "custom.width",
-                "value": 103
+                "value": null
               },
               {
                 "id": "custom.filterable",
@@ -772,6 +742,28 @@
                 "value": "json-view"
               }
             ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Id"
+            },
+            "properties": [
+              {
+                "id": "links",
+                "value": [
+                  {
+                    "targetBlank": true,
+                    "title": "See Test Details",
+                    "url": "../#testmonitor/testresults/testresult/${__data.fields.Id}"
+                  }
+                ]
+              },
+              {
+                "id": "custom.width",
+                "value": 97
+              }
+            ]
           }
         ]
       },
@@ -791,14 +783,14 @@
           }
         ]
       },
-      "pluginVersion": "7.3.4",
+      "pluginVersion": "7.5.3",
       "targets": [
         {
           "output": "results_graph",
           "parameters": {
-            "results_filter": "startedAt > \"${__from:date:YYYY-MM-DD}\" && startedAt < \"${__to:date:YYYY-MM-DD}\""
+            "results_filter": "(startedAt >= \"${__from:date:YYYY-MM-DD}\" && startedAt <= \"${__to:date:YYYY-MM-DD}\")"
           },
-          "path": "S-1-5-21-2870851459-907067769-2954241570-1002/reports/Result Query.ipynb",
+          "path": "_shared/reports/Result Query.ipynb",
           "refId": "A"
         }
       ],
@@ -811,7 +803,7 @@
           "options": {
             "excludeByName": {
               "file_ids": true,
-              "id": true,
+              "id": false,
               "keywords": true,
               "properties": false,
               "status_name": false,
@@ -823,7 +815,7 @@
             "indexByName": {
               "file_ids": 14,
               "host_name": 3,
-              "id": 11,
+              "id": 9,
               "keywords": 13,
               "operator": 4,
               "part_number": 1,
@@ -832,14 +824,15 @@
               "serial_number": 0,
               "started_at": 6,
               "status_name": 5,
-              "status_type": 9,
+              "status_type": 10,
               "system_id": 12,
               "total_time_in_seconds": 7,
-              "updated_at": 10,
+              "updated_at": 11,
               "workspace": 15
             },
             "renameByName": {
               "host_name": "System",
+              "id": "Id",
               "operator": "Operator",
               "part_number": "Part Number",
               "program_name": "Test Program",
@@ -856,39 +849,12 @@
       "type": "table"
     }
   ],
-  "refresh": false,
-  "schemaVersion": 26,
+  "refresh": "1m",
+  "schemaVersion": 27,
   "style": "dark",
   "tags": [],
   "templating": {
-    "list": [
-      {
-        "allValue": null,
-        "current": {},
-        "datasource": "${DS_SYSTEMLINK_NOTEBOOKS}",
-        "definition": "shared/reports/First Pass Yield.ipynb (group_by)",
-        "error": null,
-        "hide": 0,
-        "includeAll": false,
-        "label": null,
-        "multi": false,
-        "name": "Grouping",
-        "options": [],
-        "query": {
-          "parameter": "group_by",
-          "path": "_shared/reports/First Pass Yield.ipynb"
-        },
-        "refresh": 1,
-        "regex": "",
-        "skipUrlSync": false,
-        "sort": 0,
-        "tagValuesQuery": "",
-        "tags": [],
-        "tagsQuery": "",
-        "type": "query",
-        "useTags": false
-      }
-    ]
+    "list": []
   },
   "time": {
     "from": "now-90d",
@@ -898,5 +864,5 @@
   "timezone": "",
   "title": "Default Test Module",
   "uid": "4XS18YTMk",
-  "version": 1
+  "version": 88
 }
