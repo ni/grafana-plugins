@@ -1,0 +1,13 @@
+apiVersion: 1
+
+datasources:
+- name: SystemLink Notebooks
+  type: systemlink-notebook-datasource
+  access: direct
+  url: /
+  version: 1
+- name: SystemLink Test Monitor
+  type: ni-systemlink-test-monitor
+  access: direct
+  url: /
+  version: 1

@@ -1,0 +1,9 @@
+apiVersion: 1
+
+providers:
+  - name: 'SystemLink default dashboards'
+    type: file
+    updateIntervalSeconds: 3600
+    allowUiUpdates: false
+    options:
+      path: C:\ProgramData\National Instruments\Skyline\Grafana\dashboards

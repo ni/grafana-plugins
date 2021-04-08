@@ -1,6 +1,4 @@
 {
-   "buttonIconCls": "grafana_plugin-icon",
-   "buttonLabelToken": "grafana_plugin.pluginTitle",
    "favicon": "plugins/ni-grafana/resources/images/grafana.png",
    "helpMenu": [
       {
@@ -13,7 +11,13 @@
       }
    ],
    "iframeSrc": "/grafana/?orgId=1",
-   "id": "grafana",
+   "navigationItems": [{
+      "id": "grafana",
+      "groupId": "custom-apps-group",
+      "titleToken": "grafana_plugin.pluginTitle",
+      "url": "#grafana_plugin"
+   }],
+   "pageTitleToken": "grafana_plugin.pluginTitle",
    "orderWeight": 2,
    "resources": {
       "en": {
