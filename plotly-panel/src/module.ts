@@ -1,4 +1,4 @@
-import { PanelPlugin, FieldOverrideContext, FieldConfigProperty } from '@grafana/data';
+import { PanelPlugin, FieldOverrideContext, FieldConfigProperty, FieldColorModeId } from '@grafana/data';
 import { PanelOptions, FieldOption } from './types';
 import { PlotlyPanel } from './PlotlyPanel';
 import { MultiSelectValueEditor } from './MultiSelect';
@@ -347,12 +347,26 @@ export const plugin = new PanelPlugin<PanelOptions>(PlotlyPanel)
       });
   })
   .useFieldConfig({
-    standardOptions: [
-      FieldConfigProperty.Color,
-      FieldConfigProperty.DisplayName,
+    standardOptions: {
+      [FieldConfigProperty.Color]: {
+        settings: {
+          byValueSupport: false,
+          bySeriesSupport: true,
+          preferThresholdsMode: false,
+        },
+        defaultValue: {
+          mode: FieldColorModeId.PaletteClassic,
+        },
+      },
+    },
+    disableStandardOptions: [
       FieldConfigProperty.Thresholds,
-      FieldConfigProperty.Links,
-    ],
+      FieldConfigProperty.Min,
+      FieldConfigProperty.Max,
+      FieldConfigProperty.NoValue,
+      FieldConfigProperty.Decimals,
+      FieldConfigProperty.Mappings
+    ]
   });
 
 const getFieldOptions = async (context: FieldOverrideContext) => {

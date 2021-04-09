@@ -16,15 +16,15 @@
     "email": "plugins@grafana.com"
   },
   "devDependencies": {
-    "@grafana/data": "^7.3.4",
-    "@grafana/runtime": "^7.3.4",
-    "@grafana/toolkit": "^7.3.4",
-    "@grafana/ui": "^7.3.4",
-    "@types/lodash": "^4.14.165",
+    "@grafana/data": "^7.5.3",
+    "@grafana/runtime": "^7.5.3",
+    "@grafana/toolkit": "^7.5.3",
+    "@grafana/ui": "^7.5.3",
+    "@types/lodash": "^4.14.168",
     "@types/react-plotly.js": "^2.2.4",
     "emotion": "10.0.27",
-    "plotly.js": "^1.54.7",
-    "react-plotly.js": "^2.4.0"
+    "plotly.js": "^1.58.4",
+    "react-plotly.js": "^2.5.1"
   },
   "engines": {
     "node": ">=12 <13"

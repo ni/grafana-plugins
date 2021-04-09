@@ -10,7 +10,7 @@ import {
   getFieldColorModeForField,
 } from '@grafana/data';
 import { AxisLabels, PanelOptions } from 'types';
-import { useTheme, ContextMenu, ContextMenuGroup, linkModelToContextMenuItems, getTheme } from '@grafana/ui';
+import { useTheme, ContextMenu, MenuItemsGroup, linkModelToContextMenuItems, getTheme } from '@grafana/ui';
 import { getTemplateSrv } from '@grafana/runtime';
 import { getGuid } from 'utils';
 
@@ -26,7 +26,7 @@ interface MenuState {
   x: number;
   y: number;
   show: boolean;
-  items: ContextMenuGroup[];
+  items: MenuItemsGroup[];
 }
 
 interface Props extends PanelProps<PanelOptions> {}
@@ -42,9 +42,10 @@ export const PlotlyPanel: React.FC<Props> = props => {
     yAxis2: [],
   };
 
+  var colorIndex = 0;
   for (const dataframe of data.series) {
     setDataFrameId(dataframe);
-    const [xField, yFields, yFields2] = getFields(dataframe, props);
+    const {xField, yFields, yFields2} = getFields(dataframe, props);
     if (!axisLabels.xAxis && xField) {
       // If frames have different x-fields, the first one will show on the graph
       axisLabels.xAxis = (xField as Field).name;
@@ -63,7 +64,7 @@ export const PlotlyPanel: React.FC<Props> = props => {
         fill: options.series.areaFill && options.series.plotType === 'line' ? 'tozeroy' : 'none',
         marker: {
           size: options.series.markerSize,
-          color: getColor(yField as Field),
+          color: getColor(yField as Field, colorIndex++),
         },
         line: {
           width: options.series.lineWidth,
@@ -90,13 +91,14 @@ export const PlotlyPanel: React.FC<Props> = props => {
           fill: options.series2.areaFill && options.series2.plotType === 'line' ? 'tozeroy' : 'none',
           marker: {
             size: options.series2.markerSize,
-            color: getColor(yField2 as Field),
+            color: getColor(yField2 as Field, colorIndex++),
           },
           line: {
             width: options.series2.lineWidth,
             shape: options.series2.staircase ? 'hv' : 'linear',
           },
           orientation: options.displayVertically ? 'v' : 'h',
+          customdata: [dataframe.meta?.custom?.id],
         });
       }
     }
@@ -191,7 +193,7 @@ const getFields = (frame: DataFrame, props: Props) => {
     yFields2 = getYFields(props.options.yAxis2?.fields, frame, xField, false);
   }
 
-  return [xField, yFields, yFields2];
+  return { xField, yFields, yFields2 };
 };
 
 const getYFields = (selection: string[], frame: DataFrame, xField: Field | undefined, autoFill = true) => {
@@ -221,11 +223,10 @@ const getModeAndType = (type: string) => {
   }
 };
 
-const getColor = (field: Field) => {
+const getColor = (field: Field, seriesIndex: number) => {
   const colorMode = getFieldColorModeForField(field);
-  const seriesColor = colorMode.getCalculator(field, getTheme())(1, 100);
-  if (seriesColor) {
-    return seriesColor;
+  if (colorMode.colors) {
+    return colorMode.colors[seriesIndex];
   }
 
   if (field?.config.color && field?.config.color.fixedColor) {
@@ -296,6 +297,7 @@ const getLayout = (
     font: { color: theme.colors.text },
     xaxis: {
       fixedrange: true,
+      automargin: true,
       title: xAxisTitle,
       range: getRange(
         xAxisOptions.min,
