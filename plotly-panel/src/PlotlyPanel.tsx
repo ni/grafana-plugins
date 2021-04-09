@@ -42,7 +42,7 @@ export const PlotlyPanel: React.FC<Props> = props => {
     yAxis2: [],
   };
 
-  var colorIndex = 0;
+  var seriesIndex = 0;
   for (const dataframe of data.series) {
     setDataFrameId(dataframe);
     const {xField, yFields, yFields2} = getFields(dataframe, props);
@@ -64,7 +64,7 @@ export const PlotlyPanel: React.FC<Props> = props => {
         fill: options.series.areaFill && options.series.plotType === 'line' ? 'tozeroy' : 'none',
         marker: {
           size: options.series.markerSize,
-          color: getColor(yField as Field, colorIndex++),
+          color: getColor(yField as Field, seriesIndex++),
         },
         line: {
           width: options.series.lineWidth,
@@ -91,7 +91,7 @@ export const PlotlyPanel: React.FC<Props> = props => {
           fill: options.series2.areaFill && options.series2.plotType === 'line' ? 'tozeroy' : 'none',
           marker: {
             size: options.series2.markerSize,
-            color: getColor(yField2 as Field, colorIndex++),
+            color: getColor(yField2 as Field, seriesIndex++),
           },
           line: {
             width: options.series2.lineWidth,
