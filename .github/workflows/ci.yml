@@ -41,6 +41,7 @@ jobs:
         release_name: ${{ env.date_now }}
 
     - name: Upload a Release Asset
+      if: ${{ github.event_name == 'push' }}
       uses: actions/upload-release-asset@v1.0.2
       env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
