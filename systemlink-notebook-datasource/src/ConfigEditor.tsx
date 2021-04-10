@@ -19,7 +19,7 @@ export class ConfigEditor extends PureComponent<Props, State> {
 
     return (
       <DataSourceHttpSettings
-        defaultUrl=" "
+        defaultUrl=""
         dataSourceConfig={options}
         showAccessOptions={false}
         onChange={onOptionsChange}
