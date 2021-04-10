@@ -1,14 +1,15 @@
-name: Create Release
+name: CI
 
 on:
-  workflow_dispatch:
-    inputs:
-      tag:
-        description: 'Tag version'
-        required: true
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
 
 jobs:
-  release:
+  ci:
     runs-on: ubuntu-latest
 
     steps:
@@ -21,15 +22,20 @@ jobs:
 
     - name: Run build script
       run: sh build.sh
+    
+    - name: Set current date as env variable
+      if: ${{ github.event_name == 'push' }}
+      run: echo "date_now::$(date +'%Y-%m-%dT%H:%M:%S')" >> $GITHUB_ENV
 
     - name: Create a Release
+      if: ${{ github.event_name == 'push' }}
       id: create_release
       uses: actions/create-release@v1
       env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        tag_name: ${{ github.event.inputs.tag }}
-        release_name: ${{ github.event.inputs.tag }}
+        tag_name: ${{ env.date_now }}
+        release_name: ${{ env.date_now }}
 
     - name: Upload a Release Asset
       uses: actions/upload-release-asset@v1.0.2
@@ -38,5 +44,5 @@ jobs:
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
         asset_path: ./build/grafana-plugins.zip
-        asset_name: grafana-plugins.zip
+        asset_name: ${{ $env.date_now }}-grafana-plugins.zip
         asset_content_type: application/zip
