@@ -45,7 +45,7 @@ export const PlotlyPanel: React.FC<Props> = props => {
   var seriesIndex = 0;
   for (const dataframe of data.series) {
     setDataFrameId(dataframe);
-    const {xField, yFields, yFields2} = getFields(dataframe, props);
+    const { xField, yFields, yFields2 } = getFields(dataframe, props);
     if (!axisLabels.xAxis && xField) {
       // If frames have different x-fields, the first one will show on the graph
       axisLabels.xAxis = (xField as Field).name;
