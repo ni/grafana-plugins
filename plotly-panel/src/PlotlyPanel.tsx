@@ -31,7 +31,7 @@ interface MenuState {
 
 interface Props extends PanelProps<PanelOptions> {}
 
-export const PlotlyPanel: React.FC<Props> = props => {
+export const PlotlyPanel: React.FC<Props> = (props) => {
   const { data, width, height, options } = props;
   const [menu, setMenu] = useState<MenuState>({ x: 0, y: 0, show: false, items: [] });
   const theme = useTheme();
@@ -120,12 +120,12 @@ export const PlotlyPanel: React.FC<Props> = props => {
   const handlePlotClick = (plotEvent: Readonly<Plotly.PlotMouseEvent>) => {
     const point = plotEvent.points[0];
     const [id] = point.data.customdata;
-    const frame = data.series.find(frame => frame.meta?.custom?.id === id);
+    const frame = data.series.find((frame) => frame.meta?.custom?.id === id);
     if (!frame) {
       return;
     }
 
-    const field = frame.fields.find(field => point.data.name === getFieldDisplayName(field, frame, data.series));
+    const field = frame.fields.find((field) => point.data.name === getFieldDisplayName(field, frame, data.series));
 
     if (!field || !field.getLinks) {
       return;
@@ -148,7 +148,7 @@ export const PlotlyPanel: React.FC<Props> = props => {
           width,
           height,
           annotations:
-            plotData.length === 0 || !plotData.find(d => d.y?.length) ? [{ text: 'No data', showarrow: false }] : [],
+            plotData.length === 0 || !plotData.find((d) => d.y?.length) ? [{ text: 'No data', showarrow: false }] : [],
           ...getLayout(theme, options, plotData, axisLabels),
         }}
         config={{ displayModeBar: false }}
@@ -178,12 +178,12 @@ const setDataFrameId = (frame: DataFrame) => {
 // If the options aren't set or the fields don't exist, try to pick the first
 // available fields, prioritizing time fields on the X axis.
 const getFields = (frame: DataFrame, props: Props) => {
-  let xField = frame.fields.find(field => field.name === props.options.xAxis.field);
+  let xField = frame.fields.find((field) => field.name === props.options.xAxis.field);
   if (!xField) {
-    xField = frame.fields.find(field => field.type === FieldType.time);
+    xField = frame.fields.find((field) => field.type === FieldType.time);
     if (!xField) {
       const y = props.options.yAxis.fields || [];
-      xField = frame.fields.find(field => !y.includes(field.name));
+      xField = frame.fields.find((field) => !y.includes(field.name));
     }
   }
 
@@ -198,13 +198,13 @@ const getFields = (frame: DataFrame, props: Props) => {
 
 const getYFields = (selection: string[], frame: DataFrame, xField: Field | undefined, autoFill = true) => {
   if (autoFill && (!selection || !selection.length)) {
-    let yField = frame.fields.find(field => field !== xField && field.type !== FieldType.time);
+    let yField = frame.fields.find((field) => field !== xField && field.type !== FieldType.time);
     return [yField];
   }
 
   let yFields: Field[] = [];
   for (const yField of selection || []) {
-    let selectedYField = frame.fields.find(field => field.name === yField);
+    let selectedYField = frame.fields.find((field) => field.name === yField);
     if (selectedYField) {
       yFields.push(selectedYField);
     }
@@ -251,7 +251,7 @@ const getPlotlyColor = (grafanaColor: string) => {
 
 const getFieldValues = (field: Field) => {
   if (field.type === FieldType.time) {
-    return field.values.toArray().map(value => {
+    return field.values.toArray().map((value) => {
       return typeof value === 'number' ? new Date(value).toISOString() : value;
     });
   } else {
@@ -302,7 +302,7 @@ const getLayout = (
       range: getRange(
         xAxisOptions.min,
         xAxisOptions.max,
-        data.filter(d => d.xaxis !== 'x2').map(d => d.x)
+        data.filter((d) => d.xaxis !== 'x2').map((d) => d.x)
       ),
       type: xAxisOptions.scale as AxisType,
       tickformat: xAxisOptions.decimals ? `.${xAxisOptions.decimals}f` : '',
@@ -318,7 +318,7 @@ const getLayout = (
       range: getRange(
         options.yAxis2?.min,
         options.yAxis2?.max,
-        data.filter(d => d.xaxis === 'x2').map(d => d.x)
+        data.filter((d) => d.xaxis === 'x2').map((d) => d.x)
       ),
       type: options.yAxis2?.scale as AxisType,
       tickformat: options.yAxis2?.decimals ? `.${options.yAxis2?.decimals}f` : '',
@@ -331,7 +331,7 @@ const getLayout = (
       range: getRange(
         yAxisOptions.min,
         yAxisOptions.max,
-        data.filter(d => d.yaxis !== 'y2').map(d => d.y)
+        data.filter((d) => d.yaxis !== 'y2').map((d) => d.y)
       ),
       type: yAxisOptions.scale as AxisType,
       tickformat: yAxisOptions.decimals ? `.${yAxisOptions.decimals}f` : '',
@@ -348,7 +348,7 @@ const getLayout = (
       range: getRange(
         options.yAxis2?.min,
         options.yAxis2?.max,
-        data.filter(d => d.yaxis === 'y2').map(d => d.y)
+        data.filter((d) => d.yaxis === 'y2').map((d) => d.y)
       ),
       type: options.yAxis2?.scale as AxisType,
       tickformat: options.yAxis2?.decimals ? `.${options.yAxis2?.decimals}f` : '',
