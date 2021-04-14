@@ -37,7 +37,7 @@ export class QueryEditor extends PureComponent<
   }
 
   getNotebook = (path: string) => {
-    return this.state.notebooks.find(notebook => notebook.path === path);
+    return this.state.notebooks.find((notebook) => notebook.path === path);
   };
 
   formatOutputOption = (output: any): SelectableValue => {
@@ -116,7 +116,7 @@ export class QueryEditor extends PureComponent<
             />
           </div>
           {this.state.showTextQuery ? (
-            <TextArea defaultValue={value} onBlur={event => this.onParameterChange(param.id, event.target.value)} />
+            <TextArea defaultValue={value} onBlur={(event) => this.onParameterChange(param.id, event.target.value)} />
           ) : (
             <TestResultsQueryBuilder
               autoComplete={this.props.datasource.queryTestResultValues.bind(this.props.datasource)}
@@ -148,7 +148,7 @@ export class QueryEditor extends PureComponent<
         <Select
           className="sl-parameter-value"
           options={options}
-          onChange={event => this.onParameterChange(param.id, event.value as string)}
+          onChange={(event) => this.onParameterChange(param.id, event.value as string)}
           defaultValue={{ label: value, value }}
           menuPlacement="auto"
           maxMenuHeight={110}
@@ -158,7 +158,7 @@ export class QueryEditor extends PureComponent<
       return (
         <Input
           className="sl-parameter-value"
-          onBlur={event => this.onParameterChange(param.id, event.target.value)}
+          onBlur={(event) => this.onParameterChange(param.id, event.target.value)}
           type={param.type === 'number' ? 'number' : 'text'}
           defaultValue={value}
         />
@@ -169,7 +169,7 @@ export class QueryEditor extends PureComponent<
   getVariableOptions() {
     return getTemplateSrv()
       .getVariables()
-      .map(variable => ({ label: '$' + variable.name, value: '$' + variable.name }));
+      .map((variable) => ({ label: '$' + variable.name, value: '$' + variable.name }));
   }
 
   render() {
@@ -200,14 +200,12 @@ export class QueryEditor extends PureComponent<
           </Field>
         )}
         {this.state.queryError && <Alert title={this.state.queryError}></Alert>}
-        {selectedNotebook &&
-          selectedNotebook.metadata.parameters &&
-          selectedNotebook.metadata.parameters.length && [
-            <div className="sl-parameters">
-              <Label>Parameters</Label>
-              {selectedNotebook.metadata.parameters.map(this.getParameter)}
-            </div>,
-          ]}
+        {selectedNotebook && selectedNotebook.metadata.parameters && selectedNotebook.metadata.parameters.length && (
+          <div className="sl-parameters">
+            <Label>Parameters</Label>
+            {selectedNotebook.metadata.parameters.map(this.getParameter)}
+          </div>
+        )}
       </div>
     );
   }

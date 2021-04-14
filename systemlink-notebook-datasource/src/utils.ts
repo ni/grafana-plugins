@@ -2,7 +2,7 @@ import { SelectableValue } from '@grafana/data';
 import { Notebook } from 'types';
 
 export const timeout = (ms: number): Promise<void> => {
-  return new Promise(resolve => {
+  return new Promise((resolve) => {
     setTimeout(resolve, ms);
   });
 };
