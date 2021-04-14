@@ -43,6 +43,7 @@ export const VariableQueryEditor: React.FC<NotebookVariableQueryProps> = ({ data
       .catch((e: any) => {
         throw new Error(`The query for SystemLink notebooks failed with error ${e.status}: ${e.statusText}.`);
       });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -58,6 +59,7 @@ export const VariableQueryEditor: React.FC<NotebookVariableQueryProps> = ({ data
       ...state,
       parameter: enumParams[0] ? enumParams[0].id : '',
     });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [notebooks, state.path]);
 
   return (
