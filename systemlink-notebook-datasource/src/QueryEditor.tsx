@@ -202,12 +202,12 @@ export class QueryEditor extends PureComponent<
         {this.state.queryError && <Alert title={this.state.queryError}></Alert>}
         {selectedNotebook &&
           selectedNotebook.metadata.parameters &&
-          selectedNotebook.metadata.parameters.length && [
+          selectedNotebook.metadata.parameters.length &&
             <div className="sl-parameters">
               <Label>Parameters</Label>
               {selectedNotebook.metadata.parameters.map(this.getParameter)}
-            </div>,
-          ]}
+            </div>
+          }
       </div>
     );
   }
