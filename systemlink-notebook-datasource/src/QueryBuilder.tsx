@@ -12,7 +12,7 @@ type TestResultsQueryBuilderProps = Omit<QueryBuilderProps, 'customOperations' |
     defaultValue?: string;
   };
 
-export const TestResultsQueryBuilder: React.FC<TestResultsQueryBuilderProps> = props => {
+export const TestResultsQueryBuilder: React.FC<TestResultsQueryBuilderProps> = (props) => {
   const theme = useTheme();
   // Need to set on body to affect dropdowns
   document.body.setAttribute('theme', theme.isDark ? 'dark-orange' : 'orange');

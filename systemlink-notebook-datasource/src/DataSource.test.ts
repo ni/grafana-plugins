@@ -14,7 +14,7 @@ jest.mock('@grafana/runtime', () => ({
   // @ts-ignore
   ...jest.requireActual('@grafana/runtime'),
   getBackendSrv: () => ({
-    datasourceRequest: jest.fn(options => mockNotebookApiResponse(options)),
+    datasourceRequest: jest.fn((options) => mockNotebookApiResponse(options)),
     post: postMock,
   }),
   getTemplateSrv: () => ({

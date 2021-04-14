@@ -197,7 +197,7 @@ export class DataSource extends DataSourceApi<NotebookQuery, NotebookDataSourceO
     try {
       const response = await getBackendSrv().post(this.url + '/ninbexec/v2/query-notebooks', { filter });
       const notebooks = response.notebooks as Notebook[];
-      return notebooks.filter(notebook => notebook.metadata.version === 2);
+      return notebooks.filter((notebook) => notebook.metadata.version === 2);
     } catch (e) {
       throw new Error(`The query for SystemLink notebooks failed with error ${e.status}: ${e.statusText}.`);
     }
@@ -215,7 +215,7 @@ export class DataSource extends DataSourceApi<NotebookQuery, NotebookDataSourceO
       const auth = await getBackendSrv().get(this.url + '/niauth/v1/auth');
       const policyEvaluator = new PolicyEvaluator(auth.policies);
       const actions = ['notebook:Query', 'notebookexecution:Execute', 'notebookexecution:Query'];
-      if (actions.every(action => policyEvaluator.hasAction(action))) {
+      if (actions.every((action) => policyEvaluator.hasAction(action))) {
         return { status: 'success', message: 'Success' };
       } else {
         return { status: 'error', message: 'The user is not authorized to query and execute notebooks.' };
