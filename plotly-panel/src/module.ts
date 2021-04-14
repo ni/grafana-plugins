@@ -1,10 +1,10 @@
-import { PanelPlugin, FieldOverrideContext, FieldConfigProperty } from '@grafana/data';
+import { PanelPlugin, FieldOverrideContext, FieldConfigProperty, FieldColorModeId } from '@grafana/data';
 import { PanelOptions, FieldOption } from './types';
 import { PlotlyPanel } from './PlotlyPanel';
 import { MultiSelectValueEditor } from './MultiSelect';
 
 export const plugin = new PanelPlugin<PanelOptions>(PlotlyPanel)
-  .setPanelOptions(builder => {
+  .setPanelOptions((builder) => {
     return builder
       .addSelect({
         path: 'xAxis.field',
@@ -145,21 +145,21 @@ export const plugin = new PanelPlugin<PanelOptions>(PlotlyPanel)
         path: 'series.stackBars',
         name: 'Stack bars',
         defaultValue: false,
-        showIf: options => options.series.plotType === 'bar',
+        showIf: (options) => options.series.plotType === 'bar',
         category: ['Y Axis'],
       })
       .addBooleanSwitch({
         path: 'series.areaFill',
         name: 'Area fill',
         defaultValue: false,
-        showIf: options => options.series.plotType === 'line',
+        showIf: (options) => options.series.plotType === 'line',
         category: ['Y Axis'],
       })
       .addBooleanSwitch({
         path: 'series.staircase',
         name: 'Staircase',
         defaultValue: false,
-        showIf: options => options.series.plotType === 'line',
+        showIf: (options) => options.series.plotType === 'line',
         category: ['Y Axis'],
       })
       .addNumberInput({
@@ -169,7 +169,7 @@ export const plugin = new PanelPlugin<PanelOptions>(PlotlyPanel)
         settings: {
           min: 1,
         },
-        showIf: options => options.series.plotType === 'line',
+        showIf: (options) => options.series.plotType === 'line',
         category: ['Y Axis'],
       })
       .addNumberInput({
@@ -179,7 +179,7 @@ export const plugin = new PanelPlugin<PanelOptions>(PlotlyPanel)
         settings: {
           min: 1,
         },
-        showIf: options => options.series.plotType === 'points',
+        showIf: (options) => options.series.plotType === 'points',
         category: ['Y Axis'],
       })
       .addBooleanSwitch({
@@ -198,7 +198,7 @@ export const plugin = new PanelPlugin<PanelOptions>(PlotlyPanel)
         name: 'Field',
         id: 'yAxis2Field',
         defaultValue: [],
-        showIf: options => options.showYAxis2,
+        showIf: (options) => options.showYAxis2,
         category: ['Secondary Y Axis'],
       })
       .addTextInput({
@@ -208,7 +208,7 @@ export const plugin = new PanelPlugin<PanelOptions>(PlotlyPanel)
         settings: {
           placeholder: 'auto',
         },
-        showIf: options => options.showYAxis2,
+        showIf: (options) => options.showYAxis2,
         category: ['Secondary Y Axis'],
       })
       .addSelect({
@@ -219,7 +219,7 @@ export const plugin = new PanelPlugin<PanelOptions>(PlotlyPanel)
           getOptions: getScaleOptions,
         },
         defaultValue: '',
-        showIf: options => options.showYAxis2,
+        showIf: (options) => options.showYAxis2,
         category: ['Secondary Y Axis'],
       })
       .addNumberInput({
@@ -228,7 +228,7 @@ export const plugin = new PanelPlugin<PanelOptions>(PlotlyPanel)
         settings: {
           placeholder: 'auto',
         },
-        showIf: options => options.showYAxis2,
+        showIf: (options) => options.showYAxis2,
         category: ['Secondary Y Axis'],
       })
       .addNumberInput({
@@ -237,7 +237,7 @@ export const plugin = new PanelPlugin<PanelOptions>(PlotlyPanel)
         settings: {
           placeholder: 'auto',
         },
-        showIf: options => options.showYAxis2,
+        showIf: (options) => options.showYAxis2,
         category: ['Secondary Y Axis'],
       })
       .addNumberInput({
@@ -247,14 +247,14 @@ export const plugin = new PanelPlugin<PanelOptions>(PlotlyPanel)
           placeholder: 'auto',
           min: 0,
         },
-        showIf: options => options.showYAxis2,
+        showIf: (options) => options.showYAxis2,
         category: ['Secondary Y Axis'],
       })
       .addTextInput({
         path: 'yAxis2.unit',
         name: 'Unit',
         defaultValue: '',
-        showIf: options => options.showYAxis2,
+        showIf: (options) => options.showYAxis2,
         category: ['Secondary Y Axis'],
       })
       .addRadio({
@@ -268,28 +268,28 @@ export const plugin = new PanelPlugin<PanelOptions>(PlotlyPanel)
           ],
         },
         defaultValue: 'line',
-        showIf: options => options.showYAxis2,
+        showIf: (options) => options.showYAxis2,
         category: ['Secondary Y Axis'],
       })
       .addBooleanSwitch({
         path: 'series2.stackBars',
         name: 'Stack bars',
         defaultValue: false,
-        showIf: options => options.showYAxis2 && options.series2.plotType === 'bar',
+        showIf: (options) => options.showYAxis2 && options.series2.plotType === 'bar',
         category: ['Secondary Y Axis'],
       })
       .addBooleanSwitch({
         path: 'series2.areaFill',
         name: 'Area fill',
         defaultValue: false,
-        showIf: options => options.showYAxis2 && options.series2.plotType === 'line',
+        showIf: (options) => options.showYAxis2 && options.series2.plotType === 'line',
         category: ['Secondary Y Axis'],
       })
       .addBooleanSwitch({
         path: 'series2.staircase',
         name: 'Staircase',
         defaultValue: false,
-        showIf: options => options.showYAxis2 && options.series2.plotType === 'line',
+        showIf: (options) => options.showYAxis2 && options.series2.plotType === 'line',
         category: ['Secondary Y Axis'],
       })
       .addNumberInput({
@@ -299,7 +299,7 @@ export const plugin = new PanelPlugin<PanelOptions>(PlotlyPanel)
         settings: {
           min: 1,
         },
-        showIf: options => options.showYAxis2 && options.series2.plotType === 'line',
+        showIf: (options) => options.showYAxis2 && options.series2.plotType === 'line',
         category: ['Secondary Y Axis'],
       })
       .addNumberInput({
@@ -310,7 +310,7 @@ export const plugin = new PanelPlugin<PanelOptions>(PlotlyPanel)
           min: 1,
         },
         category: ['Secondary Y Axis'],
-        showIf: options => options.showYAxis2 && options.series2.plotType === 'points',
+        showIf: (options) => options.showYAxis2 && options.series2.plotType === 'points',
       })
       .addBooleanSwitch({
         path: 'showLegend',
@@ -343,15 +343,29 @@ export const plugin = new PanelPlugin<PanelOptions>(PlotlyPanel)
         path: 'invertXAxis',
         name: 'Invert X axis',
         defaultValue: true,
-        showIf: options => options.displayVertically === false,
+        showIf: (options) => options.displayVertically === false,
       });
   })
   .useFieldConfig({
-    standardOptions: [
-      FieldConfigProperty.Color,
-      FieldConfigProperty.DisplayName,
+    standardOptions: {
+      [FieldConfigProperty.Color]: {
+        settings: {
+          byValueSupport: false,
+          bySeriesSupport: true,
+          preferThresholdsMode: false,
+        },
+        defaultValue: {
+          mode: FieldColorModeId.PaletteClassic,
+        },
+      },
+    },
+    disableStandardOptions: [
       FieldConfigProperty.Thresholds,
-      FieldConfigProperty.Links,
+      FieldConfigProperty.Min,
+      FieldConfigProperty.Max,
+      FieldConfigProperty.NoValue,
+      FieldConfigProperty.Decimals,
+      FieldConfigProperty.Mappings,
     ],
   });
 
@@ -360,7 +374,7 @@ const getFieldOptions = async (context: FieldOverrideContext) => {
   if (context && context.data) {
     for (const frame of context.data) {
       for (const field of frame.fields) {
-        if (!options.find(o => o.label === field.name)) {
+        if (!options.find((o) => o.label === field.name)) {
           options.push({ value: field.name, label: field.name });
         }
       }

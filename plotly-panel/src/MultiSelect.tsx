@@ -35,7 +35,7 @@ export const MultiSelectValueEditor = <T extends object>(props: Props<T>) => {
       value={value}
       defaultValue={value}
       allowCustomValue={settings?.allowCustomValue}
-      onChange={e => onChange(e.map(v => v.value as T))}
+      onChange={(e) => onChange(e.map((v) => v.value as T))}
       options={options}
     />
   );
