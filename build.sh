@@ -3,9 +3,6 @@ set -e
 
 rm -rf build
 mkdir -p build/{plugins,config,examples}
-echo "DEBUGGING"
-echo $BASH_VERSION
-echo $(ls)
 
 for d in ./*/; do
     cd $d
