@@ -25,21 +25,8 @@ Copy-Item -Path './config/ni-grafana' -Destination $PluginRoot -Recurse -Force
 Copy-Item -Path './config/custom.ini' -Destination "$GrafanaRoot/conf" -Force
 Copy-Item -Path './config/75_grafana.conf' -Destination "$FilesRoot/Web Server/conf/conf.d" -Force
 
-[Net.ServicePointManager]::SecurityProtocol = "tls12, tls11, tls"
-$PluginsUrl = 'https://api.github.com/repos/ni-kismet/grafana-plugins/releases/latest'
-
-# If this breaks, contact Carson Moore
-$Headers = @{ Authorization = 'Basic bXVyZTpnaHBfc3JsT1dNaDFIcTUyT2Uxank0TE5hR2V2SzV1c2hVM3czeVNF' }
-Write-Output 'Downloading SystemLink Grafana plugins'
-$Release = Invoke-RestMethod -Uri $PluginsUrl -Headers $Headers
-Invoke-RestMethod `
-    -Uri $Release.assets[0].url `
-    -Headers ($Headers += @{ Accept = 'application/octet-stream' }) `
-    -OutFile 'grafana-plugins.zip'
-
-Expand-Archive 'grafana-plugins.zip' -Force
 Write-Output 'Copying over plugins to Grafana'
-Copy-Item -Path './grafana-plugins/*' -Destination "$GrafanaRoot/data/plugins" -Recurse -Force
+Copy-Item -Path './plugins/*' -Destination "$GrafanaRoot/data/plugins" -Recurse -Force
 
 Write-Output 'Provisioning datasources'
 New-Item -ItemType 'directory' -Path "$ConfigRoot/Grafana/dashboards" -Force

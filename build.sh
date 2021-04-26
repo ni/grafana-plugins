@@ -2,7 +2,7 @@
 set -e
 
 rm -rf build
-mkdir build
+mkdir -p build/{plugins,config,examples}
 
 for d in ./*/; do
     cd $d
@@ -10,10 +10,14 @@ for d in ./*/; do
         echo $(pwd)
         npm ci
         npm run build
-        cp -r dist ../build/${d}
+        cp -r dist ../build/plugins/${d}
     fi
     cd ..
 done
+
+cp -r config build/config
+cp -r examples build/examples
+cp Setup-Grafana.ps1 build
 
 cd build
 zip -r grafana-plugins .
