@@ -7,7 +7,6 @@ on:
     paths-ignore: 
       - '**.yml'
       - '**.md'
-      - 'config/**'
   pull_request:
     branches:
       - master
