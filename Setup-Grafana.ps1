@@ -26,6 +26,7 @@ Copy-Item -Path './config/custom.ini' -Destination "$GrafanaRoot/conf" -Force
 Copy-Item -Path './config/75_grafana.conf' -Destination "$FilesRoot/Web Server/conf/conf.d" -Force
 
 Write-Output 'Copying over plugins to Grafana'
+New-Item -ItemType 'directory' -Path "$GrafanaRoot/data/plugins" -Force
 Copy-Item -Path './plugins/*' -Destination "$GrafanaRoot/data/plugins" -Recurse -Force
 
 Write-Output 'Provisioning datasources'
