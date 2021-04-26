@@ -15,7 +15,7 @@ for d in ./*/; do
     cd ..
 done
 
-cp -r {config, examples} build
+cp -r {config,examples} build
 cp Setup-Grafana.ps1 build
 
 cd build
