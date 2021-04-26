@@ -3,6 +3,7 @@ set -e
 
 rm -rf build
 mkdir -p build/{plugins,config,examples}
+echo $(ls build)
 
 for d in ./*/; do
     cd $d
