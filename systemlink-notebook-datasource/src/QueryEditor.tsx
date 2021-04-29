@@ -206,7 +206,7 @@ export class QueryEditor extends PureComponent<
                 )}
               />
             </Field>
-            <Field className="sl-cache-timeout" label="Cache timeout">
+            <Field className="sl-cache-timeout" label="Cache timeout (s)">
               <Input
                 type="number"
                 min="-1"
