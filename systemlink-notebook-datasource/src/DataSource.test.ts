@@ -44,6 +44,7 @@ describe('Notebook data source', () => {
         path: '/test/notebook',
         parameters: null,
         output: 'test_output',
+        cacheTimeout: 0,
       };
       let dataFrame = {
         type: 'data_frame',
@@ -80,6 +81,7 @@ describe('Notebook data source', () => {
         path: '/test/notebook',
         parameters: null,
         output: 'test_output',
+        cacheTimeout: 0,
       };
       let dataFrame = {
         type: 'data_frame',
@@ -116,6 +118,7 @@ describe('Notebook data source', () => {
         path: '/test/notebook',
         parameters: null,
         output: 'test_output',
+        cacheTimeout: 0,
       };
       let dataFrame = { type: 'scalar', id: 'output1', value: 2.5 };
 
