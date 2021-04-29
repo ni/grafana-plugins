@@ -5,6 +5,7 @@ import { DataSourceInstanceSettings, DataQueryRequest } from '@grafana/data';
 
 const postMock = jest.fn((url, body) => mockQueryNotebooksResponse());
 const replaceMock = jest.fn((a: string, ...rest: any) => a);
+const executeMock = jest.fn((options) => mockNotebookApiResponse(options));
 
 const successfulNotebookPath = '0';
 const failedNotebookPath = '1';
@@ -14,7 +15,7 @@ jest.mock('@grafana/runtime', () => ({
   // @ts-ignore
   ...jest.requireActual('@grafana/runtime'),
   getBackendSrv: () => ({
-    datasourceRequest: jest.fn((options) => mockNotebookApiResponse(options)),
+    datasourceRequest: executeMock,
     post: postMock,
   }),
   getTemplateSrv: () => ({
@@ -43,6 +44,7 @@ describe('Notebook data source', () => {
         path: '/test/notebook',
         parameters: null,
         output: 'test_output',
+        cacheTimeout: 0,
       };
       let dataFrame = {
         type: 'data_frame',
@@ -79,6 +81,7 @@ describe('Notebook data source', () => {
         path: '/test/notebook',
         parameters: null,
         output: 'test_output',
+        cacheTimeout: 0,
       };
       let dataFrame = {
         type: 'data_frame',
@@ -115,6 +118,7 @@ describe('Notebook data source', () => {
         path: '/test/notebook',
         parameters: null,
         output: 'test_output',
+        cacheTimeout: 0,
       };
       let dataFrame = { type: 'scalar', id: 'output1', value: 2.5 };
 
@@ -247,6 +251,23 @@ describe('Notebook data source', () => {
       } as unknown) as DataQueryRequest<NotebookQuery>;
 
       expect(ds.query(options)).rejects.toThrow();
+    });
+
+    it('executes notebook with resultCachePeriod', async () => {
+      const options = ({
+        targets: [
+          {
+            path: successfulNotebookPath,
+            parameters: [],
+            output: 'test',
+            cacheTimeout: 12345,
+          },
+        ],
+      } as unknown) as DataQueryRequest<NotebookQuery>;
+
+      await ds.query(options);
+
+      expect(executeMock.mock.calls[0][0].data[0]).toEqual(expect.objectContaining({ resultCachePeriod: 12345 }));
     });
   });
 
