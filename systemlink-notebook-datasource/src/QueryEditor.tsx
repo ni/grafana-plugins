@@ -88,7 +88,7 @@ export class QueryEditor extends PureComponent<
   onCacheTimeoutChange = (event: React.FocusEvent<HTMLInputElement>) => {
     const { onChange, onRunQuery } = this.props;
     const query = defaults(this.props.query, defaultQuery);
-    onChange({ ...query, cacheTimeout: parseInt(event.target.value) });
+    onChange({ ...query, cacheTimeout: parseInt(event.target.value, 10) });
     onRunQuery();
   };
 
@@ -207,7 +207,13 @@ export class QueryEditor extends PureComponent<
               />
             </Field>
             <Field className="sl-cache-timeout" label="Cache timeout">
-              <Input type="number" min="-1" step="1" defaultValue={query.cacheTimeout} onBlur={this.onCacheTimeoutChange}></Input>
+              <Input
+                type="number"
+                min="-1"
+                step="1"
+                defaultValue={query.cacheTimeout}
+                onBlur={this.onCacheTimeoutChange}
+              ></Input>
             </Field>
           </>
         )}

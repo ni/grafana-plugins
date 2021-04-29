@@ -11,7 +11,7 @@ export const defaultQuery: Partial<NotebookQuery> = {
   path: '',
   parameters: {},
   output: '',
-  cacheTimeout: 86400
+  cacheTimeout: 86400,
 };
 
 /**
