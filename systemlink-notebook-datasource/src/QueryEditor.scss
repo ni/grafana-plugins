@@ -4,11 +4,16 @@
 
     .sl-notebook-selector {
         flex-basis: 50%;
-        margin-right: 10%;
+        margin-right: 5%;
     }
 
     .sl-output {
-        flex-basis: 30%;
+        flex-basis: 25%;
+        margin-right: 5%
+    }
+
+    .sl-cache-timeout {
+        flex-basis: 10%;
     }
 
     .sl-parameters {

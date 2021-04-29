@@ -85,6 +85,13 @@ export class QueryEditor extends PureComponent<
     onRunQuery();
   };
 
+  onCacheTimeoutChange = (event: React.FocusEvent<HTMLInputElement>) => {
+    const { onChange, onRunQuery } = this.props;
+    const query = defaults(this.props.query, defaultQuery);
+    onChange({ ...query, cacheTimeout: parseInt(event.target.value) });
+    onRunQuery();
+  };
+
   formatParameterValue = (id: string, value: string) => {
     const selectedNotebook = this.getNotebook(this.props.query.path) as Notebook;
     const param = selectedNotebook.metadata.parameters.find((param: any) => param.id === id);
@@ -189,15 +196,20 @@ export class QueryEditor extends PureComponent<
           />
         </Field>
         {selectedNotebook && (
-          <Field className="sl-output" label="Output">
-            <Select
-              options={selectedNotebook.metadata.outputs.map(this.formatOutputOption)}
-              onChange={this.onOutputChange}
-              value={this.formatOutputOption(
-                selectedNotebook.metadata.outputs.find((output: any) => output.id === query.output)
-              )}
-            />
-          </Field>
+          <>
+            <Field className="sl-output" label="Output">
+              <Select
+                options={selectedNotebook.metadata.outputs.map(this.formatOutputOption)}
+                onChange={this.onOutputChange}
+                value={this.formatOutputOption(
+                  selectedNotebook.metadata.outputs.find((output: any) => output.id === query.output)
+                )}
+              />
+            </Field>
+            <Field className="sl-cache-timeout" label="Cache timeout">
+              <Input type="number" min="-1" step="1" defaultValue={query.cacheTimeout} onBlur={this.onCacheTimeoutChange}></Input>
+            </Field>
+          </>
         )}
         {this.state.queryError && <Alert title={this.state.queryError}></Alert>}
         {selectedNotebook && selectedNotebook.metadata.parameters && selectedNotebook.metadata.parameters.length && (

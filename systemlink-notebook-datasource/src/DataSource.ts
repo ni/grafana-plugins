@@ -75,7 +75,7 @@ export class DataSource extends DataSourceApi<NotebookQuery, NotebookDataSourceO
       }
 
       const parameters = this.replaceParameterVariables(query.parameters, options);
-      const execution = await this.executeNotebook(query.path, parameters);
+      const execution = await this.executeNotebook(query.path, parameters, query.cacheTimeout);
       if (execution.status === 'SUCCEEDED') {
         if (this.validate(execution.result)) {
           const result = execution.result.result.find((result: any) => result.id === query.output);
@@ -164,12 +164,12 @@ export class DataSource extends DataSourceApi<NotebookQuery, NotebookDataSourceO
     }
   }
 
-  private async executeNotebook(notebookPath: string, parameters: any) {
+  private async executeNotebook(notebookPath: string, parameters: any, cacheTimeout: number) {
     try {
       const response = await getBackendSrv().datasourceRequest({
         url: this.url + '/ninbexec/v2/executions',
         method: 'POST',
-        data: [{ notebookPath, parameters }],
+        data: [{ notebookPath, parameters, resultCachePeriod: cacheTimeout }],
       });
 
       return this.handleNotebookExecution(response.data[0].id);

@@ -4,12 +4,14 @@ export interface NotebookQuery extends DataQuery {
   path: string;
   parameters: any;
   output: string;
+  cacheTimeout: number;
 }
 
 export const defaultQuery: Partial<NotebookQuery> = {
   path: '',
   parameters: {},
   output: '',
+  cacheTimeout: 86400
 };
 
 /**
