@@ -5,6 +5,7 @@
 import defaults from 'lodash/defaults';
 import range from 'lodash/range';
 import Ajv from 'ajv';
+import moment from 'moment';
 
 import { PolicyEvaluator } from '@ni-kismet/helium-uicomponents/library/policyevaluator';
 import {
@@ -139,7 +140,7 @@ export class DataSource extends DataSourceApi<NotebookQuery, NotebookDataSourceO
         const frame = new MutableDataFrame({ refId: query.refId, fields: [] });
         for (let [ix, column] of result.data.columns.entries()) {
           const values = result.data.values.map((row: any) => row[ix]);
-          frame.addField({ name: column.name, type: this.getFieldType(column.type), values });
+          frame.addField({ name: column.name, ...this.getFieldTypeAndValues(column, values) });
         }
 
         frames.push(frame);
@@ -152,16 +153,30 @@ export class DataSource extends DataSourceApi<NotebookQuery, NotebookDataSourceO
     return frames;
   }
 
-  private getFieldType(type: string): FieldType {
-    if (type === 'string' || type === 'boolean') {
-      return FieldType[type];
-    } else if (type === 'number' || type === 'integer') {
-      return FieldType.number;
-    } else if (type === 'datetime') {
-      return FieldType.time;
-    } else {
-      return FieldType.other;
+  private getFieldTypeAndValues(column: any, values: any[]) {
+    const result = { type: FieldType.other, values };
+    switch (column.type) {
+      case 'string':
+        result.type = FieldType.string;
+        break;
+      case 'boolean':
+        result.type = FieldType.boolean;
+        break;
+      case 'number':
+      case 'integer':
+        result.type = FieldType.number;
+        break;
+      case 'datetime':
+        result.type = FieldType.time;
+        if (column.tz === 'UTC') {
+          result.values = values.map(dateString => {
+            return moment.utc(dateString).format();
+          });
+        }
+        break;
     }
+
+    return result;
   }
 
   private async executeNotebook(notebookPath: string, parameters: any, cacheTimeout: number) {
