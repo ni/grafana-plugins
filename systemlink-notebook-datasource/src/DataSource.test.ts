@@ -1,7 +1,7 @@
 import { DataSource } from './DataSource';
 import { NotebookDataSourceOptions, NotebookQuery } from './types';
 
-import { DataSourceInstanceSettings, DataQueryRequest } from '@grafana/data';
+import { DataSourceInstanceSettings, DataQueryRequest, FieldType } from '@grafana/data';
 
 const postMock = jest.fn((url, body) => mockQueryNotebooksResponse());
 const replaceMock = jest.fn((a: string, ...rest: any) => a);
@@ -127,6 +127,71 @@ describe('Notebook data source', () => {
       expect(result.fields).toHaveLength(1);
       expect(result.length).toBe(1);
       expect(Object.values(result.get(0))).toEqual([2.5]);
+    });
+
+    it('transforms tabular data', () => {
+      let query = {
+        refId: '123',
+        path: '/test/notebook',
+        parameters: null,
+        output: 'test_output',
+        cacheTimeout: 0,
+      };
+      let dataFrame = {
+        type: 'data_frame',
+        id: 'test_output',
+        data: {
+          columns: [
+            { name: 'column1', type: 'string' },
+            { name: 'column2', type: 'integer' },
+          ],
+          values: [
+            ['value1', 1],
+            ['value2', 2],
+            ['value3', 3],
+          ],
+        },
+      };
+
+      let [result] = ds.transformResultToDataFrames(dataFrame, query);
+
+      expect(result.fields).toHaveLength(2);
+      expect(result.length).toBe(3);
+      expect(Object.values(result.get(0))).toEqual(['value1', 1]);
+      expect(result.fields[0].type).toEqual(FieldType.string);
+      expect(result.fields[1].type).toEqual(FieldType.number);
+    });
+
+    it('transforms tabular data with UTC datetime', () => {
+      let query = {
+        refId: '123',
+        path: '/test/notebook',
+        parameters: null,
+        output: 'test_output',
+        cacheTimeout: 0,
+      };
+      let dataFrame = {
+        type: 'data_frame',
+        id: 'test_output',
+        data: {
+          columns: [
+            { name: 'column1', type: 'datetime', tz: 'UTC' },
+            { name: 'column2', type: 'integer' },
+          ],
+          values: [
+            ['2021-04-18T00:43:09.000000', 1],
+            ['2021-04-18T00:57:06.000000', 2],
+          ],
+        },
+      };
+
+      let [result] = ds.transformResultToDataFrames(dataFrame, query);
+
+      expect(result.fields).toHaveLength(2);
+      expect(result.length).toBe(2);
+      expect(Object.values(result.get(0))).toEqual(['2021-04-18T00:43:09Z', 1]);
+      expect(Object.values(result.get(1))).toEqual(['2021-04-18T00:57:06Z', 2]);
+      expect(result.fields[0].type).toEqual(FieldType.time);
     });
   });
 
