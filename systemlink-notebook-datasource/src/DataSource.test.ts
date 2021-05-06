@@ -32,6 +32,13 @@ describe('Notebook data source', () => {
   const instanceSettings = ({
     url: 'http://test',
   } as unknown) as DataSourceInstanceSettings<NotebookDataSourceOptions>;
+  const mockQuery = {
+    refId: '123',
+    path: '/test/notebook',
+    parameters: null,
+    output: 'test_output',
+    cacheTimeout: 0,
+  };
 
   beforeEach(() => {
     ds = new DataSource(instanceSettings);
@@ -39,13 +46,6 @@ describe('Notebook data source', () => {
 
   describe('transformResultToDataFrames', () => {
     it('transforms xy data', () => {
-      let query = {
-        refId: '123',
-        path: '/test/notebook',
-        parameters: null,
-        output: 'test_output',
-        cacheTimeout: 0,
-      };
       let dataFrame = {
         type: 'data_frame',
         id: 'horizontal_graph',
@@ -67,7 +67,7 @@ describe('Notebook data source', () => {
         },
       };
 
-      let [result] = ds.transformResultToDataFrames(dataFrame, query);
+      let [result] = ds.transformResultToDataFrames(dataFrame, mockQuery);
 
       expect(result.name).toBe('plot1');
       expect(result.fields).toHaveLength(2);
@@ -76,13 +76,6 @@ describe('Notebook data source', () => {
     });
 
     it('transforms index data', () => {
-      let query = {
-        refId: '123',
-        path: '/test/notebook',
-        parameters: null,
-        output: 'test_output',
-        cacheTimeout: 0,
-      };
       let dataFrame = {
         type: 'data_frame',
         id: 'horizontal_graph',
@@ -104,7 +97,7 @@ describe('Notebook data source', () => {
         },
       };
 
-      let [result] = ds.transformResultToDataFrames(dataFrame, query);
+      let [result] = ds.transformResultToDataFrames(dataFrame, mockQuery);
 
       expect(result.name).toBe('plot1');
       expect(result.fields).toHaveLength(2);
@@ -113,16 +106,9 @@ describe('Notebook data source', () => {
     });
 
     it('transforms scalar data', () => {
-      let query = {
-        refId: '123',
-        path: '/test/notebook',
-        parameters: null,
-        output: 'test_output',
-        cacheTimeout: 0,
-      };
       let dataFrame = { type: 'scalar', id: 'output1', value: 2.5 };
 
-      let [result] = ds.transformResultToDataFrames(dataFrame, query);
+      let [result] = ds.transformResultToDataFrames(dataFrame, mockQuery);
 
       expect(result.fields).toHaveLength(1);
       expect(result.length).toBe(1);
@@ -130,13 +116,6 @@ describe('Notebook data source', () => {
     });
 
     it('transforms tabular data', () => {
-      let query = {
-        refId: '123',
-        path: '/test/notebook',
-        parameters: null,
-        output: 'test_output',
-        cacheTimeout: 0,
-      };
       let dataFrame = {
         type: 'data_frame',
         id: 'test_output',
@@ -153,7 +132,7 @@ describe('Notebook data source', () => {
         },
       };
 
-      let [result] = ds.transformResultToDataFrames(dataFrame, query);
+      let [result] = ds.transformResultToDataFrames(dataFrame, mockQuery);
 
       expect(result.fields).toHaveLength(2);
       expect(result.length).toBe(3);
@@ -163,13 +142,6 @@ describe('Notebook data source', () => {
     });
 
     it('transforms tabular data with UTC datetime', () => {
-      let query = {
-        refId: '123',
-        path: '/test/notebook',
-        parameters: null,
-        output: 'test_output',
-        cacheTimeout: 0,
-      };
       let dataFrame = {
         type: 'data_frame',
         id: 'test_output',
@@ -185,7 +157,7 @@ describe('Notebook data source', () => {
         },
       };
 
-      let [result] = ds.transformResultToDataFrames(dataFrame, query);
+      let [result] = ds.transformResultToDataFrames(dataFrame, mockQuery);
 
       expect(result.fields).toHaveLength(2);
       expect(result.length).toBe(2);

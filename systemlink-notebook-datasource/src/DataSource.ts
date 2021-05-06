@@ -5,7 +5,6 @@
 import defaults from 'lodash/defaults';
 import range from 'lodash/range';
 import Ajv from 'ajv';
-import moment from 'moment';
 
 import { PolicyEvaluator } from '@ni-kismet/helium-uicomponents/library/policyevaluator';
 import {
@@ -17,6 +16,7 @@ import {
   FieldType,
   MetricFindValue,
   DataQueryResponseData,
+  toUtc,
 } from '@grafana/data';
 import { getBackendSrv, getTemplateSrv } from '@grafana/runtime';
 import {
@@ -169,8 +169,8 @@ export class DataSource extends DataSourceApi<NotebookQuery, NotebookDataSourceO
       case 'datetime':
         result.type = FieldType.time;
         if (column.tz === 'UTC') {
-          result.values = values.map(dateString => {
-            return moment.utc(dateString).format();
+          result.values = values.map((dateString) => {
+            return toUtc(dateString).format();
           });
         }
         break;
