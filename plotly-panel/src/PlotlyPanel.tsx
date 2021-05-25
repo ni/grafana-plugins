@@ -44,6 +44,10 @@ export const PlotlyPanel: React.FC<Props> = (props) => {
 
   var seriesIndex = 0;
   for (const dataframe of data.series) {
+    if (dataframe.fields.length < 2) {
+      throw new Error(`Series '${dataframe.refId}' must contain at least 2 fields.`);
+    }
+
     setDataFrameId(dataframe);
     const { xField, yFields, yFields2 } = getFields(dataframe, props);
     if (!axisLabels.xAxis && xField) {
@@ -199,6 +203,9 @@ const getFields = (frame: DataFrame, props: Props) => {
 const getYFields = (selection: string[], frame: DataFrame, xField: Field | undefined, autoFill = true) => {
   if (autoFill && (!selection || !selection.length)) {
     let yField = frame.fields.find((field) => field !== xField && field.type !== FieldType.time);
+    if (!yField) {
+      return [];
+    }
     return [yField];
   }
 
