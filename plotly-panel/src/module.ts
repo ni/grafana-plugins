@@ -373,6 +373,9 @@ const getFieldOptions = async (context: FieldOverrideContext) => {
   const options: FieldOption[] = [];
   if (context && context.data) {
     for (const frame of context.data) {
+      if (frame.fields.length < 2) {
+        continue;
+      }
       for (const field of frame.fields) {
         if (!options.find((o) => o.label === field.name)) {
           options.push({ value: field.name, label: field.name });
