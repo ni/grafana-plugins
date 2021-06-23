@@ -9,6 +9,7 @@ import 'smart-webcomponents-react/source/styles/components/smart.dropdownlist.cs
 import 'smart-webcomponents-react/source/styles/smart.dark-orange.css';
 import 'smart-webcomponents-react/source/styles/smart.orange.css';
 import { IFilterEnum, IFilterField, IFilterRelativeTimeCustom, RelativeTimeType } from 'types';
+import { toInteger } from 'lodash';
 
 type TestResultsQueryBuilderProps = Omit<QueryBuilderProps, 'customOperations' | 'fields' | 'messages' | 'showIcons'> &
   React.HTMLAttributes<Element> & {
@@ -245,6 +246,12 @@ const customOperations = [
     label: 'Less than or equal to',
     name: '<=',
     expressionTemplate: '{0} <= "{1}"',
+    expressionReaderCallback: (expression: any, bindings: any) => {
+      if (bindings[0] === 'startedWithin') {
+        return { fieldName: bindings[0], value: JSON.stringify(convertRelativeTimeValueFromLinq(bindings[1])) };
+      }
+      return { fieldName: bindings[0], value: bindings[1] };
+    }
   },
   {
     label: 'Less than or equal to',
@@ -331,13 +338,13 @@ const customOperations = [
     expressionBuilderCallback: (dataField: any, operation: any, objValue: any): string => {
       var value = JSON.parse(objValue);
       if (value.type === RelativeTimeType.Custom) {
-        return `${dataField} <= "${convertRelativeTimeValue(value)}"`;
+        return `${dataField} <= "${convertRelativeTimeValueToLinq(value)}"`;
       }
       return `${dataField} <= ${value.type}`;
     },
     expressionReaderCallback: (expression: any, bindings: any) => {
-        return { fieldName: bindings[0], value: JSON.stringify({ type: bindings[1], value: bindings[2], unit: bindings[3] }) }
-    }
+      return { fieldName: bindings[0], value: JSON.stringify({ type: bindings[1], value: bindings[2], unit: bindings[3] }) };
+    },
   },
   // List expressions
   {
@@ -424,7 +431,7 @@ const secondsInDay = 86400;
 const secondsInHour = 3600;
 const secondsInMinute = 60;
 
-const convertRelativeTimeValue = (value: IFilterRelativeTimeCustom): string => {
+const convertRelativeTimeValueToLinq = (value: IFilterRelativeTimeCustom): string => {
   let seconds = 0;
   switch (value.unit) {
     case 'DAYS':
@@ -451,6 +458,36 @@ const convertRelativeTimeValue = (value: IFilterRelativeTimeCustom): string => {
 
   return `${days}.${hours}:${minutes}:${seconds}`;
 }
+
+const convertRelativeTimeValueFromLinq = (value: string): IFilterRelativeTimeCustom | undefined => {
+  if (typeof value !== 'string') {
+    return;
+  }
+
+  var possibleFormats = [
+    /^(?<days>\d+)$/,
+    /^(?<days>\d+)\.(?<hours>\d\d?):(?<minutes>\d\d?)(:(?<seconds>\d\d?(\.\d+)?))?$/,
+    /^(?<hours>\d\d?):(?<minutes>\d\d?)(:(?<seconds>\d\d?(\.\d+)?))?$/
+  ];
+
+  var timespan;
+  for (var format of possibleFormats) {
+    timespan = value.match(format);
+    if (timespan) {
+      break;
+    }
+  }
+
+  if (!timespan) {
+    return;
+  }
+
+  return {
+    type: RelativeTimeType.Custom,
+    value: toInteger(timespan.groups?.days || timespan.groups?.hours || timespan.groups?.minutes || timespan.groups?.seconds) || 0,
+    unit: timespan.groups?.days ? 'DAYS' : timespan.groups?.hours ? 'HOURS' : timespan.groups?.minutes ? 'MINUTES' : timespan.groups?.seconds ? 'SECONDS' : 'DAYS'
+  };
+};
 
 const getDynamicField = () => ({
   filterOperations: [
