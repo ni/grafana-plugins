@@ -18,6 +18,7 @@
     "@ni-kismet/helium-uicomponents": "^1.376.0",
     "@testing-library/jest-dom": "5.4.0",
     "@testing-library/react": "^10.4.9",
+    "@types/jquery": "^3.5.5",
     "@types/lodash": "latest"
   },
   "jest": {
@@ -30,6 +31,6 @@
   },
   "dependencies": {
     "ajv": "^6.12.6",
-    "smart-webcomponents-react": "^9.1.12"
+    "smart-webcomponents-react": "9.1.12"
   }
 }

@@ -1,10 +1,14 @@
 import React, { useRef, useEffect } from 'react';
+import { DropDownList } from "smart-webcomponents-react/dropdownlist";
+import { NumericTextBox } from "smart-webcomponents-react/numerictextbox";
 import { QueryBuilder, QueryBuilderProps } from 'smart-webcomponents-react/querybuilder';
 import { useTheme } from '@grafana/ui';
 
 import 'smart-webcomponents-react/source/styles/components/smart.querybuilder.css';
+import 'smart-webcomponents-react/source/styles/components/smart.dropdownlist.css';
 import 'smart-webcomponents-react/source/styles/smart.dark-orange.css';
 import 'smart-webcomponents-react/source/styles/smart.orange.css';
+import { IFilterEnum, IFilterField, IFilterRelativeTimeCustom, RelativeTimeType } from 'types';
 
 type TestResultsQueryBuilderProps = Omit<QueryBuilderProps, 'customOperations' | 'fields' | 'messages' | 'showIcons'> &
   React.HTMLAttributes<Element> & {
@@ -106,7 +110,20 @@ export const TestResultsQueryBuilder: React.FC<TestResultsQueryBuilderProps> = (
         ],
       },
     },
-    { label: 'Started within', dataField: 'startedWithin', dataType: 'string', filterOperations: ['<='] },
+    {
+      label: 'Started within',
+      dataField: 'startedWithin',
+      dataType: 'string',
+      filterOperations: ['relative_time'],
+      // lookup: {
+      //   dataSource: [
+      //     { label: 'Current day', value: 'Constants.CurrentDay' },
+      //     { label: 'Current week', value: 'Constants.CurrentWeek' },
+      //     { label: 'Current month', value: 'Constants.CurrentMonth' },
+      //     { label: 'Current year', value: 'Constants.CurrentYear' }
+      //   ]
+      // }
+    },
     { label: 'Updated within', dataField: 'updatedWithin', dataType: 'string', filterOperations: ['<='] },
     {
       label: 'Status',
@@ -229,6 +246,99 @@ const customOperations = [
     name: '<=',
     expressionTemplate: '{0} <= "{1}"',
   },
+  {
+    label: 'Less than or equal to',
+    name: 'relative_time',
+    expressionTemplate: '{0} <= {1}',
+    editorTemplate: (fieldType: string, val: string, fieldData: IFilterField) => {
+      const html = `<div class="relative-time-editor">
+        <smart-drop-down-list class="type-input" drop-down-append-to="body"></smart-drop-down-list>
+        <div class="custom-input-container" style="display: none;">
+          <smart-numeric-text-box class="value-input">
+            input-format="integer"
+            min=0
+            spin-buttons
+            spin-buttons-position="right"
+            spin-buttons-step="1"
+            enable-mouse-wheel-action
+          </smart-numeric-text-box>
+          <smart-drop-down-list class="unit-input"
+            drop-down-append-to="body"
+            placeholder="Unit"
+          </smart-drop-down-list>
+        </div>
+      </div>`;
+
+      let value = val ? JSON.parse(val) : val;
+      const parsedHTML: any = $.parseHTML(html.trim())[0];
+
+      const typeInput: DropDownList = parsedHTML.querySelector('.type-input');
+      const customContainer = parsedHTML.querySelector('.custom-input-container');
+      const unitInput: DropDownList = parsedHTML.querySelector('.unit-input');
+      const valueInput: NumericTextBox = parsedHTML.querySelector('.value-input');
+
+      typeInput['dataSource'] = relativeTimeTypes;
+      typeInput['selectedIndexes'] = value.type ? [relativeTimeTypes.findIndex(el => el.value === value.type)] : [0];
+      unitInput['dataSource'] = relativeTimeUnits;
+      // Force selection of first value
+      unitInput['selectedIndexes'] = [0];
+
+      if (value.type === RelativeTimeType.Custom) {
+        customContainer.style.display = 'block';
+        valueInput.value = value.value ? value.value : '';
+        unitInput['selectedIndexes'] = value.unit ? [relativeTimeUnits.findIndex(el => el.value === value.unit)] : [0];
+      }
+
+      typeInput.onChange = (event: any) => { // event: CustomEvent
+        customContainer.style.display = event.detail.value === RelativeTimeType.Custom ? 'block' : 'none';
+      };
+
+      return parsedHTML;
+
+    },
+    valueTemplate: (editor: any, value: any): string => {
+      var relativeTimeValue: any = typeof value === 'object' ? value : JSON.parse(value); // IFilterRelativeTimeValue
+      if (relativeTimeValue.type === RelativeTimeType.Custom) {
+        return relativeTimeValue.value + ' ' + (relativeTimeUnits.find(unit => unit.value === relativeTimeValue.unit) || {}).label;
+      } else {
+        return (relativeTimeTypes.find(type => type.value === relativeTimeValue.type) || {}).label || '';
+      }
+    },
+    handleValue: (editor: any): string | undefined => {
+      if (!editor) {
+        return undefined;
+      }
+      const typeInput = editor.querySelector('.type-input');
+      if (!typeInput) {
+        return undefined;
+      }
+      const type = typeInput.dataSource[typeInput.selectedIndexes[0]].value;
+      if (type === RelativeTimeType.Custom) {
+        const unitInput = editor.querySelector('.unit-input');
+        const valueInput = editor.querySelector('.value-input');
+        if (unitInput && valueInput) {
+          return JSON.stringify({
+            type: RelativeTimeType.Custom,
+            unit: unitInput.dataSource[unitInput.selectedIndexes[0]].value,
+            value: valueInput.value
+          });
+        }
+        return undefined;
+      } else {
+        return JSON.stringify({ type });
+      }
+    },
+    expressionBuilderCallback: (dataField: any, operation: any, objValue: any): string => {
+      var value = JSON.parse(objValue);
+      if (value.type === RelativeTimeType.Custom) {
+        return `${dataField} <= "${convertRelativeTimeValue(value)}"`;
+      }
+      return `${dataField} <= ${value.type}`;
+    },
+    expressionReaderCallback: (expression: any, bindings: any) => {
+        return { fieldName: bindings[0], value: JSON.stringify({ type: bindings[1], value: bindings[2], unit: bindings[3] }) }
+    }
+  },
   // List expressions
   {
     label: 'Equals',
@@ -294,6 +404,53 @@ const customOperations = [
     hideValue: true,
   },
 ];
+
+const relativeTimeTypes: IFilterEnum[] = [
+  { label: 'Current day', value: RelativeTimeType.CurrentDay },
+  { label: 'Current week', value: RelativeTimeType.CurrentWeek },
+  { label: 'Current month', value: RelativeTimeType.CurrentMonth },
+  { label: 'Current year', value: RelativeTimeType.CurrentYear },
+  { label: 'Custom', value: RelativeTimeType.Custom }
+];
+
+const relativeTimeUnits: IFilterEnum[] = [
+  { label: 'Days', value: 'DAYS' },
+  { label: 'Hours', value: 'HOURS' },
+  { label: 'Minutes', value: 'MINUTES' },
+  { label: 'Seconds', value: 'SECONDS' }
+];
+
+const secondsInDay = 86400;
+const secondsInHour = 3600;
+const secondsInMinute = 60;
+
+const convertRelativeTimeValue = (value: IFilterRelativeTimeCustom): string => {
+  let seconds = 0;
+  switch (value.unit) {
+    case 'DAYS':
+      seconds = value.value * secondsInDay;
+      break;
+    case 'HOURS':
+      seconds = value.value * secondsInHour;
+      break;
+    case 'MINUTES':
+      seconds = value.value * secondsInMinute;
+      break;
+    case 'SECONDS':
+    default:
+      seconds = value.value;
+      break;
+  }
+
+  const days = Math.floor(seconds / secondsInDay);
+  seconds = seconds - (days * secondsInDay);
+  const hours = Math.floor(seconds / secondsInHour);
+  seconds = seconds - (hours * secondsInHour);
+  const minutes = Math.floor(seconds / secondsInMinute);
+  seconds = seconds - (minutes * secondsInMinute);
+
+  return `${days}.${hours}:${minutes}:${seconds}`;
+}
 
 const getDynamicField = () => ({
   filterOperations: [

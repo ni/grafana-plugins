@@ -53,3 +53,48 @@ export interface NotebookParameterQuery {
   path: string;
   parameter: string;
 }
+
+export enum RelativeTimeType {
+    CurrentDay = 'Constants.CurrentDay',
+    CurrentWeek = 'Constants.CurrentWeek',
+    CurrentMonth = 'Constants.CurrentMonth',
+    CurrentYear = 'Constants.CurrentYear',
+    Custom = 'CUSTOM'
+}
+
+interface IFilterRelativeTimeConstant {
+  type: Exclude<RelativeTimeType, RelativeTimeType.Custom>;
+}
+
+export interface IFilterRelativeTimeCustom {
+  type: RelativeTimeType.Custom;
+  unit: string;
+  value: number;
+}
+
+export type IFilterRelativeTimeValue = IFilterRelativeTimeConstant | IFilterRelativeTimeCustom;
+
+export interface IFilterEnum {
+    label: string;
+    value: string|number;
+}
+
+export interface IFilterField {
+    label: string;
+    dataField: string;
+    dataType: string;
+    filterOperations?: string[];
+    lookup?: IFilterFieldLookup;
+}
+
+interface IFilterFieldLookup {
+    autoCompleteDelay?: number;
+    dataSource: string[]|IFilterFieldLookupObjectDataSource[];
+    minLength?: number;
+    readonly?: boolean;
+}
+
+export interface IFilterFieldLookupObjectDataSource {
+    label: string;
+    value: string;
+}
