@@ -30,8 +30,8 @@ export const VariableQueryEditor: React.FC<VariableQueryProps> = ({ onChange, qu
       <span className="gf-form-label width-10">Field</span>
       <div className="gf-form-select-wrapper max-width-12">
         <select name="field" className="gf-form-input" value={query.field} onChange={saveQuery}>
-          {fields.map(field => (
-            <option {...field} />
+          {fields.map((field, ix) => (
+            <option key={ix} {...field} />
           ))}
         </select>
       </div>

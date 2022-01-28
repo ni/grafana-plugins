@@ -2,7 +2,7 @@ import React, { useRef, useEffect } from 'react';
 import { QueryBuilder, QueryBuilderProps } from 'smart-webcomponents-react/querybuilder';
 import { useTheme } from '@grafana/ui';
 
-import 'smart-webcomponents-react/source/styles/components/smart.querybuilder.css';
+import 'smart-webcomponents-react/source/styles/smart.default.css';
 import 'smart-webcomponents-react/source/styles/smart.dark-orange.css';
 import 'smart-webcomponents-react/source/styles/smart.orange.css';
 

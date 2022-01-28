@@ -2,22 +2,24 @@
   "name": "@ni-kismet/systemlink-notebook-datasource",
   "version": "1.0.0",
   "description": "SystemLink notebooks datasource for Grafana",
+  "browserslist": ["defaults", "not IE 11"],
   "scripts": {
     "build": "grafana-toolkit plugin:build",
     "test": "grafana-toolkit plugin:test",
     "dev": "grafana-toolkit plugin:dev",
-    "watch": "grafana-toolkit plugin:dev --watch"
+    "watch": "grafana-toolkit plugin:dev --watch",
+    "sign": "grafana-toolkit plugin:sign"
   },
   "author": "Carson Moore",
   "license": "Apache-2.0",
   "devDependencies": {
-    "@grafana/data": "^7.5.3",
-    "@grafana/runtime": "^7.5.3",
-    "@grafana/toolkit": "^7.5.3",
-    "@grafana/ui": "^7.5.3",
-    "@ni-kismet/helium-uicomponents": "^1.376.0",
-    "@testing-library/jest-dom": "5.4.0",
-    "@testing-library/react": "^10.4.9",
+    "@grafana/data": "^8.3.4",
+    "@grafana/runtime": "^8.3.4",
+    "@grafana/toolkit": "^8.3.4",
+    "@grafana/ui": "^8.3.4",
+    "@ni-kismet/helium-uicomponents": "^1.524.0",
+    "@testing-library/jest-dom": "5.16.1",
+    "@testing-library/react": "^12.1.2",
     "@types/lodash": "latest"
   },
   "jest": {
@@ -26,10 +28,10 @@
     }
   },
   "engines": {
-    "node": ">=12 <13"
+    "node": ">=14"
   },
   "dependencies": {
     "ajv": "^6.12.6",
-    "smart-webcomponents-react": "^9.1.12"
+    "smart-webcomponents-react": "^12.0.0"
   }
 }

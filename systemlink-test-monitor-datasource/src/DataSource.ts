@@ -38,7 +38,7 @@ export class DataSource extends DataSourceApi<TestMonitorQuery, TestMonitorDataS
     const to = range!.to.valueOf();
 
     // Return a constant for each query.
-    const data = options.targets.map(target => {
+    const data = options.targets.map((target) => {
       const query = defaults(target, defaultQuery);
       return new MutableDataFrame({
         refId: query.refId,
