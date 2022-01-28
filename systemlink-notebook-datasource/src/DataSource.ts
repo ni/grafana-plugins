@@ -18,7 +18,7 @@ import {
   DataQueryResponseData,
   toUtc,
 } from '@grafana/data';
-import { getBackendSrv, getTemplateSrv } from '@grafana/runtime';
+import { getBackendSrv, getTemplateSrv, FetchError } from '@grafana/runtime';
 import {
   NotebookQuery,
   NotebookDataSourceOptions,
@@ -189,7 +189,12 @@ export class DataSource extends DataSourceApi<NotebookQuery, NotebookDataSourceO
 
       return this.handleNotebookExecution(response.data[0].id);
     } catch (e) {
-      throw new Error(`The request to execute the notebook failed with error ${e.status}: ${e.statusText}.`);
+      // TODO: use fetch method from getBackendSrv to get properly typed error
+      throw new Error(
+        `The request to execute the notebook failed with error ${(e as FetchError).status}: ${
+          (e as FetchError).statusText
+        }.`
+      );
     }
   }
 
@@ -214,7 +219,11 @@ export class DataSource extends DataSourceApi<NotebookQuery, NotebookDataSourceO
       const notebooks = response.notebooks as Notebook[];
       return notebooks.filter((notebook) => notebook.metadata.version === 2);
     } catch (e) {
-      throw new Error(`The query for SystemLink notebooks failed with error ${e.status}: ${e.statusText}.`);
+      throw new Error(
+        `The query for SystemLink notebooks failed with error ${(e as FetchError).status}: ${
+          (e as FetchError).statusText
+        }.`
+      );
     }
   }
 
@@ -235,8 +244,8 @@ export class DataSource extends DataSourceApi<NotebookQuery, NotebookDataSourceO
       } else {
         return { status: 'error', message: 'The user is not authorized to query and execute notebooks.' };
       }
-    } catch (error) {
-      error.isHandled = true;
+    } catch (e) {
+      (e as FetchError).isHandled = true;
       return { status: 'error', message: 'The username or password is incorrect.' };
     }
   }

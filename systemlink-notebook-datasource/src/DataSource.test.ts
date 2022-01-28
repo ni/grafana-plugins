@@ -29,9 +29,9 @@ beforeEach(() => {
 
 describe('Notebook data source', () => {
   let ds: DataSource;
-  const instanceSettings = ({
+  const instanceSettings = {
     url: 'http://test',
-  } as unknown) as DataSourceInstanceSettings<NotebookDataSourceOptions>;
+  } as unknown as DataSourceInstanceSettings<NotebookDataSourceOptions>;
   const mockQuery = {
     refId: '123',
     path: '/test/notebook',
@@ -177,9 +177,9 @@ describe('Notebook data source', () => {
         number_param: 1,
         object_param: { a: 1 },
       };
-      const options = ({
+      const options = {
         scopedVars: {},
-      } as unknown) as DataQueryRequest<NotebookQuery>;
+      } as unknown as DataQueryRequest<NotebookQuery>;
 
       ds.replaceParameterVariables(parameters, options);
 
@@ -193,9 +193,9 @@ describe('Notebook data source', () => {
         number_param: 1,
         object_param: { a: 1 },
       };
-      const options = ({
+      const options = {
         scopedVars: {},
-      } as unknown) as DataQueryRequest<NotebookQuery>;
+      } as unknown as DataQueryRequest<NotebookQuery>;
 
       ds.replaceParameterVariables(parameters, options);
 
@@ -205,7 +205,7 @@ describe('Notebook data source', () => {
 
   describe('query', () => {
     it('returns no data for no query', async () => {
-      const options = ({ targets: [{}] } as unknown) as DataQueryRequest<NotebookQuery>;
+      const options = { targets: [{}] } as unknown as DataQueryRequest<NotebookQuery>;
 
       let result = await ds.query(options);
 
@@ -213,7 +213,7 @@ describe('Notebook data source', () => {
     });
 
     it('returns frame for successful notebook execution', async () => {
-      const options = ({
+      const options = {
         targets: [
           {
             path: successfulNotebookPath,
@@ -221,7 +221,7 @@ describe('Notebook data source', () => {
             output: 'test',
           },
         ],
-      } as unknown) as DataQueryRequest<NotebookQuery>;
+      } as unknown as DataQueryRequest<NotebookQuery>;
 
       let result = await ds.query(options);
 
@@ -233,7 +233,7 @@ describe('Notebook data source', () => {
     });
 
     it('returns frames for multiple successful notebook executions', async () => {
-      const options = ({
+      const options = {
         targets: [
           {
             path: successfulNotebookPath,
@@ -246,7 +246,7 @@ describe('Notebook data source', () => {
             output: 'test',
           },
         ],
-      } as unknown) as DataQueryRequest<NotebookQuery>;
+      } as unknown as DataQueryRequest<NotebookQuery>;
 
       let result = await ds.query(options);
 
@@ -263,7 +263,7 @@ describe('Notebook data source', () => {
     });
 
     it('throws error for failed notebook execution', async () => {
-      const options = ({
+      const options = {
         targets: [
           {
             path: failedNotebookPath,
@@ -271,13 +271,13 @@ describe('Notebook data source', () => {
             output: 'test',
           },
         ],
-      } as unknown) as DataQueryRequest<NotebookQuery>;
+      } as unknown as DataQueryRequest<NotebookQuery>;
 
       expect(ds.query(options)).rejects.toThrow();
     });
 
     it('throws error for notebook execution with invalid output', async () => {
-      const options = ({
+      const options = {
         targets: [
           {
             path: invalidNotebookPath,
@@ -285,13 +285,13 @@ describe('Notebook data source', () => {
             output: 'test',
           },
         ],
-      } as unknown) as DataQueryRequest<NotebookQuery>;
+      } as unknown as DataQueryRequest<NotebookQuery>;
 
       expect(ds.query(options)).rejects.toThrow();
     });
 
     it('executes notebook with resultCachePeriod', async () => {
-      const options = ({
+      const options = {
         targets: [
           {
             path: successfulNotebookPath,
@@ -300,7 +300,7 @@ describe('Notebook data source', () => {
             cacheTimeout: 12345,
           },
         ],
-      } as unknown) as DataQueryRequest<NotebookQuery>;
+      } as unknown as DataQueryRequest<NotebookQuery>;
 
       await ds.query(options);
 

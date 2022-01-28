@@ -49,7 +49,9 @@
 
 body {
     --smart-query-builder-editor-width: 150px;
-    --smart-query-builder-default-width: 600px;
+    --smart-query-builder-default-width: 570px;
+    --smart-filter-builder-group-condition-margin: 3px;
+    --smart-filter-builder-item-margin: 12px;
 
     &.theme-dark {
         --smart-primary-rgb: 235, 122, 24;
