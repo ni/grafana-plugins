@@ -2,7 +2,6 @@
  * QueryEditor is a React component that implements the UI for building a notebook query
  * when editing a Grafana panel.
  */
-import defaults from 'lodash/defaults';
 import pickBy from 'lodash/pickBy';
 import React, { PureComponent } from 'react';
 import { Alert, Field, Input, Select, Label, IconButton, TextArea } from '@grafana/ui';
@@ -30,8 +29,7 @@ export class QueryEditor extends PureComponent<
       const notebooks = await this.props.datasource.queryNotebooks('');
       this.setState({ notebooks, isLoading: false });
     } catch (e) {
-      console.log(e);
-      const error: string = e.message || 'SystemLink Notebook datasource failed to connect.';
+      const error: string = (e as Error).message || 'SystemLink Notebook datasource failed to connect.';
       this.setState({ queryError: error, isLoading: false });
     }
   }
@@ -70,24 +68,19 @@ export class QueryEditor extends PureComponent<
   };
 
   onParameterChange = (id: string, value: string) => {
-    const { onChange, onRunQuery } = this.props;
-    const query = defaults(this.props.query, defaultQuery);
-    const parameters = query.parameters;
-    parameters[id] = this.formatParameterValue(id, value);
-    onChange({ ...query, parameters });
+    const { onChange, onRunQuery, query } = this.props;
+    onChange({ ...query, parameters: { ...query.parameters, [id]: this.formatParameterValue(id, value) } });
     onRunQuery();
   };
 
   onOutputChange = (option: SelectableValue) => {
-    const { onChange, onRunQuery } = this.props;
-    const query = defaults(this.props.query, defaultQuery);
+    const { onChange, onRunQuery, query } = this.props;
     onChange({ ...query, output: option.value });
     onRunQuery();
   };
 
   onCacheTimeoutChange = (event: React.FocusEvent<HTMLInputElement>) => {
-    const { onChange, onRunQuery } = this.props;
-    const query = defaults(this.props.query, defaultQuery);
+    const { onChange, onRunQuery, query } = this.props;
     onChange({ ...query, cacheTimeout: parseInt(event.target.value, 10) });
     onRunQuery();
   };
@@ -108,9 +101,9 @@ export class QueryEditor extends PureComponent<
   };
 
   getParameter = (param: any) => {
-    const query = defaults(this.props.query, defaultQuery);
+    const { query } = this.props;
     const selectedNotebook = this.getNotebook(query.path) as Notebook;
-    const value = query.parameters[param.id] || selectedNotebook.parameters[param.id];
+    const value = query?.parameters[param.id] || selectedNotebook?.parameters[param.id];
     if (param.type === 'test_monitor_result_query') {
       return (
         <div key={param.id + selectedNotebook.path}>
@@ -180,7 +173,7 @@ export class QueryEditor extends PureComponent<
   }
 
   render() {
-    const query = defaults(this.props.query, defaultQuery);
+    const query = { ...defaultQuery, ...this.props.query };
     const selectedNotebook = this.getNotebook(query.path);
     return (
       <div className="sl-notebook-query-editor">
