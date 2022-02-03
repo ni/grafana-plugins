@@ -171,7 +171,7 @@ describe('Notebook data source', () => {
     let data = {
       type: 'array',
       id: 'test_output',
-      data: ['dog', 'cat', 'zebra', 'ferret']
+      data: ['dog', 'cat', 'zebra', 'ferret'],
     };
 
     let [result] = ds.transformResultToDataFrames(data, mockQuery);

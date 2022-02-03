@@ -150,7 +150,7 @@ export class DataSource extends DataSourceApi<NotebookQuery, NotebookDataSourceO
         frames.push(frame);
       }
     } else if (result.type === 'array') {
-      frames.push(new MutableDataFrame({ refId: query.refId, fields: [{name: result.id, values: result.data}]  }));
+      frames.push(new MutableDataFrame({ refId: query.refId, fields: [{ name: result.id, values: result.data }] }));
     } else if (result.type === 'scalar') {
       const field = { name: result.id, values: [result.value] };
       frames.push(new MutableDataFrame({ refId: query.refId, fields: [field] }));
