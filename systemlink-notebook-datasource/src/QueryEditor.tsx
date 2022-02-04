@@ -69,7 +69,8 @@ export class QueryEditor extends PureComponent<
 
   onParameterChange = (id: string, value: string) => {
     const { onChange, onRunQuery, query } = this.props;
-    onChange({ ...query, parameters: { ...query.parameters, [id]: this.formatParameterValue(id, value) } });
+    const formattedValue = this.formatParameterValue(id, value);
+    onChange({ ...query, parameters: { ...query.parameters, [id]: formattedValue } });
     onRunQuery();
   };
 
