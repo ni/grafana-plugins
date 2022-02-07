@@ -167,6 +167,21 @@ describe('Notebook data source', () => {
     });
   });
 
+  it('transforms array data', () => {
+    let data = {
+      type: 'array',
+      id: 'test_output',
+      data: ['dog', 'cat', 'zebra', 'ferret'],
+    };
+
+    let [result] = ds.transformResultToDataFrames(data, mockQuery);
+
+    expect(result.fields).toHaveLength(1);
+    expect(result.length).toBe(4);
+    expect(Object.values(result.get(2))).toEqual(['zebra']);
+    expect(result.fields[0].type).toEqual(FieldType.string);
+  });
+
   describe('replaceParameterVariables', () => {
     it('attempts to replace variables in string parameters', () => {
       const s1 = 'startedAt > "${__from:date}" && startedAt < "${__to:date}" && partNumber == "$partNumber"';

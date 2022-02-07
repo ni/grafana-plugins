@@ -30,6 +30,7 @@ import {
 import { timeout } from './utils';
 
 import * as schema from './data/schema.json';
+import { NotebookVariableSupport } from 'variables';
 
 export class DataSource extends DataSourceApi<NotebookQuery, NotebookDataSourceOptions> {
   url?: string;
@@ -41,6 +42,8 @@ export class DataSource extends DataSourceApi<NotebookQuery, NotebookDataSourceO
 
     let ajv = new Ajv();
     this.validate = ajv.compile(schema);
+
+    this.variables = new NotebookVariableSupport();
   }
 
   async metricFindQuery(query: NotebookParameterQuery, options?: any): Promise<MetricFindValue[]> {
@@ -78,6 +81,7 @@ export class DataSource extends DataSourceApi<NotebookQuery, NotebookDataSourceO
       const parameters = this.replaceParameterVariables(query.parameters, options);
       const execution = await this.executeNotebook(query.path, parameters, query.cacheTimeout);
       if (execution.status === 'SUCCEEDED') {
+        // TODO: this validation doesn't seem to be working
         if (this.validate(execution.result)) {
           const result = execution.result.result.find((result: any) => result.id === query.output);
           if (!result) {
@@ -145,6 +149,8 @@ export class DataSource extends DataSourceApi<NotebookQuery, NotebookDataSourceO
 
         frames.push(frame);
       }
+    } else if (result.type === 'array') {
+      frames.push(new MutableDataFrame({ refId: query.refId, fields: [{ name: result.id, values: result.data }] }));
     } else if (result.type === 'scalar') {
       const field = { name: result.id, values: [result.value] };
       frames.push(new MutableDataFrame({ refId: query.refId, fields: [field] }));
