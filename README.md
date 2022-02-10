@@ -8,7 +8,7 @@ To run the script, download the latest release from GitHub to the machine where 
 
 Caveats:
 - This setup assumes a standard install of SystemLink and Grafana. If you have custom paths, you may need to modify the variables at the start of the script.
-- Grafana v7.5.3 will be installed by default. If you need a different Grafana version, manually install it before running the script.
+- Grafana v8.3.6 will be installed by default. If you need a different Grafana version, manually install it before running the script.
 
 
 
