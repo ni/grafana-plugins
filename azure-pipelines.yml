@@ -1,17 +1,10 @@
+trigger:
+  branches:
+    include:
+      - master
+
 pool:
-    vmImage: 'ubuntu-latest'
-    
-trigger: none
+  name: DevCentral-Skyline
 
 steps:
-- script: sh build.sh
-- task: GitHubRelease@1
-  inputs:
-    gitHubConnection: 'ni-kismet-helium'
-    repositoryName: 'ni-kismet/grafana-plugins'
-    action: 'create'
-    target: '$(Build.SourceVersion)'
-    tagSource: 'userSpecifiedTag'
-    tag: '$(Version)'
-    assets: '$(Build.ArtifactStagingDirectory)/build/*.zip'
-    addChangeLog: false
+- script: echo "hello world"
