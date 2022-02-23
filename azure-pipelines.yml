@@ -1,7 +1,7 @@
 trigger:
   branches:
     include:
-      - master
+      - azure-pipelines-2
 
 pool:
   name: DevCentral-Skyline
