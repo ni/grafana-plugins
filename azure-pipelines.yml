@@ -13,5 +13,5 @@ pool:
   name: DevCentral-Skyline
 
 steps:
-- ${{ each value in parameters.listOfStrings }}:
+- ${{ each value in parameters.pluginsToDeploy }}:
   - script: echo ${{ value }}
