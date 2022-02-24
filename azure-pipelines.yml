@@ -34,7 +34,17 @@ steps:
       archiveType: 'zip'
       archiveFile: '$(Build.ArtifactStagingDirectory)/$(Build.BuildId).zip'
       replaceExistingArchive: true
-  - task: PowerShell@2
+  - task: ArtifactoryGenericUpload@2
     inputs:
-      targetType: 'inline'
-      script: 'invoke-webrequest -method put -infile $(Build.ArtifactStagingDirectory)/$(Build.BuildId).zip https://transfer.sh'
+      artifactoryService: 'Repos-Artifactory'
+      specSource: 'taskConfiguration'
+      fileSpec: |
+        {
+          "files": [
+            {
+              "pattern": "$(Build.ArtifactStagingDirectory)/$(Build.BuildId).zip",
+              "target": "rnd-app-builds/grafana-plugins/${{ pluginDir }}/"
+            }
+          ]
+        }
+      failNoOp: true
