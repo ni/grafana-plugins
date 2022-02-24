@@ -14,4 +14,7 @@ pool:
 
 steps:
 - ${{ each value in parameters.pluginsToDeploy }}:
-  - script: echo ${{ value }}
+  - task: Npm@1
+    inputs:
+      command: 'ci'
+      workingDir: ${{ value }}
