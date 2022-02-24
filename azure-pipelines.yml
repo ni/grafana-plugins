@@ -1,3 +1,9 @@
+parameters:
+- name: pluginsToDeploy
+  type: object
+  default:
+  - systemlink-notebook-datasource
+
 trigger:
   branches:
     include:
@@ -7,10 +13,5 @@ pool:
   name: DevCentral-Skyline
 
 steps:
-- task: Bash@3
-  inputs:
-    filePath: 'build.sh'
-- task: Bash@3
-  inputs:
-    targetType: 'inline'
-    script: 'ls build/plugins'
+- ${{ each value in parameters.listOfStrings }}:
+  - script: echo ${{ value }}
