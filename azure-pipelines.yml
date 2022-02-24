@@ -47,7 +47,7 @@ steps:
             },
             {
               "pattern": "$(Build.StagingDirectory)/${{ plugin }}-$(Build.BuildId).zip",
-              "target": "rnd-app-builds/grafana-plugins/${{ plugin }}/${{ plugin }}-latest"
+              "target": "rnd-app-builds/grafana-plugins/${{ plugin }}/${{ plugin }}-latest.zip"
             }
           ]
         }
