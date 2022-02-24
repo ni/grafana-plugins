@@ -14,20 +14,24 @@ pool:
 
 steps:
 - task: NodeTool@0
+  displayName: Use node 16
   inputs:
     versionSpec: '16.x'
 
 - ${{ each plugin in parameters.pluginsToDeploy }}:
   - task: Npm@1
+    displayName: Install plugin dependencies
     inputs:
       command: 'ci'
       workingDir: ${{ plugin }}
   - task: Npm@1
+    displayName: Build plugin distribution
     inputs:
       command: 'custom'
       workingDir: '${{ plugin }}'
       customCommand: 'run build'
   - task: ArchiveFiles@2
+    displayName: Compress plugin distribution
     inputs:
       rootFolderOrFile: '${{ plugin }}/dist'
       includeRootFolder: false
@@ -35,6 +39,7 @@ steps:
       archiveFile: '$(Build.StagingDirectory)/${{ plugin }}-$(Build.BuildId).zip'
       replaceExistingArchive: true
   - task: ArtifactoryGenericUpload@2
+    displayName: Upload to Artifactory
     inputs:
       artifactoryService: 'Repos-Artifactory'
       specSource: 'taskConfiguration'
