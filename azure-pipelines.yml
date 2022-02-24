@@ -7,4 +7,10 @@ pool:
   name: DevCentral-Skyline
 
 steps:
-- script: echo "hello world 3"
+- task: Bash@3
+  inputs:
+    filePath: 'build.sh'
+- task: Bash@3
+  inputs:
+    targetType: 'inline'
+    script: 'ls build/plugins'
