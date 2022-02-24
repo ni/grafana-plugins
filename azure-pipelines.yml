@@ -17,8 +17,20 @@ steps:
   inputs:
     versionSpec: '16.x'
 
-- ${{ each value in parameters.pluginsToDeploy }}:
+- ${{ each pluginDir in parameters.pluginsToDeploy }}:
   - task: Npm@1
     inputs:
       command: 'ci'
-      workingDir: ${{ value }}
+      workingDir: ${{ pluginDir }}
+  - task: Npm@1
+    inputs:
+      command: 'custom'
+      workingDir: '${{ pluginDir }}'
+      customCommand: 'run build'
+  - task: ArchiveFiles@2
+    inputs:
+      rootFolderOrFile: '${{ pluginDir }}/dist'
+      includeRootFolder: true
+      archiveType: 'zip'
+      archiveFile: '$(Build.ArtifactStagingDirectory)/$(Build.BuildId).zip'
+      replaceExistingArchive: true
