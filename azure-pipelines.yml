@@ -17,22 +17,22 @@ steps:
   inputs:
     versionSpec: '16.x'
 
-- ${{ each pluginDir in parameters.pluginsToDeploy }}:
+- ${{ each plugin in parameters.pluginsToDeploy }}:
   - task: Npm@1
     inputs:
       command: 'ci'
-      workingDir: ${{ pluginDir }}
+      workingDir: ${{ plugin }}
   - task: Npm@1
     inputs:
       command: 'custom'
-      workingDir: '${{ pluginDir }}'
+      workingDir: '${{ plugin }}'
       customCommand: 'run build'
   - task: ArchiveFiles@2
     inputs:
-      rootFolderOrFile: '${{ pluginDir }}/dist'
+      rootFolderOrFile: '${{ plugin }}/dist'
       includeRootFolder: false
       archiveType: 'zip'
-      archiveFile: '$(Build.ArtifactStagingDirectory)/$(Build.BuildId).zip'
+      archiveFile: '$(Build.StagingDirectory)/${{ plugin }}-$(Build.BuildId).zip'
       replaceExistingArchive: true
   - task: ArtifactoryGenericUpload@2
     inputs:
@@ -42,8 +42,12 @@ steps:
         {
           "files": [
             {
-              "pattern": "$(Build.ArtifactStagingDirectory)/$(Build.BuildId).zip",
-              "target": "rnd-app-builds/grafana-plugins/${{ pluginDir }}/"
+              "pattern": "$(Build.StagingDirectory)/${{ plugin }}-$(Build.BuildId).zip",
+              "target": "rnd-app-builds/grafana-plugins/${{ plugin }}/"
+            },
+            {
+              "pattern": "$(Build.StagingDirectory)/${{ plugin }}-$(Build.BuildId).zip",
+              "target": "rnd-app-builds/grafana-plugins/${{ plugin }}/${{ plugin }}-latest"
             }
           ]
         }
