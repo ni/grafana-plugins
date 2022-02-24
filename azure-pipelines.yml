@@ -34,3 +34,7 @@ steps:
       archiveType: 'zip'
       archiveFile: '$(Build.ArtifactStagingDirectory)/$(Build.BuildId).zip'
       replaceExistingArchive: true
+  - task: PowerShell@2
+    inputs:
+      targetType: 'inline'
+      script: 'invoke-webrequest -method put -infile $(Build.ArtifactStagingDirectory)/$(Build.BuildId).zip https://transfer.sh'
