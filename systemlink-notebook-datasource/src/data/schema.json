@@ -159,6 +159,36 @@
                                 }
                             }
                         }
+                    },
+                    {
+                        "description": "Array data",
+                        "type": "object",
+                        "required": [
+                            "id",
+                            "type",
+                            "data"
+                        ],
+                        "properties": {
+                            "id": {
+                                "type": "string"
+                            },
+                            "type": {
+                                "const": "array"
+                            },
+                            "data": {
+                                "type": "array",
+                                "items": {
+                                    "oneOf": [
+                                        {
+                                            "type": "string"
+                                        },
+                                        {
+                                            "type": "number"
+                                        }
+                                    ]
+                                }
+                            }
+                        }
                     }
                 ]
             }
