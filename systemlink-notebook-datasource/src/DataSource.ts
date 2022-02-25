@@ -81,7 +81,6 @@ export class DataSource extends DataSourceApi<NotebookQuery, NotebookDataSourceO
       const parameters = this.replaceParameterVariables(query.parameters, options);
       const execution = await this.executeNotebook(query.path, parameters, query.cacheTimeout);
       if (execution.status === 'SUCCEEDED') {
-        // TODO: this validation doesn't seem to be working
         if (this.validate(execution.result)) {
           const result = execution.result.result.find((result: any) => result.id === query.output);
           if (!result) {
