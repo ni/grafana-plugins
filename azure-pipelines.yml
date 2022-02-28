@@ -22,7 +22,8 @@ steps:
     displayName: Install plugin dependencies
     inputs:
       command: 'ci'
-      workingDir: ${{ plugin }}
+      workingDir: '${{ plugin }}'
+      customEndpoint: 'NPM (ni-kismet)'
   - task: Npm@1
     displayName: Build plugin distribution
     inputs:
