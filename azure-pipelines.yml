@@ -33,7 +33,7 @@ steps:
     displayName: Compress plugin distribution
     inputs:
       rootFolderOrFile: '${{ plugin }}/dist'
-      includeRootFolder: false
+      includeRootFolder: true
       archiveType: 'zip'
       archiveFile: '$(Build.StagingDirectory)/${{ plugin }}-$(Build.BuildId).zip'
       replaceExistingArchive: true
