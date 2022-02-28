@@ -5,9 +5,8 @@ parameters:
   - systemlink-notebook-datasource
 
 trigger:
-  branches:
-    include:
-      - azure-pipelines-2
+  - master
+pr: none
 
 pool:
   name: DevCentral-Skyline
