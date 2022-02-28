@@ -5,7 +5,7 @@ parameters:
   - systemlink-notebook-datasource
 
 trigger:
-  - master
+- master
 pr: none
 
 pool:
