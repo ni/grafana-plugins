@@ -1,17 +1,60 @@
+parameters:
+- name: pluginsToDeploy
+  type: object
+  default:
+  - systemlink-notebook-datasource
+
+trigger:
+  - master
+pr: none
+
 pool:
-    vmImage: 'ubuntu-latest'
-    
-trigger: none
+  name: DevCentral-Skyline
 
 steps:
-- script: sh build.sh
-- task: GitHubRelease@1
+- task: NodeTool@0
+  displayName: Use node 16
   inputs:
-    gitHubConnection: 'ni-kismet-helium'
-    repositoryName: 'ni-kismet/grafana-plugins'
-    action: 'create'
-    target: '$(Build.SourceVersion)'
-    tagSource: 'userSpecifiedTag'
-    tag: '$(Version)'
-    assets: '$(Build.ArtifactStagingDirectory)/build/*.zip'
-    addChangeLog: false
+    versionSpec: '16.x'
+
+- ${{ each plugin in parameters.pluginsToDeploy }}:
+  - task: Npm@1
+    displayName: Install plugin dependencies
+    inputs:
+      command: 'ci'
+      workingDir: ${{ plugin }}
+  - task: Npm@1
+    displayName: Build plugin distribution
+    inputs:
+      command: 'custom'
+      workingDir: '${{ plugin }}'
+      customCommand: 'run build'
+  - task: ArchiveFiles@2
+    displayName: Compress plugin distribution
+    inputs:
+      rootFolderOrFile: '${{ plugin }}/dist'
+      includeRootFolder: true
+      archiveType: 'zip'
+      archiveFile: '$(Build.StagingDirectory)/${{ plugin }}-$(Build.BuildId).zip'
+      replaceExistingArchive: true
+  - task: ArtifactoryGenericUpload@2
+    displayName: Upload to Artifactory
+    inputs:
+      artifactoryService: 'Repos-Artifactory'
+      specSource: 'taskConfiguration'
+      # Upload artifact to two separate paths, one with a build suffix and another with a latest suffix, similar to Docker tagging.
+      # e.g. <plugin_name>-<build_id>.zip and <plugin_name>-latest.zip
+      fileSpec: |
+        {
+          "files": [
+            {
+              "pattern": "$(Build.StagingDirectory)/${{ plugin }}-$(Build.BuildId).zip",
+              "target": "rnd-app-builds/grafana-plugins/${{ plugin }}/"
+            },
+            {
+              "pattern": "$(Build.StagingDirectory)/${{ plugin }}-$(Build.BuildId).zip",
+              "target": "rnd-app-builds/grafana-plugins/${{ plugin }}/${{ plugin }}-latest.zip"
+            }
+          ]
+        }
+      failNoOp: true
