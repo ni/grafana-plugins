@@ -42,6 +42,8 @@ steps:
     inputs:
       artifactoryService: 'Repos-Artifactory'
       specSource: 'taskConfiguration'
+      # Upload artifact to two separate paths, one with a build suffix and another with a latest suffix, similar to Docker tagging.
+      # e.g. <plugin_name>-<build_id>.zip and <plugin_name>-latest.zip
       fileSpec: |
         {
           "files": [
