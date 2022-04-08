@@ -4,7 +4,7 @@ Grafana plugins for SystemLink
 ## Configuring SystemLink to host Grafana
 To configure a SystemLink instance to host Grafana, this repo provides a PowerShell script `Setup-Grafana.ps1` that automatically installs Grafana to the machine, copies over the necessary configuration to show Grafana as a plugin within SystemLink, and installs the latest release of the plugins sourced here.
 
-To run the script, download the latest release from GitHub to the machine where SystemLink is installed, and then execute `Setup-Grafana.ps1` by right-clicking > "Run With PowerShell" or by running it from the PowerShell console.
+To run the script, download the latest release from GitHub to the machine where SystemLink is installed, and then execute `Setup-Grafana.ps1` by right-clicking > "Run With PowerShell" or by running it from the PowerShell console. See the note in caveats section below regarding Grafana versioning, as upgrading Grafana after running the PowerShell script may cause issues with unsigned plugins. The latest released version of Grafana OSS can be found via the releases section of their GitHub repository: https://github.com/grafana/grafana/releases
 
 Caveats:
 - This setup assumes a standard install of SystemLink and Grafana. If you have custom paths, you may need to modify the variables at the start of the script.
