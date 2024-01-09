@@ -1,0 +1,3 @@
+[submodule "systemlink-grafana-plugins"]
+	path = systemlink-grafana-plugins
+	url = https://github.com/ni/systemlink-grafana-plugins.git
