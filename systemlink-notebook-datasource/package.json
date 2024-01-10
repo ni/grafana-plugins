@@ -17,15 +17,9 @@
     "@grafana/runtime": "^8.3.4",
     "@grafana/toolkit": "^8.3.4",
     "@grafana/ui": "^8.3.4",
-    "@ni-kismet/helium-uicomponents": "^1.524.0",
     "@testing-library/jest-dom": "5.16.1",
     "@testing-library/react": "^12.1.2",
     "@types/lodash": "latest"
-  },
-  "jest": {
-    "moduleNameMapper": {
-      "@ni-kismet/helium-uicomponents/library/policyevaluator": "../node_modules/@ni-kismet/helium-uicomponents/js/policyevaluator.js"
-    }
   },
   "engines": {
     "node": ">=14"

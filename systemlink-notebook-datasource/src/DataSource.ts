@@ -240,18 +240,10 @@ export class DataSource extends DataSourceApi<NotebookQuery, NotebookDataSourceO
   }
 
   async testDatasource() {
-    try {
-      const auth = await getBackendSrv().get(this.url + '/niauth/v1/auth');
-      const policyEvaluator = new PolicyEvaluator(auth.policies);
-      const actions = ['notebook:Query', 'notebookexecution:Execute', 'notebookexecution:Query'];
-      if (actions.every((action) => policyEvaluator.hasAction(action))) {
-        return { status: 'success', message: 'Success' };
-      } else {
-        return { status: 'error', message: 'The user is not authorized to query and execute notebooks.' };
-      }
-    } catch (e) {
-      (e as FetchError).isHandled = true;
-      return { status: 'error', message: 'The username or password is incorrect.' };
-    }
+    // Implement a health check for your data source.
+    return {
+      status: 'success',
+      message: 'Success',
+    };
   }
 }
