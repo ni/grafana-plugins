@@ -1,23 +1,28 @@
 apiVersion: 1
 
 datasources:
-- name: SystemLink Notebooks
-  type: ni-slnotebook-datasource
-  access: direct
-  url: /
-  version: 1
-- name: SystemLink Systems
-  type: ni-slsystem-datasource
-  access: direct
-  url: /
-  version: 1
-- name: SystemLink Tags
-  type: ni-sltag-datasource
-  access: direct
-  url: /
-  version: 1
-- name: SystemLink Workspaces
-  type: ni-slworkspace-datasource
-  access: direct
-  url: /
-  version: 1
+  - name: SystemLink Notebooks
+    type: systemlink-notebook-datasource
+    uid: notebook
+    access: direct
+    url: /
+  - name: SystemLink Systems
+    type: ni-slsystem-datasource
+    uid: system
+    access: direct
+    url: /
+  - name: SystemLink Tags
+    type: ni-sltag-datasource
+    uid: tag
+    access: direct
+    url: /
+  - name: SystemLink Workspaces
+    type: ni-slworkspace-datasource
+    uid: workspace
+    access: direct
+    url: /
+  - name: SystemLink Test Monitor
+    type: ni-systemlink-test-monitor
+    uid: test
+    access: direct
+    url: /
