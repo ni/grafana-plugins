@@ -13,16 +13,16 @@
   "author": "Carson Moore",
   "license": "Apache-2.0",
   "devDependencies": {
-    "@grafana/data": "^8.3.4",
-    "@grafana/runtime": "^8.3.4",
-    "@grafana/toolkit": "^8.3.4",
-    "@grafana/ui": "^8.3.4",
-    "@testing-library/jest-dom": "5.16.1",
-    "@testing-library/react": "^12.1.2",
-    "@types/lodash": "latest"
+    "@grafana/data": "9.5.9",
+    "@grafana/runtime": "9.5.9",
+    "@grafana/toolkit": "9.5.9",
+    "@grafana/ui": "9.5.9",
+    "@testing-library/jest-dom": "^5.16.5",
+    "@testing-library/react": "^12.1.4",
+    "@types/lodash": "^4.14.194"
   },
   "engines": {
-    "node": ">=14"
+    "node": ">=18"
   },
   "dependencies": {
     "ajv": "^6.12.6",
