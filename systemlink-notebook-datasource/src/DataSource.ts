@@ -17,7 +17,7 @@ import {
   DataQueryResponseData,
   toUtc,
 } from '@grafana/data';
-import { getBackendSrv, getTemplateSrv, FetchError } from '@grafana/runtime';
+import { getBackendSrv, getTemplateSrv, FetchError, TestingStatus } from '@grafana/runtime';
 import {
   NotebookQuery,
   NotebookDataSourceOptions,
@@ -238,11 +238,8 @@ export class DataSource extends DataSourceApi<NotebookQuery, NotebookDataSourceO
     return values.slice(0, 20).filter((value: string) => value);
   }
 
-  async testDatasource() {
-    // Implement a health check for your data source.
-    return {
-      status: 'success',
-      message: 'Success',
-    };
+  async testDatasource(): Promise<TestingStatus> {
+    await await getBackendSrv().post(this.url + '/ninbexec/v2/query-notebooks', { take: 1 });
+    return { status: 'success', message: 'Data source connected and authentication successful!' };
   }
 }
