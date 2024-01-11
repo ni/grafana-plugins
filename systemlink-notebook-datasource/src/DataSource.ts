@@ -6,7 +6,6 @@ import defaults from 'lodash/defaults';
 import range from 'lodash/range';
 import Ajv from 'ajv';
 
-import { PolicyEvaluator } from '@ni-kismet/helium-uicomponents/library/policyevaluator';
 import {
   DataQueryRequest,
   DataQueryResponse,
