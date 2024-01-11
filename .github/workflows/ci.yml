@@ -17,6 +17,8 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
+      with:
+        submodules: recursive
     
     - name: Create .npmrc
       run: echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > ~/.npmrc
