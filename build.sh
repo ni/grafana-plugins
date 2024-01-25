@@ -30,9 +30,9 @@ for d in ${local_plugins[@]};
 do
     cd ${d}
     echo $(pwd)
-....npm ci
-....npm run build
-....cp -r dist ../build/plugins/${d}
+    npm ci
+    npm run build
+    cp -r dist ../build/plugins/${d}
     
     cd ..
 done
