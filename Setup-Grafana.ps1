@@ -14,7 +14,7 @@ If (-NOT ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdent
 $IsInstalled = (Get-ItemProperty HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\*).displayname -contains "GrafanaOSS"
 if (-Not $IsInstalled) {
     Write-Output 'Grafana not found - downloading installer'
-    Start-BitsTransfer -Source 'https://dl.grafana.com/oss/release/grafana-8.3.6.windows-amd64.msi' -Destination 'grafana.msi'
+    Start-BitsTransfer -Source 'https://dl.grafana.com/oss/release/grafana-10.2.2.windows-amd64.msi' -Destination 'grafana.msi'
     Write-Output "Installing GrafanaOSS..."
     Start-Process msiexec.exe -Wait -ArgumentList '/I grafana.msi /qr'
     Remove-Item './grafana.msi'

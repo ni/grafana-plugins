@@ -6,7 +6,6 @@ import defaults from 'lodash/defaults';
 import range from 'lodash/range';
 import Ajv from 'ajv';
 
-import { PolicyEvaluator } from '@ni-kismet/helium-uicomponents/library/policyevaluator';
 import {
   DataQueryRequest,
   DataQueryResponse,
@@ -18,7 +17,7 @@ import {
   DataQueryResponseData,
   toUtc,
 } from '@grafana/data';
-import { getBackendSrv, getTemplateSrv, FetchError } from '@grafana/runtime';
+import { getBackendSrv, getTemplateSrv, FetchError, TestingStatus } from '@grafana/runtime';
 import {
   NotebookQuery,
   NotebookDataSourceOptions,
@@ -239,19 +238,8 @@ export class DataSource extends DataSourceApi<NotebookQuery, NotebookDataSourceO
     return values.slice(0, 20).filter((value: string) => value);
   }
 
-  async testDatasource() {
-    try {
-      const auth = await getBackendSrv().get(this.url + '/niauth/v1/auth');
-      const policyEvaluator = new PolicyEvaluator(auth.policies);
-      const actions = ['notebook:Query', 'notebookexecution:Execute', 'notebookexecution:Query'];
-      if (actions.every((action) => policyEvaluator.hasAction(action))) {
-        return { status: 'success', message: 'Success' };
-      } else {
-        return { status: 'error', message: 'The user is not authorized to query and execute notebooks.' };
-      }
-    } catch (e) {
-      (e as FetchError).isHandled = true;
-      return { status: 'error', message: 'The username or password is incorrect.' };
-    }
+  async testDatasource(): Promise<TestingStatus> {
+    await await getBackendSrv().post(this.url + '/ninbexec/v2/query-notebooks', { take: 1 });
+    return { status: 'success', message: 'Data source connected and authentication successful!' };
   }
 }

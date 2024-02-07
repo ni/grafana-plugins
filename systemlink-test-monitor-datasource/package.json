@@ -11,18 +11,23 @@
   "author": "Carson Moore",
   "license": "Apache-2.0",
   "devDependencies": {
-    "@grafana/data": "^8.3.4",
-    "@grafana/runtime": "^8.3.4",
-    "@grafana/toolkit": "^8.3.4",
-    "@grafana/ui": "^8.3.4",
-    "@testing-library/jest-dom": "5.16.1",
-    "@testing-library/react": "^12.1.2",
-    "@types/lodash": "latest"
+    "@babel/core": "^7.21.4",
+    "@grafana/eslint-config": "^6.0.0",
+    "@testing-library/jest-dom": "^5.16.5",
+    "@testing-library/react": "^12.1.4",
+    "@types/lodash": "^4.14.194",
+    "eslint": "^8.43.0",
+    "eslint-plugin-jest": "^27.4.0",
+    "eslint-webpack-plugin": "^4.0.1"
   },
   "engines": {
-    "node": ">=14"
+    "node": ">=18"
   },
-  "resolutions": {
-    "rxjs": "6.6.3"
+  "dependencies": {
+    "@grafana/data": "9.5.9",
+    "@grafana/runtime": "9.5.9",
+    "@grafana/toolkit": "9.5.9",
+    "@grafana/ui": "9.5.9",
+    "rxjs": "7.8.0"
   }
 }

@@ -1,7 +1,7 @@
 # grafana-plugins
 Grafana plugins for SystemLink
 
-## Configuring SystemLink to host Grafana
+## Configuring SystemLink Server to host Grafana for the first time
 To configure a SystemLink instance to host Grafana, this repo provides a PowerShell script `Setup-Grafana.ps1` that automatically installs Grafana to the machine, copies over the necessary configuration to show Grafana as a plugin within SystemLink, and installs the latest release of the plugins sourced here.
 
 To run the script, [download the latest release](https://github.com/ni/grafana-plugins/releases) from GitHub to the machine where SystemLink is installed, and then execute `Setup-Grafana.ps1` by right-clicking > "Run With PowerShell" or by running it from the PowerShell console. If the script immediately closes without executing, you may need to configure your [Execution Policy](https://docs.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_execution_policies).
@@ -10,6 +10,15 @@ Caveats:
 - This setup assumes a standard install of SystemLink and Grafana. If you have custom paths, you may need to modify the variables at the start of the script.
 - Grafana v8.3.6 will be installed by default. If you need a different Grafana version, manually install it before running the script.
 
+## Updating an existing Grafana installation on a SystemLink Server instance
+*Note: If you have installed any custom datasources or altered config files, the changes may be overwritten. In that scenario, you should review the install powershell script and manually work through it as appropriate.*
+
+To update an existing install, first upgrade Grafana by downloading and running the following MSI: https://dl.grafana.com/oss/release/grafana-10.2.2.windows-amd64.msi
+
+Following that, execute the powershell script in the release archive.
+
+To run the script, download the latest release from GitHub to the machine where SystemLink is installed, extract it, and then execute `Setup-Grafana.ps1` by right-clicking > "Run With PowerShell" or by running it from the PowerShell console.
+=======
 ### Troubleshooting
 
 #### Grafana UI shows `Error: Fetch error: 404 Not Found Instantiating` when loading a plugin
