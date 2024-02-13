@@ -8,7 +8,7 @@ To run the script, [download the latest release](https://github.com/ni/grafana-p
 
 Caveats:
 - This setup assumes a standard install of SystemLink and Grafana. If you have custom paths, you may need to modify the variables at the start of the script.
-- Grafana v8.3.6 will be installed by default. If you need a different Grafana version, manually install it before running the script.
+- Grafana v10.2.2 will be installed by default. If you need a different Grafana version, manually install it before running the script.
 
 ## Updating an existing Grafana installation on a SystemLink Server instance
 *Note: If you have installed any custom datasources or altered config files, the changes may be overwritten. In that scenario, you should review the install powershell script and manually work through it as appropriate.*
@@ -18,7 +18,7 @@ To update an existing install, first upgrade Grafana by downloading and running 
 Following that, execute the powershell script in the release archive.
 
 To run the script, download the latest release from GitHub to the machine where SystemLink is installed, extract it, and then execute `Setup-Grafana.ps1` by right-clicking > "Run With PowerShell" or by running it from the PowerShell console.
-=======
+
 ### Troubleshooting
 
 #### Grafana UI shows `Error: Fetch error: 404 Not Found Instantiating` when loading a plugin
