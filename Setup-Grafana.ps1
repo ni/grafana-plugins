@@ -18,7 +18,7 @@ If (-NOT ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdent
 }
 
 Try {
-    Get-ChildItem "$GrafanaRoot\bin\grafana.exe"
+    Get-ChildItem "$GrafanaRoot\bin\grafana.exe" -ErrorAction Stop
     $IsInstalled = $True
 } Catch [System.Management.Automation.ItemNotFoundException] {
     $IsInstalled = $False
