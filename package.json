@@ -1,13 +1,5 @@
 {
-  "name": "ni-system-link-server-grafana-plugins",
-  "version": "1.0.0",
-  "description": "SystemLink Server plugins for Grafana",
-  "scripts": {},
-  "author": "Carson Moore",
-  "license": "Apache-2.0",
-  "devDependencies": {},
-  "engines": {
-    "node": ">=18"
-  },
-  "dependencies": {}
+  "name": "@ni-private/ni-system-link-server-grafana-plugins",
+  "description": "Placeholder package for SystemLink Server plugins for Grafana",
+  "private": true
 }
