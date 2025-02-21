@@ -1,7 +1,13 @@
+$GrafanaOSS_URL = 'https://dl.grafana.com/oss/release/grafana-11.5.1.windows-amd64.msi'
 $FilesRoot = 'C:/Program Files/National Instruments/Shared'
 $ConfigRoot = 'C:/ProgramData/National Instruments/Skyline'
 $PluginRoot = "$FilesRoot/Web Server/htdocs/plugins"
 $GrafanaRoot = 'C:/Program Files/GrafanaLabs/grafana'
+
+$GrafanaOSS_URL | Select-String -Pattern "(\d+)\.(\d+)\.(\d+)" |
+        Foreach-Object {
+            $selected_major, $selected_minor, $slected_build = $_.Matches[0].Groups[1..3].Value
+         }
 
 If (-NOT ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator))
 {
@@ -11,16 +17,50 @@ If (-NOT ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdent
   exit
 }
 
-$IsInstalled = (Get-ItemProperty HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\*).displayname -contains "GrafanaOSS"
+Try {
+    Get-ChildItem "$GrafanaRoot\bin\grafana.exe" -ErrorAction Stop
+    $IsInstalled = $True
+} Catch [System.Management.Automation.ItemNotFoundException] {
+    $IsInstalled = $False
+} Catch {
+    throw
+}
+
+if ($IsInstalled) {
+    Push-Location -Path "$GrafanaRoot\bin"
+    $version = ./grafana.exe -version
+    $version | Select-String -Pattern "(\d+)\.(\d+)\.(\d+)" |
+        Foreach-Object {
+            $major, $minor, $build = $_.Matches[0].Groups[1..3].Value
+         }
+    if (($selected_major -gt $major) -or (($selected_major -eq $major) -and ($selected_minor -gt $minor)) -or (($selected_major -eq $major) -and ($selected_minor -eq $minor) -and ($selected_build -gt $build))) {
+	$UpgradeRequired = $True
+    }
+    Pop-Location
+}
+
 if (-Not $IsInstalled) {
-    Write-Output 'Grafana not found - downloading installer'
-    Start-BitsTransfer -Source 'https://dl.grafana.com/oss/release/grafana-10.2.2.windows-amd64.msi' -Destination 'grafana.msi'
+    Write-Output 'Grafana not found - Need to install it'
+    $DoGrafanaInstall = $True
+}
+if ($UpgradeRequired) {
+    Write-Output 'Grafana out of date - Need to upgrade it'
+    Write-Output 'Shutting down Grafana Service...'
+    Stop-Service -Name "Grafana"
+    $DoGrafanaInstall = $True
+}
+if ($DoGrafanaInstall) {
+    Write-Output 'Downloading GrafanaOSS...'
+    Start-BitsTransfer -Source $GrafanaOSS_URL -Destination 'grafana.msi'
     Write-Output "Installing GrafanaOSS..."
     Start-Process msiexec.exe -Wait -ArgumentList '/I grafana.msi /qr'
     Remove-Item './grafana.msi'
+} else {
+    Write-Output 'Grafana is already installed and up-to-date'
 }
 
-Write-Output 'Writing SystemLink configuration'
+
+Write-Output 'Writing SystemLink configuration'	
 Copy-Item -Path './config/ni-grafana' -Destination $PluginRoot -Recurse -Force
 Copy-Item -Path './config/custom.ini' -Destination "$GrafanaRoot/conf" -Force
 Copy-Item -Path './config/75_grafana.conf' -Destination "$FilesRoot/Web Server/conf/conf.d" -Force
