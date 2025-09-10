@@ -21,6 +21,15 @@ To run the script, download the latest release from GitHub to the machine where 
 
 ### Troubleshooting
 
+#### Grafana UI shows error code 400 when using the SystemLink Products datasource
+
+The Products datasource has a minor incompatibility with SystemLink Server due to the fact it was originally implemented for SystemLink Enterprise, where "Products" are mapped to workspaces. "Products" do not have workspaces in SystemLink Server. The default query includes a request to return the workspace property for each product, and thus fails. The resolution is to deselect "Workspace" under the "Properties" section of the query. The datasource will behave as expected at that point.
+
+The full text of the error is as follows:
+
+> **Error during product query** </br>
+> The query failed due to the following error: (status 400) An error occurered while parsing the JSON request body: 'Error converting value "workspace" to type 'NationalInstruments.Skyline.TestMonitor.HTTP.V2.ProductField'. Path 'projection[3]', line 1, position 108.'..
+
 #### Grafana UI shows `Error: Fetch error: 404 Not Found Instantiating` when loading a plugin
 
 Make sure that you have run `Setup-Grafana.ps1` from the directory extracted from "***-grafana-plugins.zip" that is downloaded from an [official packaged release](https://github.com/ni/grafana-plugins/releases). If you run the script using just the source code, you will receive this error.
