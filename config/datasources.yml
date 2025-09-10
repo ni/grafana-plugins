@@ -24,3 +24,23 @@ datasources:
     type: ni-systemlink-test-monitor
     access: direct
     url: /
+  - name: SystemLink Alarms
+    type:: ni-slalarms-datasource
+    uid: alarms
+    access: direct
+    url: /
+  - name: SystemLink Products
+    type: ni-slproducts-datasource
+    uid: products
+    access: direct
+    url: /
+  - name: SystemLink Test Results
+    type: ni-sltestresults-datasource
+    uid: testresults
+    access: direct
+    url: /
+  - name: SystemLink Assets
+    type: "ni-slasset-datasource"
+    uid: assets
+    access: direct
+    url: /

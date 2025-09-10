@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -e
 
-external_datasources=("workspace" "system" "tag")
+external_datasources=("workspace" "system" "tag" "alarms" "asset" "products" "results")
 external_panels=("plotly")
 local_plugins=("systemlink-test-monitor-datasource" "systemlink-notebook-datasource")
 
