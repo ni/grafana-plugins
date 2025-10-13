@@ -1,6 +1,13 @@
 #!/usr/bin/env bash
 set -e
 
+submodule_patches_directory = "submodule-git-patches"
+cd systemlink-grafana-plugins
+for patch in ../${submodule_patches_directory}/*.patch; do
+    git apply $patch
+done
+cd ..
+
 external_datasources=("workspace" "system" "tag" "alarms" "asset" "products" "results")
 external_panels=("plotly")
 local_plugins=("systemlink-test-monitor-datasource" "systemlink-notebook-datasource")
