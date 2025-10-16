@@ -1,0 +1,210 @@
+From 8b0ba3afb20d18f5a10f8e48694bbfb82be27330 Mon Sep 17 00:00:00 2001
+From: Christopher Stryker <christopher.stryker@emerson.com>
+Date: Mon, 13 Oct 2025 10:37:47 -0500
+Subject: [PATCH] Revert "feat(tags): update tag datasource with new endpoint
+ to fetch tag data (#352)"
+
+This reverts commit dfa4fb0fe87bbdf2b1f7d2088c7435ba4c81cfa4.
+---
+ src/datasources/tag/TagDataSource.test.ts | 51 +++++++++--------------
+ src/datasources/tag/TagDataSource.ts      | 12 ++++--
+ 2 files changed, 28 insertions(+), 35 deletions(-)
+
+diff --git a/src/datasources/tag/TagDataSource.test.ts b/src/datasources/tag/TagDataSource.test.ts
+index 3d09d2c..460e444 100644
+--- a/src/datasources/tag/TagDataSource.test.ts
++++ b/src/datasources/tag/TagDataSource.test.ts
+@@ -56,7 +56,7 @@ describe('testDatasource', () => {
+ describe('queries', () => {
+   test('tag current value', async () => {
+     backendSrv.fetch
+-      .calledWith(requestMatching({ url: '/nitag/v2/fetch-tags-with-values', data: { paths: ['my.tag'], workspaces: ["*"] } }))
++      .calledWith(requestMatching({ url: '/nitag/v2/query-tags-with-values', data: { filter: '(path = "my.tag")' } }))
+       .mockReturnValue(createQueryTagsResponse());
+ 
+     const result = await ds.query(buildQuery({ path: 'my.tag' }));
+@@ -136,10 +136,10 @@ describe('queries', () => {
+ 
+   test('multiple targets - skips invalid queries', async () => {
+     backendSrv.fetch
+-      .calledWith(requestMatching({ data: { paths: ['my.tag1'], workspaces: ["*"] } }))
++      .calledWith(requestMatching({ data: { filter: '(path = "my.tag1")' } }))
+       .mockReturnValue(createQueryTagsResponse([{ tag: { path: 'my.tag1' } }]));
+     backendSrv.fetch
+-      .calledWith(requestMatching({ data: { paths: ['my.tag2'], workspaces: ["*"] }}))
++      .calledWith(requestMatching({ data: { filter: '(path = "my.tag2")' } }))
+       .mockReturnValue(createQueryTagsResponse([{ tag: { path: 'my.tag2' }, current: { value: { value: '41.3' } } }]));
+ 
+     const result = await ds.query(buildQuery({ path: 'my.tag1' }, { path: '' }, { path: 'my.tag2' }));
+@@ -189,7 +189,7 @@ describe('queries', () => {
+     const queryRequest = buildQuery({ type: TagQueryType.History, path: 'my.tag' });
+ 
+     backendSrv.fetch
+-      .calledWith(requestMatching({ url: '/nitag/v2/fetch-tags-with-values', data: { paths: ['my.tag'], workspaces: ["*"] } }))
++      .calledWith(requestMatching({ url: '/nitag/v2/query-tags-with-values', data: { filter: '(path = "my.tag")' } }))
+       .mockReturnValue(createQueryTagsResponse());
+ 
+     backendSrv.fetch
+@@ -227,7 +227,7 @@ describe('queries', () => {
+     const queryRequest = buildQuery({ type: TagQueryType.History, path: 'my.tag.*' });
+ 
+     backendSrv.fetch
+-      .calledWith(requestMatching({ url: '/nitag/v2/fetch-tags-with-values', data: { paths: ['my.tag.*'], workspaces: ["*"] } }))
++      .calledWith(requestMatching({ url: '/nitag/v2/query-tags-with-values', data: { filter: '(path = "my.tag.*")' } }))
+       .mockReturnValue(createQueryTagsResponse([
+         { tag: { path: 'my.tag.1' } },
+         { tag: { path: 'my.tag.2' } },
+@@ -305,7 +305,7 @@ describe('queries', () => {
+     const queryRequest = buildQuery({ type: TagQueryType.History, path: 'my.tag.*' });
+ 
+     backendSrv.fetch
+-      .calledWith(requestMatching({ url: '/nitag/v2/fetch-tags-with-values', data: { paths: ['my.tag.*'], workspaces: ["*"] } }))
++      .calledWith(requestMatching({ url: '/nitag/v2/query-tags-with-values', data: { filter: '(path = "my.tag.*")' } }))
+       .mockReturnValue(createQueryTagsResponse([
+         { tag: { path: 'my.tag.1', workspace: '1' } },
+         { tag: { path: 'my.tag.2', workspace: '1' } },
+@@ -431,7 +431,7 @@ describe('queries', () => {
+     templateSrv.containsTemplate.calledWith('$my_variable').mockReturnValue(true);
+     templateSrv.replace.calledWith('$my_variable').mockReturnValue('my.tag');
+     backendSrv.fetch
+-      .calledWith(requestMatching({ url: '/nitag/v2/fetch-tags-with-values', data: { paths: ['my.tag'], workspaces: ["*"] } }))
++      .calledWith(requestMatching({ url: '/nitag/v2/query-tags-with-values', data: { filter: '(path = "my.tag")' } }))
+       .mockReturnValue(createQueryTagsResponse());
+ 
+     const result = await ds.query(buildQuery({ type: TagQueryType.Current, path: '$my_variable' }));
+@@ -450,9 +450,7 @@ describe('queries', () => {
+ 
+     await ds.query(buildQuery({ type: TagQueryType.History, path: 'my.tag', workspace: '2' }));
+ 
+-    expect(backendSrv.fetch.mock.calls[0][0].data).toHaveProperty('paths', ["my.tag"]);
+-    expect(backendSrv.fetch.mock.calls[0][0].data).toHaveProperty('take', 100);
+-    expect(backendSrv.fetch.mock.calls[0][0].data).toHaveProperty('workspaces', ['2']);
++    expect(backendSrv.fetch.mock.calls[0][0].data).toHaveProperty('filter', '(path = "my.tag") && workspace = "2"');
+     expect(backendSrv.fetch.mock.calls[1][0].data).toHaveProperty('workspace', '2');
+   });
+ 
+@@ -542,7 +540,7 @@ describe('queries', () => {
+ describe('parseMultiSelectValues', () => {
+   test('tag current value', async () => {
+     backendSrv.fetch
+-      .calledWith(requestMatching({ url: '/nitag/v2/fetch-tags-with-values', data: { paths: ['my.tag'], workspaces: ["*"] } }))
++      .calledWith(requestMatching({ url: '/nitag/v2/query-tags-with-values', data: { filter: '(path = "my.tag")' } }))
+       .mockReturnValue(createQueryTagsResponse());
+ 
+     const result = await ds.query(buildQuery({ path: 'my.tag' }));
+@@ -560,10 +558,10 @@ describe('parseMultiSelectValues', () => {
+ 
+   test('multiple targets - skips invalid queries', async () => {
+     backendSrv.fetch
+-      .calledWith(requestMatching({  data: { paths: ['my.tag1'], workspaces: ["*"] } }))
++      .calledWith(requestMatching({ data: { filter: '(path = "my.tag1")' } }))
+       .mockReturnValue(createQueryTagsResponse([{ tag: { path: 'my.tag1' } }]));
+     backendSrv.fetch
+-      .calledWith(requestMatching({  data: { paths: ['my.tag2'], workspaces: ["*"] } }))
++      .calledWith(requestMatching({ data: { filter: '(path = "my.tag2")' } }))
+       .mockReturnValue(createQueryTagsResponse([{ tag: { path: 'my.tag2' }, current: { value: { value: '41.3' } } }]));
+ 
+     const result = await ds.query(buildQuery({ path: 'my.tag1' }, { path: '' }, { path: 'my.tag2' }));
+@@ -581,7 +579,7 @@ describe('parseMultiSelectValues', () => {
+     const queryRequest = buildQuery({ type: TagQueryType.History, path: 'my.tag' });
+ 
+     backendSrv.fetch
+-      .calledWith(requestMatching({ url: '/nitag/v2/fetch-tags-with-values', data: { paths: ['my.tag'], workspaces: ["*"] } }))
++      .calledWith(requestMatching({ url: '/nitag/v2/query-tags-with-values', data: { filter: '(path = "my.tag")' } }))
+       .mockReturnValue(createQueryTagsResponse());
+ 
+     backendSrv.fetch
+@@ -619,7 +617,7 @@ describe('parseMultiSelectValues', () => {
+     const queryRequest = buildQuery({ type: TagQueryType.History, path: 'my.tag.*' });
+ 
+     backendSrv.fetch
+-      .calledWith(requestMatching({ url: '/nitag/v2/fetch-tags-with-values', data: { paths: ['my.tag.*'], workspaces: ["*"] } }))
++      .calledWith(requestMatching({ url: '/nitag/v2/query-tags-with-values', data: { filter: '(path = "my.tag.*")' } }))
+       .mockReturnValue(createQueryTagsResponse([
+         { tag: { path: 'my.tag.1' } },
+         { tag: { path: 'my.tag.2' } },
+@@ -677,7 +675,7 @@ describe('parseMultiSelectValues', () => {
+     const queryRequest = buildQuery({ type: TagQueryType.History, path: 'my.tag.*' });
+ 
+     backendSrv.fetch
+-      .calledWith(requestMatching({ url: '/nitag/v2/fetch-tags-with-values', data: { paths: ['my.tag.*'], workspaces: ["*"] } }))
++      .calledWith(requestMatching({ url: '/nitag/v2/query-tags-with-values', data: { filter: '(path = "my.tag.*")' } }))
+       .mockReturnValue(createQueryTagsResponse([
+         { tag: { path: 'my.tag.1', workspace: '1' } },
+         { tag: { path: 'my.tag.2', workspace: '1' } },
+@@ -787,7 +785,7 @@ describe('parseMultiSelectValues', () => {
+       )
+       .mockReturnValue('my.tag');
+     backendSrv.fetch
+-      .calledWith(requestMatching({ url: '/nitag/v2/fetch-tags-with-values', data: { paths: ['my.tag'], workspaces: ["*"] } }))
++      .calledWith(requestMatching({ url: '/nitag/v2/query-tags-with-values', data: { filter: '(path = "my.tag")' } }))
+       .mockReturnValue(createQueryTagsResponse());
+ 
+     const result = await ds.query(buildQuery({ type: TagQueryType.Current, path: '$my_variable' }));
+@@ -808,9 +806,8 @@ describe('parseMultiSelectValues', () => {
+       .mockReturnValue('localhost.Health.CPU.{1,2}.UsePercentage');
+     backendSrv.fetch
+       .calledWith(requestMatching({
+-        url: '/nitag/v2/fetch-tags-with-values', data: {
+-          workspaces: ["*"],
+-          paths: ['localhost.Health.CPU.1.UsePercentage', 'localhost.Health.CPU.2.UsePercentage'],
++        url: '/nitag/v2/query-tags-with-values', data: {
++          filter: '(path = "localhost.Health.CPU.1.UsePercentage" or path = "localhost.Health.CPU.2.UsePercentage")'
+         }
+       }))
+       .mockReturnValue(createQueryTagsResponse());
+@@ -836,14 +833,8 @@ describe('parseMultiSelectValues', () => {
+       .mockReturnValue('localhost.Health.{Disk,Memory}.{Used,Total}');
+     backendSrv.fetch
+       .calledWith(requestMatching({
+-        url: '/nitag/v2/fetch-tags-with-values', data: {
+-          workspaces: ["*"],
+-          paths: [
+-            'localhost.Health.Disk.Used',
+-            'localhost.Health.Disk.Total',
+-            'localhost.Health.Memory.Used',
+-            'localhost.Health.Memory.Total'
+-          ],
++        url: '/nitag/v2/query-tags-with-values', data: {
++          filter: '(path = "localhost.Health.Disk.Used" or path = "localhost.Health.Disk.Total" or path = "localhost.Health.Memory.Used" or path = "localhost.Health.Memory.Total")'
+         }
+       }))
+       .mockReturnValue(createQueryTagsResponse());
+@@ -867,9 +858,7 @@ describe('parseMultiSelectValues', () => {
+ 
+     await ds.query(buildQuery({ type: TagQueryType.History, path: 'my.tag', workspace: '2' }));
+ 
+-    expect(backendSrv.fetch.mock.calls[0][0].data).toHaveProperty('paths', ["my.tag"]);
+-    expect(backendSrv.fetch.mock.calls[0][0].data).toHaveProperty('take', 100);
+-    expect(backendSrv.fetch.mock.calls[0][0].data).toHaveProperty('workspaces', ['2']);
++    expect(backendSrv.fetch.mock.calls[0][0].data).toHaveProperty('filter', '(path = "my.tag") && workspace = "2"');
+     expect(backendSrv.fetch.mock.calls[1][0].data).toHaveProperty('workspace', '2');
+   });
+ 
+diff --git a/src/datasources/tag/TagDataSource.ts b/src/datasources/tag/TagDataSource.ts
+index e202f72..05c0a2b 100644
+--- a/src/datasources/tag/TagDataSource.ts
++++ b/src/datasources/tag/TagDataSource.ts
+@@ -66,11 +66,15 @@ export class TagDataSource extends DataSourceBase<TagQuery, TagDataSourceOptions
+   }
+ 
+   private async getMostRecentTagsByMultiplePaths(paths: string[], workspace: string) {
+-    const workspaceQuery = [workspace || "*"];
+-    const response = await this.post<TagsWithValues>(`${this.tagUrl}/fetch-tags-with-values`, {
+-      paths: paths,
+-      workspaces: workspaceQuery,
++    let filter = `(${paths.map(path => `path = "${path}"`).join(' or ')})`;
++    if (workspace) {
++      filter += ` && workspace = "${workspace}"`;
++    }
++    const response = await this.post<TagsWithValues>(this.tagUrl + '/query-tags-with-values', {
++      filter,
+       take: 100,
++      orderBy: 'TIMESTAMP',
++      descending: true,
+     });
+ 
+     return response.tagsWithValues.length ? response.tagsWithValues : Throw(`No tags matched the path '${paths}'`)
+-- 
+2.46.0.windows.1
+
